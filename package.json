@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "DATABASE_URL=\"${DATABASE_URL_UNPOOLED:?DATABASE_URL_UNPOOLED is not set}\" NODE_ENV=production payload migrate && next build",
+    "vercel-build": "if [ \"${VERCEL_ENV:?VERCEL_ENV is not set}\" = production ]; then DATABASE_URL=\"${DATABASE_URL_UNPOOLED:?DATABASE_URL_UNPOOLED is not set}\" NODE_ENV=production payload migrate; fi && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

@@ -10,50 +10,62 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 
 | Piece | Where | Notes |
 |---|---|---|
-| Application | Vercel project, Hobby plan, functions in `fra1` | `vercel.json` turns Git deploys off |
-| Database | Neon Free, Frankfurt, through the Vercel Marketplace | 0.5 GB, scales to zero |
-| Deploy | `.github/workflows/deploy.yml` on push to `master` | CI first, then `vercel deploy --prod` |
-| Migrations | `npm run vercel-build` on Vercel | `payload migrate` over the direct connection, then `next build` |
-| Access | Vercel Authentication, scope All Deployments | only the account owner gets in |
+| Application | Vercel project, Hobby plan, functions in `fra1` | connected to this repository through the Vercel GitHub App |
+| Deploy | Vercel, on every push | `master` → Production; any other branch or pull request → Preview |
+| Database | Neon Free, Frankfurt, through the Vercel Marketplace | one database for Production and Preview; 0.5 GB, scales to zero |
+| Migrations | `npm run vercel-build` (`vercel.json` `buildCommand`) | Production only: `payload migrate` over the direct connection, then `next build`; Preview only builds |
+| Checks | GitHub Actions CI on every pull request | not a gate before the deploy: merge only a pull request with green CI |
+| Access | Vercel Authentication, scope All Deployments | only the account owner gets in, Preview included |
 
 ## Secrets and settings
 
 | Name | Kind | Lives in |
 |---|---|---|
-| `DATABASE_URL` | Neon pooled connection | Vercel env (set by the Neon integration) |
-| `DATABASE_URL_UNPOOLED` | Neon direct connection | Vercel env (set by the Neon integration) |
-| `PAYLOAD_SECRET` | 32+ random characters | Vercel env, Production |
-| `VERCEL_TOKEN` | Vercel access token | GitHub → Settings → Secrets → Actions |
-| `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | ids, not secret | GitHub → Settings → Variables → Actions |
+| `DATABASE_URL` | Neon pooled connection | Vercel env, Production and Preview (set by the Neon integration) |
+| `DATABASE_URL_UNPOOLED` | Neon direct connection | Vercel env, Production and Preview (set by the Neon integration) |
+| `PAYLOAD_SECRET` | 32+ random characters, one per environment | Vercel env, Production and Preview, Sensitive |
 
 ## Build it from nothing
 
 1. **Vercel account.** Sign up at vercel.com with GitHub, Hobby plan.
 2. **Project.** In the repository: `npx vercel@64.0.2 link` → create a new project named
-   `sikora-beauty`. It writes `.vercel/project.json` (git-ignored) with `orgId` and `projectId`.
-3. **Database.** Vercel → the project → Storage → Create Database → Neon (Free), region
-   Frankfurt (`aws-eu-central-1`), connected to the Production environment. Check that the
-   project's environment variables now include `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
-4. **Payload secret.** `openssl rand -hex 32` → password manager → Vercel → Settings →
-   Environment Variables → `PAYLOAD_SECRET`, Production only, Sensitive.
-5. **Protection.** Vercel → Settings → Deployment Protection → Vercel Authentication on, scope
+   `sikora-beauty`. It writes `.vercel/project.json` (git-ignored).
+3. **Repository.** GitHub → Settings → Applications → Vercel → Configure → give it access to
+   this repository; then `npx vercel@64.0.2 git connect`. Check Settings → Environments →
+   Production → Branch Tracking: `master`. Then let Vercel report deployments to GitHub — this
+   project was created with that off, and the repository page then lists none:
+   `echo '{"gitProviderOptions":{"createDeployments":"enabled"}}' | npx vercel@64.0.2 api
+   /v9/projects/sikora-beauty -X PATCH --input -`.
+4. **Database.** `npx vercel@64.0.2 integration add neon --plan free_v3 -m region=fra1
+   -m auth=false -e production -e preview --no-env-pull`. Check that the project's environment
+   variables include `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for Production and Preview. The
+   CLI may also install Neon agent skills into the repository (`.agents/`, `.claude/skills/neon*`,
+   `skills-lock.json`): delete them.
+5. **Payload secrets.** For each of Production and Preview: `openssl rand -hex 32` → password
+   manager → Vercel → Settings → Environment Variables → `PAYLOAD_SECRET`, that environment only,
+   Sensitive.
+6. **Protection.** Vercel → Settings → Deployment Protection → Vercel Authentication on, scope
    **All Deployments**.
-6. **Token.** Vercel → Account Settings → Tokens → create one for GitHub Actions, scoped to your
-   account, with an expiry → password manager.
-7. **GitHub.** Repository → Settings → Secrets and variables → Actions: secret `VERCEL_TOKEN`;
-   variables `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` from `.vercel/project.json`.
-8. **First deploy.** Re-run the latest `Deploy` workflow on `master` (or push). It turns green
-   when Vercel finished the build; the production URL is in the job log.
-9. **First admin.** Open the production URL signed in to Vercel → `/admin` → create the first
+7. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
+8. **First admin.** Open the production URL signed in to Vercel → `/admin` → create the first
    user with a password from the password manager. From then on `/admin` shows the login page.
 
 ## Check it
 
 - Without signing in, the production URL, `/admin` and `/api/users` do not reach the
-  application (Vercel's login page instead).
+  application (Vercel's login page instead); the same holds for a Preview URL.
 - Signed in: `/` is Ukrainian, `/en` English, `/admin` the Ukrainian Payload login.
+- A pull request shows its Preview from `vercel[bot]`; the repository page lists Production and
+  Preview under Deployments.
+
+## Preview and the database
+
+A Preview reads and writes the same database as Production but never changes its schema. A pull
+request that adds a migration therefore breaks its own Preview on the pages that use the new
+fields until it is merged. While the data is test data this is accepted; the production host
+revisits it (adr-20261028-vercel-git-deploys).
 
 ## Take it down
 
-Delete the Vercel project, the Neon database (Neon console), the Vercel token, and the GitHub
-secret and variables.
+Delete the Vercel project (this also removes its connection to the repository), the Neon database
+(Neon console), and the Payload secrets from the password manager.

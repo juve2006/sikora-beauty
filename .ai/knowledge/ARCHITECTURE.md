@@ -27,8 +27,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   fallback.
 - **Schema** — migrations in `src/migrations/`, applied before every deploy; locally Payload
   pushes the schema itself. CI fails when a collection changes without a migration.
-- **Development host** — Vercel Hobby + Neon, deployed by `.github/workflows/deploy.yml` after
-  CI, behind Vercel Authentication (adr-20261028-development-on-vercel-neon).
+- **Development host** — Vercel Hobby + Neon behind Vercel Authentication. Vercel's GitHub App
+  deploys every push: `master` → Production (migrations, then the build), other branches →
+  Preview (build only, same database); CI runs on pull requests and is not a gate before the
+  deploy (adr-20261028-vercel-git-deploys).
 
 ## Intended — not built yet
 

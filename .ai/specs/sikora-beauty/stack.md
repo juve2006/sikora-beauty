@@ -49,16 +49,18 @@ next-intl 4.14. Pin exact versions in `walking skeleton`.
 - **Vitest** — logic: prices, status transitions, webhook signature, questionnaire rules, Zod
   schemas.
 - **Playwright** smoke at mobile and desktop widths, in both locales: catalog → cart → order.
-- `.github/workflows/ci.yml` on `pull_request` and `workflow_call`, one job per check so a red one
+- `.github/workflows/ci.yml` on `pull_request`, one job per check so a red one
   names itself: `knowledge` (`jig knowledge check`) and `audit` (`npm audit` high and above,
   gitleaks) from the start; `typecheck`, `lint`, `unit`, `build`, `migrations`, `i18n` from the
   walking skeleton; `e2e` from cart and checkout; `docker` from production host; `lighthouse`
   from launch readiness. Actions pinned by SHA, `persist-credentials: false`.
-- `.github/workflows/deploy.yml` on push to `master`: `uses: ./.github/workflows/ci.yml` as the
-  gate, then the deploy. Development: `vercel deploy --prod`; Vercel runs `vercel-build`
-  (`payload migrate` over Neon's direct connection, then `next build`); Vercel's own Git deploys
-  are off. Production (from `production host`): Docker image build → GHCR → the Coolify API,
-  waiting for the result; the image is built in CI, not on the VPS (OOM at 4 GB).
+- Development: Vercel's GitHub App deploys every push — `master` to Production, other branches to
+  Preview — running `vercel-build` (`vercel.json` `buildCommand`): on Production `payload migrate`
+  over Neon's direct connection, then `next build`; Preview only builds, on the same database. CI
+  is not a gate before this deploy (adr-20261028-vercel-git-deploys). Production (from
+  `production host`): `.github/workflows/deploy.yml` on push to `master`, CI as the gate, Docker
+  image build → GHCR → the Coolify API, waiting for the result; the image is built in CI, not on
+  the VPS (OOM at 4 GB).
 - `.github/dependabot.yml` — npm and GitHub Actions, weekly; Next.js and Payload security patches
   at once.
 - Branch protection — not available for a private repository on GitHub Free (open question 10);
