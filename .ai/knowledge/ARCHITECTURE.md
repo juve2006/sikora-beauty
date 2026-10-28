@@ -1,22 +1,72 @@
 # Architecture
 
-High-level map of the system. Describe engineering intent, not implementation:
-what the domains are, where the boundaries lie, which direction dependencies may point,
-and which constraints and invariants hold system-wide. Anything the code already says
-does not belong here.
+Sikora Beauty is an online store for professional skincare from seven brands (Dr.Spiller, Glymed+,
+Innoaesthetics, Me line, Dermafirm, Braderm, Institutum). It serves shoppers who do not know which
+professional product suits them: they find care by zone, skin type, skin condition and skin
+concern — alone, through the care finder or through the cosmetologist — in Ukrainian or English,
+and buy it with card payment or cash on delivery, delivered by Nova Poshta. The owner and the
+cosmetologist, who are not technical, run catalog, orders and consultation requests in the admin.
+Source: spec `sikora-beauty`.
 
-## Domains
+## Intended — not built yet
 
-<!-- One paragraph per domain: responsibility, owning directory, what it must not know about. -->
+Everything below is a decision, not a description of code. The task that builds a part moves it
+out of this heading.
 
-## Boundaries and dependency direction
+### Domains
 
-<!-- e.g. "Domain layer depends on nothing; Application depends on Domain; Infrastructure depends on both." -->
+One Next.js application with Payload CMS inside it (adr-20261028-next-payload-single-app);
+frontend and backend are separated by folders, not services.
 
-## Runtime flows
+- **Storefront** (`src/app/[locale]/(shop)`, `src/components`, `src/i18n`, `messages/`) — pages
+  in `uk` at `/` and `en` at `/en`; `/canvas` shows every component. Knows domains only through
+  their queries and server actions.
+- **Admin** (`src/app/(payload)/admin`) — Payload's admin in Ukrainian for the Owner and the
+  Cosmetologist.
+- **Catalog** (`src/catalog/`) — brands, the zone and category tree, skin type, skin condition and
+  skin concern vocabularies, products, collections, filters. Depends on nothing else.
+- **Search** (`src/search/`) — Postgres trigram search with synonyms
+  (adr-20261028-postgres-search). Depends on catalog.
+- **Orders** (`src/orders/`) — cart repricing, checkout, the `orders` collection and its statuses
+  (adr-20261028-own-orders-collection). Depends on catalog.
+- **Payments** (`src/payments/mono.ts`) — monobank invoices, webhook, reconciliation
+  (adr-20261028-monobank-and-cash-on-delivery). Depends on orders.
+- **Delivery** (`src/delivery/novaposhta.ts`) — settlements, NP warehouses, waybills, tracking.
+  Depends on orders.
+- **Consultation** (`src/consultation/`) — consultation requests.
+- **Care finder** (`src/finder/`) — questions, rules, routines. Depends on catalog and
+  consultation.
+- **Notify** (`src/notify/telegram.ts`) — Telegram messages to the owner's group. Depends on
+  nothing.
 
-<!-- The two or three flows a newcomer must understand: request → … → response. -->
+### Boundaries and dependency direction
+
+- Domains depend on `catalog`, never on each other's internals; payments and delivery depend on
+  orders, not the other way.
+- Each external integration (monobank, Nova Poshta, Telegram) is one module without a port
+  interface; an abstraction comes with a second implementation.
+- Every domain's boundary is a Zod schema in `src/<domain>/schema.ts`, shared by the storefront
+  form and the server action, webhook or import.
+
+### Runtime flows
+
+1. **Browse.** A request to `/` or `/en/...` → next-intl resolves the locale → a server component
+   queries Payload's Local API with the filters from the URL → HTML with the localized fields,
+   cached until a Payload hook revalidates it on save.
+2. **Order (launch step 1).** Cart in localStorage → checkout server action → Zod → reprice from
+   the database → an `orders` record with a snapshot → Telegram to the owner → manager
+   confirmation → cash on delivery or a payment link (adr-20261028-two-step-launch).
+3. **Card payment (launch step 2).** Order fully in stock → a monobank invoice → redirect →
+   signed webhook → verify → idempotent forward-only status change → Checkbox issues the fiscal
+   receipt on monobank's side; a cron reconciles invoices without a webhook.
+
+### Deployment
+
+A Docker image built in GitHub Actions after the CI gate, pushed to GHCR, run by Coolify on a
+Hetzner VPS with Postgres alongside; media in Cloudflare R2; Cloudflare in front
+(adr-20261028-hetzner-coolify-hosting).
 
 ## System-wide constraints and invariants
 
-<!-- Cross-cutting rules that individual features cannot override. Link the ADR that introduced each. -->
+See `RULES.md`. Content rules: adr-20261028-reviewed-ai-content-drafts. Languages:
+adr-20261028-storefront-languages-uk-en.
