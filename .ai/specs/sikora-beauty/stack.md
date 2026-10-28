@@ -49,8 +49,11 @@ next-intl 4.14. Pin exact versions in `walking skeleton`.
 - **Vitest** — logic: prices, status transitions, webhook signature, questionnaire rules, Zod
   schemas.
 - **Playwright** smoke at mobile and desktop widths, in both locales: catalog → cart → order.
-- `.github/workflows/ci.yml` on `pull_request`, push to `master` and `workflow_call`: `npm ci`,
-  typecheck, lint, test, build; actions pinned by SHA, `persist-credentials: false`.
+- `.github/workflows/ci.yml` on `pull_request`, push to `master` and `workflow_call`, one job per
+  check so a red one names itself: `knowledge` (`jig knowledge check`) and `audit` (`npm audit`
+  high and above, gitleaks) from the start; `typecheck`, `lint`, `unit`, `build`, `docker`,
+  `migrations`, `i18n` from the walking skeleton; `e2e` from cart and checkout; `lighthouse` from
+  launch readiness. Actions pinned by SHA, `persist-credentials: false`.
 - `.github/workflows/deploy.yml` on push to `master`: `uses: ./.github/workflows/ci.yml` as the
   gate → Docker image build → GHCR → Coolify webhook. The image is built in CI, not on the VPS
   (OOM at 4 GB).

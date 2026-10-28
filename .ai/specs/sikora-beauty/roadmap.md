@@ -14,7 +14,11 @@ Rules for every item:
 - UI is done only when it works at 360 px and on desktop, in both languages, and its components
   are in `/canvas`;
 - UI strings go to `messages/uk.json` and `messages/en.json`; content text fields are localized;
-- every input from outside passes a Zod schema; logic has Vitest tests.
+- every input from outside passes a Zod schema; logic has Vitest tests;
+- every merge to `master` is a deploy, so the pull request that changes what the site does also
+  updates what the public reads about it: `README.md` (status, what is live, how to run it), the
+  docs it touches and, when the summary changes, the repository description; a new check joins
+  `ci.yml` in the item that brings the code it checks.
 
 ## Phase 0 — Foundation
 
@@ -24,9 +28,11 @@ passes the CI gate and deploys to Hetzner/Coolify; `/` serves Ukrainian and `/en
 
 - [ ] walking skeleton — an empty application lives on the server
   - Backend: Next.js + Payload 3 + Postgres replace the WebStorm template; docker compose locally;
-    typecheck, lint and test scripts that `ci.yml` picks up; `deploy.yml` (CI gate → image → GHCR
-    → Coolify); Cloudflare DNS and TLS; the site behind a password; Payload localization `uk`/`en`
-    and the admin in Ukrainian
+    `ci.yml` split into one job per check, next to the existing `knowledge` and `audit`:
+    `typecheck`, `lint`, `unit` (Vitest), `build`, `docker` (the production image builds),
+    `migrations` (Payload migrations apply to an empty Postgres), `i18n` (`uk` and `en` message
+    keys match); `deploy.yml` (CI gate → image → GHCR → Coolify); Cloudflare DNS and TLS; the site
+    behind a password; Payload localization `uk`/`en` and the admin in Ukrainian
   - Frontend: next-intl routing (`uk` at `/`, `en` at `/en`), `messages/` files, a placeholder
     page with a language switcher
 - [ ] backups and restore — the database survives a crash (after: walking skeleton — backs up its database)
@@ -98,7 +104,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: `orders` with a price snapshot and statuses; a server action with a Zod schema that
     reprices on the server; Nova Poshta settlements and warehouses; a Telegram notification
   - Frontend: cart, a checkout form with Nova Poshta autocomplete, a choice of "cash on delivery /
-    payment link from the manager", a thank-you page
+    payment link from the manager", a thank-you page; an `e2e` CI job — Playwright at 360 px and
+    desktop, in both locales: catalog → cart → order
 - [ ] header, home and about — navigation and the home page (after: brands and collections — links to every section)
   - Backend: home page blocks editable in the admin (a global)
   - Frontend: header (logo, search, favorites, cart, navigation, consultation, language switcher)
@@ -107,7 +114,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
     value; remove the password
   - Frontend: offer, privacy, delivery and payment, returns pages in both languages; consent banner
-    (Consent Mode), GA4 and Ads; Lighthouse on mobile
+    (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
+    and product pages
 - [ ] fog: Merchant Center and Shopping — whether a new store passes moderation is unknown
 
 ## Phase 3 — Care finder
