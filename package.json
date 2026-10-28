@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=24.22.1"
+    "node": ">=24.22.1 <25"
   },
   "scripts": {
     "dev": "next dev",
@@ -43,5 +43,12 @@
   },
   "overrides": {
     "dompurify": "^3.4.17"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "unrs-resolver": false,
+    "@parcel/watcher": false,
+    "@swc/core": false,
+    "fsevents": false
   }
 }
