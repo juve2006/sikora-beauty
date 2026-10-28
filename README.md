@@ -7,8 +7,9 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 ## Status
 
 Walking skeleton: an empty application — a placeholder page at `/` (Ukrainian) and `/en`
-(English) and the Payload admin at `/admin`. Every push to `master` deploys it to Vercel after CI
-passes; the deployment is visible only to the developer. Nothing is sold yet.
+(English) and the Payload admin at `/admin`. Vercel deploys every push: `master` to Production,
+every other branch and pull request to a Preview; both are visible only to the developer. Nothing
+is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
@@ -43,8 +44,8 @@ Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typ
 `unit`, `build`, `migrations` (on an empty Postgres), `i18n` (same keys in both message files),
 `knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
 
-A push to `master` runs `.github/workflows/deploy.yml`: the same CI as a gate, then a Vercel
-production deploy that applies migrations before the build. Setup and rebuild:
-[`docs/deploy.md`](docs/deploy.md).
+Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull
+request whose CI is green. A Production build applies migrations before `next build`; a Preview
+uses the same database and never migrates it. Setup and rebuild: [`docs/deploy.md`](docs/deploy.md).
 
 Work follows Jig — see [`AGENTS.md`](AGENTS.md).

@@ -1,17 +1,16 @@
 ---
 id: adr-20261028-development-on-vercel-neon
 type: adr
-status: accepted
+status: superseded
 date: 2026-10-28
 domains: []
-paths:
-  - vercel.json
-  - .github/workflows/deploy.yml
-  - docs/deploy.md
+paths: []
 summary: Development deploys to Vercel Hobby + Neon behind Vercel Authentication, after CI, until the production host
 reviewed_at: 2026-10-28
 ---
 # Until the production host exists, development deploys to Vercel Hobby with Neon, visible only to the developer
+
+Superseded by adr-20261028-vercel-git-deploys (2026-10-28): Vercel's GitHub App deploys every push.
 
 ## Context
 
