@@ -44,8 +44,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
-- Secrets never enter the repository; they live in Coolify's environment and a password manager.
-  (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)
+- Secrets never enter the repository; they live in the host's environment (Vercel during
+  development, Coolify in production), in GitHub Actions secrets for the deploy, and in a password
+  manager. (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)
 - Every merge to `master` is a deploy, so the pull request that changes what the site does also
   updates what the public reads about it: `README.md` (status, what is live, how to run it), the
   docs it touches and, when the summary changes, the repository description. (developer,

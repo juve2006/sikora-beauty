@@ -64,10 +64,20 @@ Source: https://www.cosmetika.com.ua/, its public WooCommerce Store API.
 
 ## Hosting and GitHub
 
-- Vercel Hobby — non-commercial use only; commercial use from Pro (~$20/month).
+- Vercel Hobby — non-commercial use only: "any Deployment that is used for the purpose of
+  financial gain of anyone involved in any part of the production"; commercial use from Pro
+  (~$20/month). Vercel Authentication with scope "All Deployments" is free on every plan;
+  Password Protection is not available on Hobby. Hobby runs functions in one region, chosen in
+  `vercel.json`. (vercel.com/docs/limits/fair-use-guidelines, …/deployment-protection,
+  …/functions/configuring-functions/region)
+- Neon Free — 0.5 GB storage, 100 CU-hours a month per project, scales to zero.
+  (neon.com/faqs/free-plan-limits-and-quotas)
 - Netlify Free allows commercial use, but a site is paused until the month ends once its credits
   run out.
-- Coolify — a free self-hosted PaaS; Hetzner Cloud — ~€4–6/month for 2 vCPU / 4 GB.
+- Coolify — a free self-hosted PaaS. Hetzner Cloud, 2 vCPU / 4 GB: CX23 €5.99/month and CAX11
+  (Arm) €6.49 marked "not available" on 2026-10-28; CPX22 €19.99. Without a domain Coolify serves
+  `http://<id>.<ip>.sslip.io` — HTTP only, so the panel, the API token and every password travel in
+  the clear. (hetzner.com/cloud, coolify.io/docs/core/networking/domains)
 - Payload has an official template for Cloudflare Workers + D1 + R2 (SQLite).
 - GitHub: protected branches and rulesets in private repositories need GitHub Pro, Team or
   Enterprise.

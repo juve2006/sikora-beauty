@@ -6,7 +6,8 @@ by card or cash on delivery, delivered by Nova Poshta; the owner and the cosmeto
 catalog, orders and requests in the admin without a developer.
 
 No epic: each task merges into `master` through its own pull request, only on green CI, and deploys
-at once; the site stays behind a password until Phase 2.
+at once — to the development host (Vercel Hobby + Neon, visible only to the developer) until
+`production host` moves the store to Hetzner + Coolify; the store opens to shoppers in Phase 2.
 
 Rules for every item:
 - one item = one task = one pull request with a **Backend** and a **Frontend** section; a side the
@@ -22,32 +23,31 @@ Rules for every item:
 
 ## Phase 0 — Foundation
 
-Goal: an empty application lives on the server and survives a crash. Done when: a push to `master`
-passes the CI gate and deploys to Hetzner/Coolify; `/` serves Ukrainian and `/en` English;
-`/admin` opens; a backup from R2 is restored to an empty database by the written steps.
+Goal: an empty application lives on the development host, and the admin knows who may do what.
+Done when: a push to `master` passes the CI gate and deploys to Vercel; `/` serves Ukrainian and
+`/en` English; `/admin` opens; nobody but the developer can reach it; the owner and the
+cosmetologist each have a role in the admin.
 
-- [ ] walking skeleton — an empty application lives on the server
+- [x] `walking-skeleton` — an empty application lives on the development host
   - Backend: Next.js + Payload 3 + Postgres replace the WebStorm template; docker compose locally;
     `ci.yml` split into one job per check, next to the existing `knowledge` and `audit`:
-    `typecheck`, `lint`, `unit` (Vitest), `build`, `docker` (the production image builds),
-    `migrations` (Payload migrations apply to an empty Postgres), `i18n` (`uk` and `en` message
-    keys match); `deploy.yml` (CI gate → image → GHCR → Coolify); Cloudflare DNS and TLS; the site
-    behind a password; Payload localization `uk`/`en` and the admin in Ukrainian
+    `typecheck`, `lint`, `unit` (Vitest), `build`, `migrations` (Payload migrations apply to an
+    empty Postgres), `i18n` (`uk` and `en` message keys match); `deploy.yml` (CI gate → Vercel,
+    migrations on Neon before the build); Vercel Authentication on every URL; Payload
+    localization `uk`/`en` and the admin in Ukrainian
   - Frontend: next-intl routing (`uk` at `/`, `en` at `/en`), `messages/` files, a placeholder
     page with a language switcher
-- [ ] backups and restore — the database survives a crash (after: walking skeleton — backs up its database)
-  - Backend: a daily backup to R2, a tested restore, a runbook, secrets in a password manager
-  - Frontend: —
-- [ ] admin access — the admin is protected (after: walking skeleton — protects its admin)
-  - Backend: Cloudflare Access in front of `/admin`, "owner" and "cosmetologist" roles, Renovate
+- [ ] admin roles — the owner and the cosmetologist work in the admin with their own rights (after: walking skeleton — roles live on its users)
+  - Backend: "owner" and "cosmetologist" roles on users, access rules per collection, Ukrainian
+    labels; Vitest for the access rules
   - Frontend: —
 
-## Phase 1 — Catalog behind a password
+## Phase 1 — Catalog, not public yet
 
 Goal: products are filled in the admin and shown on the storefront with filters. Done when: the
-owner sees on the server, from a phone and a laptop, in both languages, the catalog of one brand
-filled in by the cosmetologist in the admin, with filters by zone, skin type, condition, need and
-brand.
+owner sees on the development host, from a phone and a laptop, in both languages, the catalog of
+one brand filled in by the cosmetologist in the admin, with filters by zone, skin type, condition,
+need and brand. How the two of them get past Vercel Authentication is open question 12.
 
 - [ ] design direction — the storefront has a face and a component set (after: walking skeleton — lives in the application)
   - Backend: —
@@ -110,9 +110,21 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: home page blocks editable in the admin (a global)
   - Frontend: header (logo, search, favorites, cart, navigation, consultation, language switcher)
     with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"
-- [ ] launch readiness — the site is open (after: cart and checkout — the conversion measures a purchase; header, home and about — public navigation)
+- [ ] production host — the store runs on its own server and domain (after: walking skeleton — moves the same application)
+  - Backend: the store's domain on Cloudflare (DNS; TLS full strict with an Origin CA
+    certificate); a Hetzner VPS with Coolify, its panel and API only over HTTPS, a firewall that
+    admits only Cloudflare to 80/443; the Docker image (a `docker` CI job) pushed to GHCR and
+    deployed by `deploy.yml` through the Coolify API, waiting for the result; migrations on start
+    (`prodMigrations`) behind a health check; Cloudflare Access in front of `/admin`; the first
+    admin created from env, production refusing to start with an empty users collection; data
+    moved from Neon
+  - Frontend: —
+- [ ] backups and restore — the database survives a crash (after: production host — backs up its database)
+  - Backend: a daily backup to R2, a tested restore, a runbook, secrets in a password manager
+  - Frontend: —
+- [ ] launch readiness — the site is open (after: cart and checkout — the conversion measures a purchase; header, home and about — public navigation; production host — the store opens there; backups and restore — no launch without a tested restore)
   - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
-    value; remove the password
+    value; open the store to shoppers on the production host
   - Frontend: offer, privacy, delivery and payment, returns pages in both languages; consent banner
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
@@ -157,11 +169,11 @@ been dropped on purpose.
 
 ## Waves
 
-1. walking skeleton
-2. backups and restore; admin access; design direction; catalog model
+1. walking-skeleton
+2. admin roles; design direction; catalog model
 3. product page; catalog listing; catalog import; search; consultation request
-4. brands and collections; content drafts; favorites; cart and checkout
-5. header, home and about; care finder
+4. brands and collections; content drafts; favorites; cart and checkout; production host
+5. header, home and about; care finder; backups and restore
 6. launch readiness; mono payment; np waybill
 
 <!--

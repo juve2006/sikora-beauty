@@ -1,0 +1,15 @@
+{
+  "Metadata": {
+    "title": "Sikora Beauty",
+    "description": "Професійна косметика для догляду за шкірою"
+  },
+  "HomePage": {
+    "title": "Sikora Beauty",
+    "comingSoon": "Магазин професійної косметики готується до відкриття."
+  },
+  "LanguageSwitcher": {
+    "label": "Мова",
+    "uk": "Українська",
+    "en": "English"
+  }
+}
