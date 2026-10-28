@@ -110,10 +110,10 @@ new class requires.
 
 - Code explains what; knowledge explains why. Put intent, constraints, trade-offs and
   rejected alternatives into `.ai/knowledge/`, not into task notes.
-- State here which natural language the project's **durable** artifacts are written in —
-  knowledge documents, ADRs, code comments — if the project cares. This file is committed
-  and every runtime reads it, so it is the one place where the answer is the same for
-  every contributor.
+- Durable artifacts — knowledge documents, ADRs, specs, the glossary, code comments, commit
+  messages and pull requests — are written in **English**. The storefront's UI copy is
+  Ukrainian (default) and English. Commits and pull requests name only the developer as
+  author; no AI co-author lines.
 
   Two things are deliberately outside that answer. The language an agent *speaks* in a
   session is a personal preference: set it in your own runtime's local instruction file.
