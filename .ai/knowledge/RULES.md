@@ -55,6 +55,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   (developer, 2026-10-28; checked by: review)
 - A new check joins `ci.yml` as a job of its own, in the pull request that brings the code it
   checks. (spec `sikora-beauty`; checked by: review)
+- Dependency install scripts stay denied (`allowScripts` in `package.json`): the packages that
+  have them ship prebuilt binaries as platform packages, and npm skips unlisted scripts anyway.
+  Approving one needs the reason in its pull request. (task `build-warnings`; checked by: npm's
+  `install-scripts` warning in the CI and Vercel logs, review)
+- The Node major changes only by a decision: `engines.node` stays below the next major and
+  `.nvmrc` names the same one, so Vercel never moves to a new major by itself. (task
+  `build-warnings`; checked by: review)
 - Durable artifacts — knowledge, ADRs, specs, code comments, commit messages — are written in
   English. (developer, 2026-10-28; checked by: review)
 - Commits and pull requests name only the developer as author; no AI co-author lines.
