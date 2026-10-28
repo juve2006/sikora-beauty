@@ -32,7 +32,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    `sikora-beauty`. It writes `.vercel/project.json` (git-ignored).
 3. **Repository.** GitHub → Settings → Applications → Vercel → Configure → give it access to
    this repository; then `npx vercel@64.0.2 git connect`. Check Settings → Environments →
-   Production → Branch Tracking: `master`.
+   Production → Branch Tracking: `master`. Then let Vercel report deployments to GitHub — this
+   project was created with that off, and the repository page then lists none:
+   `echo '{"gitProviderOptions":{"createDeployments":"enabled"}}' | npx vercel@64.0.2 api
+   /v9/projects/sikora-beauty -X PATCH --input -`.
 4. **Database.** `npx vercel@64.0.2 integration add neon --plan free_v3 -m region=fra1
    -m auth=false -e production -e preview --no-env-pull`. Check that the project's environment
    variables include `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for Production and Preview. The
