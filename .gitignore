@@ -1,28 +1,42 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 .ai/workspace
 .ai/runtime
 .ai/config.local.yaml
+*.log
 .claude/worktrees/
+.claude/settings.local.json
+CLAUDE.local.md
+
+# IDE and editor metadata
+.idea/
+*.iml
+*.iws
+*.ipr
+.fleet/
+.vscode/
+*.code-workspace
+.history/
+.cursor/
+.windsurf/
+.zed/
+.vs/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+.nbproject/
+nbproject/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build and dependencies
+node_modules/
+dist/
+
+# Environment and secrets
+.env*
+!.env.example
+*.local
