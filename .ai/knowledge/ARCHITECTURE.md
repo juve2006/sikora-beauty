@@ -25,8 +25,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Configuration** — `src/payload.config.ts` reads the environment through `src/env.ts` (Zod;
   an error names variables, never values). Content localization `uk`/`en`, `uk` default and
   fallback.
-- **Schema** — migrations in `src/migrations/`, applied before every deploy; locally Payload
-  pushes the schema itself. CI fails when a collection changes without a migration.
+- **Schema** — migrations in `src/migrations/`, applied before every Production deploy; a Preview
+  never migrates; locally Payload pushes the schema itself. CI fails when a collection changes
+  without a migration.
 - **Development host** — Vercel Hobby + Neon behind Vercel Authentication. Vercel's GitHub App
   deploys every push: `master` → Production (migrations, then the build), other branches →
   Preview (build only, same database); CI runs on pull requests and is not a gate before the
