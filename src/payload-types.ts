@@ -67,6 +67,13 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    products: Product;
+    categories: Category;
+    brands: Brand;
+    'skin-types': SkinType;
+    'skin-conditions': SkinCondition;
+    'skin-concerns': SkinConcern;
+    media: Media;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -75,6 +82,13 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    'skin-types': SkinTypesSelect<false> | SkinTypesSelect<true>;
+    'skin-conditions': SkinConditionsSelect<false> | SkinConditionsSelect<true>;
+    'skin-concerns': SkinConcernsSelect<false> | SkinConcernsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -114,6 +128,158 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  name: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  brand: number | Brand;
+  categories: (number | Category)[];
+  price: number;
+  volume?: number | null;
+  volumeUnit?: ('ml' | 'g' | 'pcs') | null;
+  availability: 'in_stock' | 'made_to_order' | 'out_of_stock';
+  madeToOrderDays?: number | null;
+  /**
+   * Перше фото — головне.
+   */
+  images?: (number | Media)[] | null;
+  shortDescription?: string | null;
+  purpose?: string | null;
+  actives?:
+    | {
+        name: string;
+        role?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  howToUse?: string | null;
+  warnings?: string | null;
+  /**
+   * Лише скопійований з упаковки, сайту бренду чи від дистриб’ютора.
+   */
+  inci?: string | null;
+  /**
+   * Звідки скопійовано: «упаковка», посилання на сторінку бренду…
+   */
+  inciSource?: string | null;
+  skinTypes?: (number | SkinType)[] | null;
+  skinConditions?: (number | SkinCondition)[] | null;
+  skinConcerns?: (number | SkinConcern)[] | null;
+  related?: (number | Product)[] | null;
+  isNew?: boolean | null;
+  isBestseller?: boolean | null;
+  isSet?: boolean | null;
+  isMini?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: number;
+  name: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Зона — запис без батька (Обличчя, Тіло…). Категорія — запис, чий батько зона.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  fullTitle?: string | null;
+  parent?: (number | null) | Category;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-types".
+ */
+export interface SkinType {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-conditions".
+ */
+export interface SkinCondition {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-concerns".
+ */
+export interface SkinConcern {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -164,10 +330,39 @@ export interface PayloadKv {
  */
 export interface PayloadLockedDocument {
   id: number;
-  document?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: number | Brand;
+      } | null)
+    | ({
+        relationTo: 'skin-types';
+        value: number | SkinType;
+      } | null)
+    | ({
+        relationTo: 'skin-conditions';
+        value: number | SkinCondition;
+      } | null)
+    | ({
+        relationTo: 'skin-concerns';
+        value: number | SkinConcern;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -209,6 +404,122 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  brand?: T;
+  categories?: T;
+  price?: T;
+  volume?: T;
+  volumeUnit?: T;
+  availability?: T;
+  madeToOrderDays?: T;
+  images?: T;
+  shortDescription?: T;
+  purpose?: T;
+  actives?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        id?: T;
+      };
+  howToUse?: T;
+  warnings?: T;
+  inci?: T;
+  inciSource?: T;
+  skinTypes?: T;
+  skinConditions?: T;
+  skinConcerns?: T;
+  related?: T;
+  isNew?: T;
+  isBestseller?: T;
+  isSet?: T;
+  isMini?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  fullTitle?: T;
+  parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands_select".
+ */
+export interface BrandsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-types_select".
+ */
+export interface SkinTypesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-conditions_select".
+ */
+export interface SkinConditionsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-concerns_select".
+ */
+export interface SkinConcernsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

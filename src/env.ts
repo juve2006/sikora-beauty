@@ -1,9 +1,15 @@
 import { z } from 'zod'
 
-const schema = z.object({
-  DATABASE_URL: z.url(),
-  PAYLOAD_SECRET: z.string().min(32),
-})
+const schema = z
+  .object({
+    DATABASE_URL: z.url(),
+    PAYLOAD_SECRET: z.string().min(32),
+    BLOB_READ_WRITE_TOKEN: z.string().optional(),
+    VERCEL: z.string().optional(),
+  })
+  // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
+  // away; on Vercel that must fail the build instead. Locally the disk is fine.
+  .refine((env) => !env.VERCEL || env.BLOB_READ_WRITE_TOKEN, { path: ['BLOB_READ_WRITE_TOKEN'] })
 
 export type Env = z.infer<typeof schema>
 

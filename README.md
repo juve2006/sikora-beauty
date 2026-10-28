@@ -6,14 +6,16 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 
 ## Status
 
-Walking skeleton: an empty application — a placeholder page at `/` (Ukrainian) and `/en`
-(English) and the Payload admin at `/admin`. Vercel deploys every push: `master` to Production,
-every other branch and pull request to a Preview; both are visible only to the developer. Nothing
-is sold yet.
+A placeholder page at `/` (Ukrainian) and `/en` (English), and the Payload admin at `/admin`,
+where the catalog can be filled in: brands, zones and categories, skin types, conditions and
+concerns, products with photos, as drafts and published. No storefront page shows the catalog
+yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+Preview; both are visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 0 — `admin roles`; Phase 1 — design direction and the catalog model.
+- Next: Phase 0 — `admin-roles`; Phase 1 — `design-direction`, then the product page and the
+  catalog listing.
 
 ## Stack
 
@@ -35,6 +37,10 @@ npm run dev                   # http://localhost:3000, admin at /admin
 
 Locally Payload creates the tables itself (`push`). A change to a collection also needs a
 migration for the deployed database: `npm run payload -- migrate:create <name>`.
+
+`npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
+skin vocabularies and brands; it never changes what exists. Uploaded photos go to `./media`
+unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`).
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys.
 

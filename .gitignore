@@ -46,3 +46,9 @@ dist/
 next-env.d.ts
 *.tsbuildinfo
 .vercel
+
+# Payload uploads on the local disk (no BLOB_READ_WRITE_TOKEN)
+/media/
+
+# Playwright MCP screenshots and logs; emptied when the task that made them is closed
+/.playwright-mcp/

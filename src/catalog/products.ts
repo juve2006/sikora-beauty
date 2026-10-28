@@ -1,0 +1,200 @@
+import { type CollectionConfig, ValidationError } from 'payload'
+
+import { revalidateStorefront } from './revalidate'
+import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnits } from './schema'
+import { slugField } from './slug'
+
+// Admin labels only: the storefront translates the values through messages/*.json.
+const availabilityLabels = { in_stock: 'В наявності', made_to_order: 'Під замовлення', out_of_stock: 'Немає в наявності' }
+const volumeUnitLabels = { ml: 'мл', g: 'г', pcs: 'шт' }
+
+// Drafts skip field validation; these run when a product is published.
+const rule = (ok: boolean, message: string) => ok || message
+const priceMessage = 'Вкажіть ціну: 1245 або 1245,50'
+
+export const Products: CollectionConfig = {
+  slug: 'products',
+  labels: { singular: 'Товар', plural: 'Товари' },
+  admin: {
+    group: 'Каталог',
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'brand', 'price', 'availability', '_status'],
+  },
+  // A product reaches the storefront only once published (RULES.md). The storefront reads with
+  // `overrideAccess: false`: the Local API's default skips this rule and would return drafts.
+  versions: { drafts: true },
+  access: {
+    read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
+  },
+  hooks: { afterChange: [revalidateStorefront], afterDelete: [revalidateStorefront] },
+  fields: [
+    { name: 'name', type: 'text', label: 'Назва', localized: true, required: true },
+    slugField('name'),
+    {
+      type: 'row',
+      fields: [
+        { name: 'brand', type: 'relationship', relationTo: 'brands', label: 'Бренд', required: true },
+        {
+          name: 'categories',
+          type: 'relationship',
+          relationTo: 'categories',
+          label: 'Категорії',
+          hasMany: true,
+          required: true,
+          filterOptions: { parent: { exists: true } },
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'price',
+          type: 'number',
+          label: 'Ціна, грн',
+          required: true,
+          admin: { components: { Field: '/catalog/PriceField#PriceField' } },
+          validate: (value: unknown) => rule(kopiyky.safeParse(value).success, priceMessage),
+          // Money is integer kopiyky in a draft too (RULES.md); a draft may only leave it empty.
+          hooks: {
+            beforeChange: [
+              ({ value, req }) => {
+                if (value != null && !kopiyky.safeParse(value).success) {
+                  throw new ValidationError({ errors: [{ label: 'Ціна, грн', message: priceMessage, path: 'price' }] }, req.t)
+                }
+                return value
+              },
+            ],
+          },
+        },
+        {
+          name: 'volume',
+          type: 'number',
+          label: "Об'єм або кількість",
+          min: 0,
+        },
+        {
+          name: 'volumeUnit',
+          type: 'select',
+          label: 'Одиниця',
+          options: volumeUnits.map((value) => ({ value, label: volumeUnitLabels[value] })),
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'availability',
+          type: 'select',
+          label: 'Наявність',
+          required: true,
+          options: availabilities.map((value) => ({ value, label: availabilityLabels[value] })),
+        },
+        {
+          name: 'madeToOrderDays',
+          type: 'number',
+          label: 'Днів до відправки',
+          admin: { condition: (_, sibling) => sibling.availability === 'made_to_order' },
+          validate: (value: unknown, { siblingData }: { siblingData: { availability?: string } }) =>
+            rule(hasDaysIfMadeToOrder({ ...siblingData, madeToOrderDays: value }), 'Вкажіть від 1 до 90 днів'),
+        },
+      ],
+    },
+    {
+      name: 'images',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Фото',
+      hasMany: true,
+      admin: { description: 'Перше фото — головне.' },
+    },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Опис',
+          fields: [
+            { name: 'shortDescription', type: 'textarea', label: 'Короткий опис', localized: true },
+            {
+              name: 'purpose',
+              type: 'textarea',
+              label: 'Призначення та очікуваний косметичний ефект',
+              localized: true,
+            },
+            {
+              name: 'actives',
+              type: 'array',
+              label: 'Активні компоненти',
+              labels: { singular: 'Компонент', plural: 'Компоненти' },
+              fields: [
+                { name: 'name', type: 'text', label: 'Компонент', localized: true, required: true },
+                { name: 'role', type: 'textarea', label: 'Його роль', localized: true },
+              ],
+            },
+            { name: 'howToUse', type: 'textarea', label: 'Спосіб застосування', localized: true },
+            { name: 'warnings', type: 'textarea', label: 'Застереження', localized: true },
+          ],
+        },
+        {
+          label: 'Склад INCI',
+          fields: [
+            {
+              name: 'inci',
+              type: 'textarea',
+              label: 'Склад INCI',
+              admin: { description: 'Лише скопійований з упаковки, сайту бренду чи від дистриб’ютора.' },
+            },
+            {
+              name: 'inciSource',
+              type: 'text',
+              label: 'Джерело INCI',
+              admin: { description: 'Звідки скопійовано: «упаковка», посилання на сторінку бренду…' },
+              validate: (value: unknown, { siblingData }: { siblingData: { inci?: string | null } }) =>
+                rule(hasInciSource({ inci: siblingData.inci, inciSource: value }), 'Вкажіть, звідки скопійовано склад'),
+            },
+          ],
+        },
+        {
+          label: 'Шкіра',
+          fields: [
+            { name: 'skinTypes', type: 'relationship', relationTo: 'skin-types', label: 'Типи шкіри', hasMany: true },
+            {
+              name: 'skinConditions',
+              type: 'relationship',
+              relationTo: 'skin-conditions',
+              label: 'Стани шкіри',
+              hasMany: true,
+            },
+            {
+              name: 'skinConcerns',
+              type: 'relationship',
+              relationTo: 'skin-concerns',
+              label: 'Потреби шкіри',
+              hasMany: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'related',
+      type: 'relationship',
+      relationTo: 'products',
+      label: 'Супутні товари',
+      hasMany: true,
+      filterOptions: ({ id }) => (id ? { id: { not_equals: id } } : true),
+    },
+    {
+      type: 'collapsible',
+      label: 'Добірки',
+      admin: { position: 'sidebar' },
+      fields: [
+        { name: 'isNew', type: 'checkbox', label: 'Новинка' },
+        { name: 'isBestseller', type: 'checkbox', label: 'Бестселер' },
+        { name: 'isSet', type: 'checkbox', label: 'Набір або комплект' },
+        { name: 'isMini', type: 'checkbox', label: 'Мініатюра або travel-формат' },
+      ],
+    },
+  ],
+}

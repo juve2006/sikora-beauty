@@ -1,9 +1,12 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { uk } from '@payloadcms/translations/languages/uk'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { Brands, Categories, Media, SkinConcerns, SkinConditions, SkinTypes } from './catalog/collections'
+import { Products } from './catalog/products'
 import { Users } from './collections/Users'
 import { parseEnv } from './env'
 
@@ -17,7 +20,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users],
+  collections: [Products, Categories, Brands, SkinTypes, SkinConditions, SkinConcerns, Media, Users],
   i18n: {
     supportedLanguages: { uk },
     fallbackLanguage: 'uk',
@@ -27,6 +30,17 @@ export default buildConfig({
     defaultLocale: 'uk',
     fallback: true,
   },
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(env.BLOB_READ_WRITE_TOKEN),
+      collections: { media: true },
+      token: env.BLOB_READ_WRITE_TOKEN,
+      // Uploads through a Vercel function stop at 4.5 MB; the browser sends the file to Blob itself.
+      clientUploads: true,
+      // The same schema with and without the token (CI and local runs have none).
+      alwaysInsertFields: true,
+    }),
+  ],
   secret: env.PAYLOAD_SECRET,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

@@ -23,7 +23,8 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - INCI is never generated; every INCI has a recorded source. (adr-20261028-reviewed-ai-content-drafts;
   checked by: a required source field, review)
 - A product is visible on the storefront only after the cosmetologist publishes it.
-  (adr-20261028-reviewed-ai-content-drafts; checked by: Payload drafts and access control)
+  (adr-20261028-reviewed-ai-content-drafts; checked by: Payload drafts and `access.read` on
+  `products`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the content checklist, review)
 
@@ -31,6 +32,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
+- The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
+  control by default, so without it a page would show drafts. (task `catalog-model`; checked by:
+  review)
 - UI strings live in `messages/uk.json` and `messages/en.json`, never inline, and both files keep
   the same keys. (adr-20261028-storefront-languages-uk-en; checked by: a key-parity check in CI)
 - Content text fields are localized with `uk` as default and fallback; prices, INCI, SKU and images

@@ -18,6 +18,15 @@ describe('parseEnv', () => {
     )
   })
 
+  it('needs the Blob token on Vercel only', () => {
+    expect(() => parseEnv({ ...valid, VERCEL: '1' })).toThrow(
+      'Invalid environment variables: BLOB_READ_WRITE_TOKEN',
+    )
+    expect(parseEnv({ ...valid, VERCEL: '1', BLOB_READ_WRITE_TOKEN: 'token' }).BLOB_READ_WRITE_TOKEN).toBe(
+      'token',
+    )
+  })
+
   it('never puts a value into the error', () => {
     const leaky = { ...valid, PAYLOAD_SECRET: 'secret-but-too-short' }
     expect(() => parseEnv(leaky)).toThrow(/^(?!.*secret-but-too-short).*$/)
