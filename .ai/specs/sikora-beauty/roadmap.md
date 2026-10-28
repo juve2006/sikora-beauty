@@ -37,7 +37,7 @@ cosmetologist each have a role in the admin.
     localization `uk`/`en` and the admin in Ukrainian
   - Frontend: next-intl routing (`uk` at `/`, `en` at `/en`), `messages/` files, a placeholder
     page with a language switcher
-- [ ] admin roles — the owner and the cosmetologist work in the admin with their own rights (after: walking skeleton — roles live on its users)
+- [ ] `admin-roles` — the owner and the cosmetologist work in the admin with their own rights (after: walking skeleton — roles live on its users)
   - Backend: "owner" and "cosmetologist" roles on users, access rules per collection, Ukrainian
     labels; Vitest for the access rules
   - Frontend: —
@@ -49,12 +49,12 @@ owner sees on the development host, from a phone and a laptop, in both languages
 one brand filled in by the cosmetologist in the admin, with filters by zone, skin type, condition,
 need and brand. How the two of them get past Vercel Authentication is open question 12.
 
-- [ ] design direction — the storefront has a face and a component set (after: walking skeleton — lives in the application)
+- [ ] `design-direction` — the storefront has a face and a component set (after: walking skeleton — lives in the application)
   - Backend: —
   - Frontend: 2–3 prototypes for the owner to choose from (mobile + desktop), a text logo, colours,
     fonts; Tailwind v4 + shadcn/ui; `/canvas` with every component in every variant and state at
     both widths and in both languages (in production only for an admin, `noindex`)
-- [ ] catalog model — the cosmetologist can create a product in the admin (after: walking skeleton — Payload collections)
+- [ ] `catalog-model` — the cosmetologist can create a product in the admin (after: walking skeleton — Payload collections)
   - Backend: brands, a tree of zones and categories, skin type, condition and need vocabularies, a
     product with every required field, availability statuses, new/bestseller/set/mini flags,
     related products, drafts, localized text fields, Ukrainian admin labels, the product Zod
