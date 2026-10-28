@@ -45,7 +45,15 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
 - Secrets never enter the repository; they live in Coolify's environment and a password manager.
-  (adr-20261028-hetzner-coolify-hosting; checked by: review)
+  (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)
+- Every merge to `master` is a deploy, so the pull request that changes what the site does also
+  updates what the public reads about it: `README.md` (status, what is live, how to run it), the
+  docs it touches and, when the summary changes, the repository description. (developer,
+  2026-10-28; checked by: review)
+- A pull request's description is updated whenever a push changes what the pull request does.
+  (developer, 2026-10-28; checked by: review)
+- A new check joins `ci.yml` as a job of its own, in the pull request that brings the code it
+  checks. (spec `sikora-beauty`; checked by: review)
 - Durable artifacts — knowledge, ADRs, specs, code comments, commit messages — are written in
   English. (developer, 2026-10-28; checked by: review)
 - Commits and pull requests name only the developer as author; no AI co-author lines.
