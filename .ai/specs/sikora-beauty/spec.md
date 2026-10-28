@@ -288,9 +288,14 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   — rejected: a mobile version as a later phase.
 - Validation — Zod, one schema per boundary, shared by the client form and the server action,
   webhook or import — rejected: hand-written checks, client-only validation.
-- CI as in jig-ui — a pull request runs typecheck, lint, test and build; a push to `master` runs
-  the same CI as a gate before the image is built and deployed — rejected: deploying without a
-  gate.
+- CI as in jig-ui — a pull request runs one job per check (knowledge, audit, typecheck, lint,
+  unit, build, docker, migrations, i18n; e2e and lighthouse once there are pages to check); a
+  push to `master` runs the same CI as a gate before the image is built and deployed — rejected:
+  deploying without a gate; one job running every check (a red run does not say which).
+- Public information follows every deploy — each merge to `master` deploys, so the pull request
+  that changes what the site does updates `README.md`, the docs it touches and the repository
+  description — rejected: a documentation pass before launch (it describes a site that no longer
+  exists).
 - Canvas as in jig-ui — `/canvas` shows every component in every variant and state at mobile and
   desktop widths; each UI item adds its components there; in production only for a signed-in
   admin, `noindex` — rejected: Storybook (an extra dependency).
