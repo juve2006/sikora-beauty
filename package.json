@@ -16,11 +16,13 @@
     "test": "vitest run",
     "payload": "payload",
     "generate:types": "payload generate:types",
-    "generate:importmap": "payload generate:importmap"
+    "generate:importmap": "payload generate:importmap",
+    "seed:catalog": "NODE_ENV=production payload run scripts/seed-catalog.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",
     "@payloadcms/next": "3.92.1",
+    "@payloadcms/storage-vercel-blob": "3.92.1",
     "@payloadcms/translations": "3.92.1",
     "@payloadcms/ui": "3.92.1",
     "graphql": "^16.14.2",
