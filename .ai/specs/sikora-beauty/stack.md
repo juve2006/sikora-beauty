@@ -49,14 +49,16 @@ next-intl 4.14. Pin exact versions in `walking skeleton`.
 - **Vitest** — logic: prices, status transitions, webhook signature, questionnaire rules, Zod
   schemas.
 - **Playwright** smoke at mobile and desktop widths, in both locales: catalog → cart → order.
-- `.github/workflows/ci.yml` on `pull_request`, push to `master` and `workflow_call`, one job per
-  check so a red one names itself: `knowledge` (`jig knowledge check`) and `audit` (`npm audit`
-  high and above, gitleaks) from the start; `typecheck`, `lint`, `unit`, `build`, `docker`,
-  `migrations`, `i18n` from the walking skeleton; `e2e` from cart and checkout; `lighthouse` from
-  launch readiness. Actions pinned by SHA, `persist-credentials: false`.
+- `.github/workflows/ci.yml` on `pull_request` and `workflow_call`, one job per check so a red one
+  names itself: `knowledge` (`jig knowledge check`) and `audit` (`npm audit` high and above,
+  gitleaks) from the start; `typecheck`, `lint`, `unit`, `build`, `migrations`, `i18n` from the
+  walking skeleton; `e2e` from cart and checkout; `docker` from production host; `lighthouse`
+  from launch readiness. Actions pinned by SHA, `persist-credentials: false`.
 - `.github/workflows/deploy.yml` on push to `master`: `uses: ./.github/workflows/ci.yml` as the
-  gate → Docker image build → GHCR → Coolify webhook. The image is built in CI, not on the VPS
-  (OOM at 4 GB).
+  gate, then the deploy. Development: `vercel deploy --prod`; Vercel runs `vercel-build`
+  (`payload migrate` over Neon's direct connection, then `next build`); Vercel's own Git deploys
+  are off. Production (from `production host`): Docker image build → GHCR → the Coolify API,
+  waiting for the result; the image is built in CI, not on the VPS (OOM at 4 GB).
 - `.github/dependabot.yml` — npm and GitHub Actions, weekly; Next.js and Payload security patches
   at once.
 - Branch protection — not available for a private repository on GitHub Free (open question 10);
@@ -64,6 +66,12 @@ next-intl 4.14. Pin exact versions in `walking skeleton`.
   same scripts locally.
 
 ## Infrastructure
+
+Development (until `production host`): **Vercel Hobby** (functions in `fra1`, Vercel
+Authentication on every URL) + **Neon Free** (Frankfurt, through the Vercel Marketplace). Setup:
+`docs/deploy.md`.
+
+Production:
 
 - **Hetzner Cloud** (2 vCPU / 4 GB, EU data centre) + **Coolify** (self-hosted PaaS: deploys,
   TLS, backups).
@@ -89,7 +97,8 @@ The choice is reversible: a Docker image and plain Postgres are tied to no host.
 
 | What | How much |
 |---|---|
-| Hetzner VPS | ~€4–6/month |
+| Vercel Hobby + Neon Free, during development | $0 |
+| Hetzner VPS, from `production host` | €5.99/month for CX23 if available; CPX22 €19.99 (October 2026) |
 | Cloudflare (DNS, CDN, Access), R2 up to 10 GB, Sentry, uptime | $0 within free plans |
 | Domain | per registrar, yearly |
 | GitHub Pro, if branch protection is wanted | ~$4/month (open question 10) |

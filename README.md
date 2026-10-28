@@ -6,26 +6,45 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 
 ## Status
 
-Planning. Nothing is deployed yet.
+Walking skeleton: an empty application — a placeholder page at `/` (Ukrainian) and `/en`
+(English) and the Payload admin at `/admin`. Every push to `master` deploys it to Vercel after CI
+passes; the deployment is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 0 — `walking skeleton`.
+- Next: Phase 0 — `admin roles`; Phase 1 — design direction and the catalog model.
 
 ## Stack
 
-Next.js + Payload CMS 3 on Postgres, one application; next-intl; Tailwind CSS + shadcn/ui; Zod.
-Hosted as a Docker image on Hetzner with Coolify, behind Cloudflare. Details:
-[`stack.md`](.ai/specs/sikora-beauty/stack.md).
+Next.js 16 + Payload CMS 3 on Postgres, one application; next-intl; Zod. During development it
+runs on Vercel (Hobby) with Neon Postgres; before launch it moves to Hetzner with Coolify, behind
+Cloudflare. Details: [`stack.md`](.ai/specs/sikora-beauty/stack.md).
 
 ## Development
 
-The repository still holds the WebStorm Vite template until `walking skeleton` replaces it.
+Needs Node 24 (`.nvmrc`) and Docker.
 
 ```
+nvm use
+cp .env.example .env          # then set PAYLOAD_SECRET: openssl rand -hex 32
+docker compose up -d          # Postgres 17 on 127.0.0.1:5432
 npm ci
-npm run dev
+npm run dev                   # http://localhost:3000, admin at /admin
 ```
 
-Every pull request runs CI (`.github/workflows/ci.yml`): build, `jig knowledge check`, `npm audit`
-and gitleaks. Work follows Jig — see [`AGENTS.md`](AGENTS.md).
+Locally Payload creates the tables itself (`push`). A change to a collection also needs a
+migration for the deployed database: `npm run payload -- migrate:create <name>`.
+
+UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys.
+
+## Checks and deploy
+
+Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
+`unit`, `build`, `migrations` (on an empty Postgres), `i18n` (same keys in both message files),
+`knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
+
+A push to `master` runs `.github/workflows/deploy.yml`: the same CI as a gate, then a Vercel
+production deploy that applies migrations before the build. Setup and rebuild:
+[`docs/deploy.md`](docs/deploy.md).
+
+Work follows Jig — see [`AGENTS.md`](AGENTS.md).

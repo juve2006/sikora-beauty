@@ -6,9 +6,9 @@ date: 2026-10-28
 domains: []
 paths:
   - "src/**"
-  - payload.config.ts
   - "next.config.*"
 summary: One Next.js app with Payload CMS inside, on Postgres; Horoshop and Nuxt+Medusa rejected
+reviewed_at: 2026-10-28
 ---
 # The store is one Next.js application with Payload CMS inside it, on Postgres
 

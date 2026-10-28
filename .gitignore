@@ -40,3 +40,9 @@ dist/
 .env*
 !.env.example
 *.local
+
+# Next.js and Vercel
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.vercel

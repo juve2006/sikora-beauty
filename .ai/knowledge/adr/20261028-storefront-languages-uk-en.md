@@ -8,7 +8,9 @@ paths:
   - "src/i18n/**"
   - "messages/**"
   - "src/app/**"
+  - scripts/check-messages.mjs
 summary: Storefront uk at / and en at /en via next-intl; content via Payload localization
+reviewed_at: 2026-10-28
 ---
 # The storefront is Ukrainian by default and English at /en, through next-intl and Payload localization
 

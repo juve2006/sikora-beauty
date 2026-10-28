@@ -263,9 +263,14 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
 - Consultation — a form, a record in Payload with a status and a message to a Telegram group; the
   cosmetologist then contacts the client — rejected: a bot message alone (gets lost), a Viber bot
   (paid), calendar booking (unneeded at first).
-- Hosting (reversible) — a Hetzner VPS with Coolify; a Docker image tied to no host — rejected:
-  Vercel Pro + Neon (~$20–40/month), Cloudflare Workers + D1 (SQLite, runtime limits), free tiers
-  (sites suspended, VMs reclaimed).
+- Hosting (reversible) — production on a Hetzner VPS with Coolify; a Docker image tied to no host
+  — rejected: Vercel Pro + Neon (~$20–40/month), Cloudflare Workers + D1 (SQLite, runtime limits),
+  free tiers (sites suspended, VMs reclaimed).
+- Development host (developer, 2026-10-28) — until `production host`, every merge deploys to Vercel
+  Hobby with Neon Free, behind Vercel Authentication: $0, HTTPS without a domain, no server to run
+  — rejected: Hetzner + Coolify from day one (a domain first, otherwise the panel, the deploy token
+  and the passwords travel over plain HTTP; a server to run and pay for while nothing is sold).
+  Hobby allows non-commercial use only, so the store moves before it sells anything.
 - Languages — the storefront in Ukrainian (default, at `/`) and English (at `/en`), with a switcher;
   UI strings through next-intl, product and page texts through Payload field localization (`uk`
   default, `en`, falling back to `uk` where a field is not translated yet); the admin UI in
@@ -302,8 +307,8 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
 - Tasks — one roadmap item = one task = one pull request with a **Backend** and a **Frontend**
   section — rejected: separate `-api`/`-ui` tasks, because a backend-only task cannot be checked
   by eye and the seams between them breed bugs.
-- No epic — each task merges into `master` through its own pull request and deploys at once; the
-  site stays behind a password until the public launch.
+- No epic — each task merges into `master` through its own pull request and deploys at once; until
+  the public launch only the developer can reach the deployment.
 
 ## Open questions
 
@@ -324,13 +329,18 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
    `consultation request`.
 7. The questionnaire's questions and matching rules — written by the cosmetologist — decides
    `care finder`.
-8. The domain — needed by `walking skeleton`.
+8. The domain — needed by `production host`; the owner picks the store's name.
 9. Prices: tied to EUR or not, who updates them and how often — decides `catalog import`.
 10. Branch protection: GitHub Free does not protect branches of a private repository; GitHub Pro,
     or merging only on green CI by discipline — decides the "CI must pass" rule in
     `walking skeleton`.
 11. Who reviews English texts, and whether an untranslated product is shown on `/en` with
     Ukrainian fallback or hidden there — decides `content drafts`.
+12. Reaching the development deployment: Vercel Authentication on Hobby admits only the account
+    owner, but in Phase 1 the owner looks at the catalog and the cosmetologist fills it in. A
+    shareable link (documented for branch deployments — check it covers production), Standard
+    Protection with `noindex` once the first admin exists, or `production host` before Phase 1 —
+    decide before `catalog model` is filled in.
 
 ## Assumptions left untested
 

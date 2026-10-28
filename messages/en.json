@@ -1,0 +1,15 @@
+{
+  "Metadata": {
+    "title": "Sikora Beauty",
+    "description": "Professional skincare"
+  },
+  "HomePage": {
+    "title": "Sikora Beauty",
+    "comingSoon": "The professional skincare store is getting ready to open."
+  },
+  "LanguageSwitcher": {
+    "label": "Language",
+    "uk": "Українська",
+    "en": "English"
+  }
+}
