@@ -271,6 +271,17 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   — rejected: Hetzner + Coolify from day one (a domain first, otherwise the panel, the deploy token
   and the passwords travel over plain HTTP; a server to run and pay for while nothing is sold).
   Hobby allows non-commercial use only, so the store moves before it sells anything.
+- Reaching the development deployment (developer, 2026-10-29; was open question 12) — the store's
+  own site password on the production domain (HTTP Basic in `src/proxy.ts`, `SITE_PASSWORD` in
+  Vercel Production only, a Production build fails without it), shared by the owner and the
+  cosmetologist, each then signing in to the admin with their own account; Vercel Standard
+  Protection keeps the Previews to the developer; it moves to the production host and is removed
+  at the launch (`deployment-access`, adr-20261029-site-password) — rejected: a shareable link
+  (one per Hobby account, documented for Previews, anyone a link is forwarded to gets in), Vercel
+  access requests or invitations (one external user per Hobby account), Vercel Pro with Password
+  Protection ($20–40/month), `production host` before Phase 1 (a domain and a server paid from
+  the first day), Standard Protection with no password (the unfinished storefront open to anyone
+  with the address).
 - Languages — the storefront in Ukrainian (default, at `/`) and English (at `/en`), with a switcher;
   UI strings through next-intl, product and page texts through Payload field localization (`uk`
   default, `en`, falling back to `uk` where a field is not translated yet); the admin UI in
@@ -308,7 +319,7 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   section — rejected: separate `-api`/`-ui` tasks, because a backend-only task cannot be checked
   by eye and the seams between them breed bugs.
 - No epic — each task merges into `master` through its own pull request and deploys at once; until
-  the public launch only the developer can reach the deployment.
+  the public launch only the developer, the owner and the cosmetologist can reach the deployment.
 
 ## Open questions
 
@@ -336,11 +347,6 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
     `walking skeleton`.
 11. Who reviews English texts, and whether an untranslated product is shown on `/en` with
     Ukrainian fallback or hidden there — decides `content drafts`.
-12. Reaching the development deployment: Vercel Authentication on Hobby admits only the account
-    owner, but in Phase 1 the owner looks at the catalog and the cosmetologist fills it in. A
-    shareable link (documented for branch deployments — check it covers production), Standard
-    Protection with `noindex` once the first admin exists, or `production host` before Phase 1 —
-    decide before `catalog model` is filled in.
 
 ## Assumptions left untested
 
