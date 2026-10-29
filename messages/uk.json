@@ -26,7 +26,7 @@
   },
   "Product": {
     "price": "{amount} грн",
-    "volume": "{volume} {unit, select, ml {мл} g {г} pcs {шт} other {}}",
+    "volume": "{volume, number} {unit, select, ml {мл} g {г} pcs {шт} other {}}",
     "availability": {
       "in_stock": "В наявності",
       "made_to_order": "Під замовлення, відправка за {days, plural, one {# день} few {# дні} many {# днів} other {# дня}}",
