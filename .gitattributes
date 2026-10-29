@@ -4,3 +4,4 @@
 .ai/templates/** text eol=lf
 .claude/skills/** text eol=lf
 .codex/skills/** text eol=lf
+*.png binary

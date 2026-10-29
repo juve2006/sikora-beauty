@@ -61,8 +61,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   are not localized. (adr-20261028-storefront-languages-uk-en; checked by: review)
 - UI is mobile-first: an item is done only when it works at 360 px and on desktop, in both locales.
   (spec `sikora-beauty`; checked by: Playwright at both widths)
-- Every UI component appears in `/canvas` in every variant and state. (spec `sikora-beauty`;
-  checked by: review)
+- Every UI component appears in `/canvas` in every variant and state. `/canvas` is open locally;
+  in production it answers 404 to anyone without a Payload session, and it is `noindex`. Its
+  component, variant and size names are code identifiers, not UI strings. (spec `sikora-beauty`,
+  task `design-direction`; checked by: review)
+- `next build` runs in CI without a database, so a page must not reach Payload while it is
+  prerendered: a page that reads a Payload session awaits `headers()` before `getPayload`, which
+  makes it dynamic. (task `design-direction`; checked by: the CI `build` job)
 - One roadmap item is one task and one pull request, with a Backend and a Frontend section.
   (spec `sikora-beauty`; checked by: review)
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec

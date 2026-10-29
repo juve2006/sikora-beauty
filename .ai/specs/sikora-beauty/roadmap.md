@@ -51,7 +51,7 @@ one brand filled in by the cosmetologist in the admin, with filters by zone, ski
 need and brand. Both reach it with the site password, then their own admin accounts
 (`deployment-access`, adr-20261029-site-password).
 
-- [ ] `design-direction` — the storefront has a face and a component set (after: walking skeleton — lives in the application)
+- [x] `design-direction` — the storefront has a face and a component set (after: walking skeleton — lives in the application)
   - Backend: —
   - Frontend: 2–3 prototypes for the owner to choose from (mobile + desktop), a text logo, colours,
     fonts; Tailwind v4 + shadcn/ui; `/canvas` with every component in every variant and state at
