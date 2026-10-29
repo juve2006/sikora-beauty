@@ -1,6 +1,6 @@
 'use client'
 
-import { TextInput, useField } from '@payloadcms/ui'
+import { DefaultCell, TextInput, useField } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
 import type { DefaultCellComponentProps, NumberFieldClient, NumberFieldClientComponent } from 'payload'
 import { type ChangeEvent, useState } from 'react'
@@ -37,6 +37,8 @@ export const PriceField: NumberFieldClientComponent = ({ field, path, readOnly }
   )
 }
 
-// The products list shows hryvnias too: its column is labelled «Ціна, грн».
-export const PriceCell = ({ cellData }: DefaultCellComponentProps<NumberFieldClient>) =>
-  typeof cellData === 'number' ? formatHryvnias(cellData) : null
+// The products list shows hryvnias too: its column is labelled «Ціна, грн». Payload's own cell
+// keeps the rest — the link to the product when the column comes first, «<No …>» when empty.
+export const PriceCell = (props: DefaultCellComponentProps<NumberFieldClient>) => (
+  <DefaultCell {...props} cellData={typeof props.cellData === 'number' ? formatHryvnias(props.cellData) : props.cellData} />
+)

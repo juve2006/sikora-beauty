@@ -4,7 +4,7 @@ import { parentError } from './collections'
 import { formatHryvnias, parseHryvnias } from './price'
 import { productRules } from './schema'
 import { slugify } from './slug'
-import { toTranslate } from './translate'
+import { stillEmpty, toTranslate } from './translate'
 
 describe('prices', () => {
   it('reads hryvnias as integer kopiyky', () => {
@@ -107,5 +107,12 @@ describe('toTranslate', () => {
 
   it('reads a form without actives rows, where the array is its row count', () => {
     expect(toTranslate({ name: 'Крем', actives: [] }, { name: '', actives: 0 })).toEqual([{ path: 'name', text: 'Крем' }])
+  })
+
+  it('keeps what was typed and skips a moved row while the translation ran', () => {
+    const en = { name: '', shortDescription: '', actives: [{ id: 'a' }, { id: 'b' }] }
+    const jobs = toTranslate(uk, en)
+    const typed = { ...en, shortDescription: 'Hydrates', actives: [{ id: 'b' }, { id: 'a' }] }
+    expect(stillEmpty(jobs, uk, typed).map(({ path }) => path)).toEqual(['name'])
   })
 })

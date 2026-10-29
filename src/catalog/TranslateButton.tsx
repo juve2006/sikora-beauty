@@ -3,7 +3,7 @@
 import { Button, useConfig, useDocumentInfo, useForm, useLocale } from '@payloadcms/ui'
 import { useState } from 'react'
 
-import { type ProductTexts, toTranslate } from './translate'
+import { type ProductTexts, stillEmpty, toTranslate } from './translate'
 
 // Chrome's built-in Translator API (Chrome 138+ and Edge on desktop): free, no key, the text never
 // leaves the machine. TypeScript's DOM types do not have it yet.
@@ -47,15 +47,18 @@ export const TranslateButton = () => {
       const url = `${config.serverURL}${config.routes.api}/${collectionSlug}/${id}?locale=uk&fallback-locale=none&draft=true&depth=0`
       const response = await fetch(url, { credentials: 'include' })
       if (!response.ok) throw new Error(`українська версія недоступна (${response.status})`)
-      const jobs = toTranslate((await response.json()) as ProductTexts, getData() as ProductTexts)
+      const uk = (await response.json()) as ProductTexts
+      const jobs = toTranslate(uk, getData() as ProductTexts)
       if (!jobs.length) return setStatus('Усі поля вже заповнені або українські порожні')
       setStatus('Перекладаю…')
       // All or nothing: a field filled before a failure would sit in an unmodified form, and leaving
       // the page would drop it without a warning.
       const values = await Promise.all(jobs.map(({ text }) => translator.translate(text)))
-      jobs.forEach(({ path }, index) => dispatchFields({ type: 'UPDATE', path, value: values[index] }))
+      const translated = jobs.map((job, index) => ({ ...job, value: values[index] }))
+      const filled = stillEmpty(translated, uk, getData() as ProductTexts)
+      filled.forEach(({ path, value }) => dispatchFields({ type: 'UPDATE', path, value }))
       setModified(true)
-      setStatus(`Перекладено полів: ${jobs.length}. Перевірте їх перед публікацією.`)
+      setStatus(`Перекладено полів: ${filled.length}. Перевірте їх перед публікацією.`)
     } catch (error) {
       setStatus(`Не вдалося перекласти: ${error instanceof Error ? error.message : String(error)}`)
     } finally {

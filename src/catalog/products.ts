@@ -55,7 +55,11 @@ export const Products: CollectionConfig = {
     afterDelete: [revalidateStorefront],
   },
   fields: [
-    { name: 'translate', type: 'ui', admin: { components: { Field: '/catalog/TranslateButton#TranslateButton' } } },
+    {
+      name: 'translate',
+      type: 'ui',
+      admin: { components: { Field: '/catalog/TranslateButton#TranslateButton' }, disableListColumn: true },
+    },
     { name: 'name', type: 'text', label: 'Назва', localized: true, required: true },
     slugField('name'),
     {
