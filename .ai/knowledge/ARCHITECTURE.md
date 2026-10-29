@@ -15,6 +15,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 
 - **Storefront** — `src/app/[locale]/` is its own root layout, beside `(payload)` and not
   above it: Payload's admin breaks under a `[locale]` segment (payload#10675). `src/proxy.ts`
+  first asks for the site password until the launch (adr-20261029-site-password), then
   (next-intl) routes `uk` at `/` and `en` at `/en` and skips `/admin`, `/api`, `_next` and
   files. It never picks a language from the browser or a cookie: with detection on, `/`
   redirected an English browser to `/en` and the switcher could not get back; `src/i18n/request.ts` takes the locale from `next/root-params`; strings in
@@ -57,7 +58,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Schema** — migrations in `src/migrations/`, applied before every Production deploy; a Preview
   never migrates; locally Payload pushes the schema itself. CI fails when a collection changes
   without a migration.
-- **Development host** — Vercel Hobby + Neon behind Vercel Authentication. Vercel's GitHub App
+- **Development host** — Vercel Hobby + Neon; Production behind the site password, Previews behind
+  Vercel Authentication (adr-20261029-site-password). Vercel's GitHub App
   deploys every push: `master` → Production (migrations, then the build), other branches →
   Preview (build only, same database); CI runs on pull requests and is not a gate before the
   deploy (adr-20261028-vercel-git-deploys). Photos in one Vercel Blob store shared by every

@@ -27,6 +27,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   refined by adr-20261029-admin-roles; checked by: Payload drafts and `access.read` on `products`)
 - The store always has an owner: nobody changes their own role or deletes themselves.
   (adr-20261029-admin-roles; checked by: Vitest on `src/access.ts`)
+- Until the launch every request to the production domain passes the site password; a Production
+  build without `SITE_PASSWORD` fails. (adr-20261029-site-password; checked by: Vitest on
+  `src/proxy.ts` and `src/env.ts`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the content checklist, review)
 - A published product has a Ukrainian name, whichever locale it was published from.

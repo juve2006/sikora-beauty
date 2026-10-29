@@ -16,7 +16,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | Photos | Vercel Blob store `sikora-beauty-media`, public, `fra1` | one store for Production, Preview and Development (adr-20261028-media-on-vercel-blob) |
 | Migrations | `npm run vercel-build` (`vercel.json` `buildCommand`) | Production only: `payload migrate` over the direct connection, then `next build`; Preview only builds |
 | Checks | GitHub Actions CI on every pull request | not a gate before the deploy: merge only a pull request with green CI |
-| Access | Vercel Authentication, scope All Deployments | only the account owner gets in, Preview included |
+| Access | the site password (`src/proxy.ts`) on the production domain; Vercel Authentication, scope Standard Protection, on the rest | the owner and the cosmetologist reach Production with the password, then sign in to `/admin`; only the Vercel account owner reaches a Preview or a deployment URL |
 
 ## Secrets and settings
 
@@ -26,6 +26,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `DATABASE_URL_UNPOOLED` | Neon direct connection | Vercel env, Production and Preview (set by the Neon integration) |
 | `PAYLOAD_SECRET` | 32+ random characters, one per environment | Vercel env, Production and Preview, Sensitive |
 | `BLOB_READ_WRITE_TOKEN` | Blob store token | Vercel env, Production, Preview and Development (set by Vercel when the store is connected); the build fails without it |
+| `SITE_PASSWORD` | the site password, 12+ characters, shared with the owner and the cosmetologist | Vercel env, Production only, Sensitive; the Production build fails without it |
 
 ## Build it from nothing
 
@@ -50,11 +51,14 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    --region fra1 -e production -e preview -e development --yes`. It connects the store and sets
    `BLOB_READ_WRITE_TOKEN`; it also writes the token into `.env.local` — copy it to the password
    manager, then delete the file.
-7. **Protection.** Vercel → Settings → Deployment Protection → Vercel Authentication on, scope
-   **All Deployments**.
+7. **Protection.** A password of 12+ characters from the password manager's generator → Vercel →
+   Settings → Environment Variables → `SITE_PASSWORD`, Production only, Sensitive. Then Settings →
+   Deployment Protection → Vercel Authentication on, scope **Standard Protection**: Vercel keeps
+   Previews and deployment URLs, the site password keeps the production domain.
 8. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
-9. **First admin.** Open the production URL signed in to Vercel → `/admin` → create the first
-   user with a password from the password manager. From then on `/admin` shows the login page.
+9. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
+   create the first user with a password from the password manager. From then on `/admin` shows
+   the login page.
 10. **Catalog seed.** Zones, categories, skin vocabularies and brands, once: copy
     `DATABASE_URL_UNPOOLED` (Production) from Vercel → Settings → Environment Variables, then
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
@@ -63,9 +67,13 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 
 ## Check it
 
-- Without signing in, the production URL, `/admin` and `/api/users` do not reach the
-  application (Vercel's login page instead); the same holds for a Preview URL.
-- Signed in: `/` is Ukrainian, `/en` English, `/admin` the Ukrainian Payload login.
+- Without the site password, the production URL, `/admin` and `/api/users` answer `401` and the
+  browser asks for it. A Preview URL and a deployment URL show Vercel's login page instead.
+- With it: `/` is Ukrainian, `/en` English, `/admin` the Ukrainian Payload login.
+- To change the password: a new `SITE_PASSWORD` in Vercel, then redeploy Production.
+- Before an Instant Rollback or Promote to a Production deployment older than the site password
+  (built before `adr-20261029-site-password`), switch Deployment Protection to All Deployments:
+  that deployment has no gate, and Standard Protection leaves the production domain open.
 - A pull request shows its Preview from `vercel[bot]`; the repository page lists Production and
   Preview under Deployments.
 
@@ -79,5 +87,5 @@ revisits it (adr-20261028-vercel-git-deploys).
 ## Take it down
 
 Delete the Vercel project (this also removes its connection to the repository), the Blob store
-(Vercel → Storage), the Neon database (Neon console), and the Payload secrets and the Blob token
-from the password manager.
+(Vercel → Storage), the Neon database (Neon console), and the Payload secrets, the Blob token and
+the site password from the password manager.
