@@ -47,8 +47,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   products left out — and derives what a page shows from a product in `productPage.ts`.
   - Brands; zones and categories as one tree in `categories`: a zone has no parent, a category's
     parent is a zone (`validate`). A zone with categories cannot be deleted (`beforeDelete`): the
-    database would set their parent to null and turn them into zones. `fullTitle` («Обличчя → Очищення») tells apart categories with
-    the same title in pickers. Skin type, condition and concern are three Payload collections from
+    database would set their parent to null and turn them into zones. Nor can a brand that a product
+    names, in `products` or in its latest version (a draft saved over a published product lives only
+    there): the database would set the product's brand to null, and the brand is required. `fullTitle`
+    («Обличчя → Очищення») tells apart categories with the same title in pickers. Skin type, condition and concern are three Payload collections from
     one function, not selects, so the cosmetologist can add a term without a deploy.
   - Products have drafts; anonymous readers see published ones only (`access.read`). Price is
     integer kopiyky, typed in hryvnias through `PriceField`. The product rules — made to order

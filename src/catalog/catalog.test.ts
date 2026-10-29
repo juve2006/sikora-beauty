@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parentError } from './collections'
+import { Brands, parentError } from './collections'
 import type { Product } from '../payload-types'
 import { formatHryvnias, offerPrice, parseHryvnias } from './price'
 import { brandName, jsonLdScript, productJsonLd } from './productPage'
@@ -131,6 +131,23 @@ describe('parentError', () => {
     expect(parentError(category, 5, 0)).toBe('Батьком може бути лише зона')
     expect(parentError(zone, 1, 0)).toBe('Батьком може бути лише зона')
     expect(parentError(zone, 5, 2)).toBe('Зона з категоріями не може стати категорією')
+  })
+})
+
+describe('deleting a brand', () => {
+  const [guard] = Brands.hooks?.beforeDelete ?? []
+  const remove = (products: number, drafts: number) => {
+    const payload = { count: async () => ({ totalDocs: products }), countVersions: async () => ({ totalDocs: drafts }) }
+    return guard({ id: 1, req: { payload } } as unknown as Parameters<typeof guard>[0])
+  }
+
+  it('refuses while a product or a product\'s current draft names it', async () => {
+    await expect(remove(2, 0)).rejects.toThrow('Спершу перенесіть або видаліть товари цього бренду')
+    await expect(remove(0, 1)).rejects.toThrow('Спершу перенесіть або видаліть товари цього бренду')
+  })
+
+  it('deletes a brand no product names', async () => {
+    await expect(remove(0, 0)).resolves.toBeUndefined()
   })
 })
 
