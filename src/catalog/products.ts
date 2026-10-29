@@ -53,7 +53,7 @@ export const Products: CollectionConfig = {
           type: 'number',
           label: 'Ціна, грн',
           required: true,
-          admin: { components: { Field: '/catalog/PriceField#PriceField' } },
+          admin: { components: { Field: '/catalog/PriceField#PriceField', Cell: '/catalog/PriceField#PriceCell' } },
           validate: (value: unknown) => rule(kopiyky.safeParse(value).success, priceMessage),
           // Money is integer kopiyky in a draft too (RULES.md); a draft may only leave it empty.
           hooks: {

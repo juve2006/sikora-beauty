@@ -2,7 +2,7 @@
 
 import { TextInput, useField } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
-import type { NumberFieldClientComponent } from 'payload'
+import type { DefaultCellComponentProps, NumberFieldClient, NumberFieldClientComponent } from 'payload'
 import { type ChangeEvent, useState } from 'react'
 
 import { formatHryvnias, parseHryvnias } from './price'
@@ -36,3 +36,7 @@ export const PriceField: NumberFieldClientComponent = ({ field, path, readOnly }
     </div>
   )
 }
+
+// The products list shows hryvnias too: its column is labelled «Ціна, грн».
+export const PriceCell = ({ cellData }: DefaultCellComponentProps<NumberFieldClient>) =>
+  typeof cellData === 'number' ? formatHryvnias(cellData) : null
