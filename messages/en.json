@@ -26,7 +26,7 @@
   },
   "Product": {
     "price": "UAH {amount}",
-    "volume": "{volume} {unit, select, ml {ml} g {g} pcs {pcs} other {}}",
+    "volume": "{volume, number} {unit, select, ml {ml} g {g} pcs {pcs} other {}}",
     "availability": {
       "in_stock": "In stock",
       "made_to_order": "Made to order, ships in {days, plural, one {# day} other {# days}}",
