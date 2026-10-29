@@ -2990,7 +2990,7 @@
           "type": "enum_users_role",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "'cosmetologist'"
         },
         "updated_at": {
