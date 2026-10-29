@@ -5,5 +5,13 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores(['.next/**', 'next-env.d.ts', 'src/payload-types.ts', 'src/migrations/**']),
+  // Agent skills are vendored as they ship; their examples are not this project's code.
+  globalIgnores([
+    '.next/**',
+    'next-env.d.ts',
+    'src/payload-types.ts',
+    'src/migrations/**',
+    '.claude/skills/**',
+    '.agents/skills/**',
+  ]),
 ])

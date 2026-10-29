@@ -223,3 +223,13 @@ widths.
 
 Informal synonyms: component gallery, storybook.
 Use in: source code, documentation.
+
+## Theme token
+
+A CSS variable in `src/app/[locale]/globals.css` — `--primary`, `--background`, `--radius` and the
+rest of shadcn's set — with a value for the light theme (`:root`) and one for the dark theme
+(`.dark`); Tailwind classes such as `bg-primary` read it. Storefront components take colours and
+radii only from theme tokens.
+
+Informal synonyms: design token, CSS variable, токен.
+Use in: source code, documentation.

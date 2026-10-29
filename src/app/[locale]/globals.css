@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* The theme is a class on <html>, set before the first paint (see the locale layout). */
+@custom-variant dark (&:is(.dark *));
+
+/* Direction A, "clinical clean": porcelain and mist surfaces, ink text, petrol for actions.
+   Every storefront colour, font and radius comes from here; a component never holds its own. */
+:root {
+  --background: #fbfcfc;
+  --foreground: #15232d;
+  --card: #ffffff;
+  --card-foreground: #15232d;
+  --popover: #ffffff;
+  --popover-foreground: #15232d;
+  --primary: #17605c;
+  --primary-foreground: #f4fbfa;
+  --secondary: #eef2f2;
+  --secondary-foreground: #15232d;
+  --muted: #eef2f2;
+  --muted-foreground: #56666e;
+  --accent: #e3efed;
+  --accent-foreground: #0f4744;
+  --destructive: #b42318;
+  --border: #dce3e3;
+  --input: #cfd8d9;
+  --ring: #17605c;
+  --radius: 0.5rem;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0f1a20;
+  --foreground: #e7eef0;
+  --card: #142229;
+  --card-foreground: #e7eef0;
+  --popover: #142229;
+  --popover-foreground: #e7eef0;
+  --primary: #62bbb1;
+  --primary-foreground: #0b1d1c;
+  --secondary: #1b2b34;
+  --secondary-foreground: #e7eef0;
+  --muted: #1b2b34;
+  --muted-foreground: #9aabb2;
+  --accent: #17393a;
+  --accent-foreground: #cdebe7;
+  --destructive: #f97066;
+  --border: #26363f;
+  --input: #31434d;
+  --ring: #62bbb1;
+}
+
+@theme inline {
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

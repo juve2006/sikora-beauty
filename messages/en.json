@@ -3,13 +3,36 @@
     "title": "Sikora Beauty",
     "description": "Professional skincare"
   },
+  "Logo": {
+    "name": "Sikora",
+    "kind": "Beauty"
+  },
   "HomePage": {
-    "title": "Sikora Beauty",
     "comingSoon": "The professional skincare store is getting ready to open."
   },
   "LanguageSwitcher": {
     "label": "Language",
-    "uk": "Українська",
-    "en": "English"
+    "uk": {
+      "short": "UA",
+      "name": "Українська"
+    },
+    "en": {
+      "short": "EN",
+      "name": "English"
+    }
+  },
+  "ThemeToggle": {
+    "label": "Switch theme"
+  },
+  "Canvas": {
+    "title": "Components",
+    "description": "Every store component in every variant and state. The buttons at the top switch the language and the theme.",
+    "colors": "Colours",
+    "typography": "Typography",
+    "heading": "Care a cosmetologist would choose",
+    "body": "Retinol serum for mature skin, 30 ml. Professional skincare matched to skin type and condition.",
+    "glyphs": "Ґанок, їжак, єнот, Іван",
+    "buttonLabel": "Add to cart",
+    "buttonIcon": "Cart"
   }
 }

@@ -6,7 +6,9 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 
 ## Status
 
-A placeholder page at `/` (Ukrainian) and `/en` (English), and the Payload admin at `/admin`,
+A placeholder page at `/` (Ukrainian) and `/en` (English) in the store's own look — a text logo,
+a language switch and a light and a dark theme that follows the device until the shopper picks
+one — and the Payload admin at `/admin`,
 where the catalog can be filled in: brands, zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), then
@@ -14,17 +16,19 @@ reviewed and published. Every admin user is an owner («Власник»: users,
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. No storefront
-page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+page shows the catalog yet. `/canvas` shows every storefront component in every variant and
+state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 1 — `design-direction`, then the product page and the catalog listing.
+- Next: Phase 1 — the product page and the catalog listing.
 
 ## Stack
 
-Next.js 16 + Payload CMS 3 on Postgres, one application; next-intl; Zod. During development it
+Next.js 16 + Payload CMS 3 on Postgres, one application; next-intl; Zod; Tailwind CSS 4 and
+shadcn/ui for the storefront. During development it
 runs on Vercel (Hobby) with Neon Postgres; before launch it moves to Hetzner with Coolify, behind
 Cloudflare. Details: [`stack.md`](.ai/specs/sikora-beauty/stack.md).
 
@@ -47,7 +51,9 @@ migration for the deployed database: `npm run payload -- migrate:create <name>`.
 skin vocabularies and brands; it never changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`).
 
-UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys.
+UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
+storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components
+are shadcn/ui in `src/components/ui/` (`npx shadcn add <component>`), each shown on `/canvas`.
 
 ## Checks and deploy
 
