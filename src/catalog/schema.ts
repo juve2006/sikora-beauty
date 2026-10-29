@@ -4,6 +4,8 @@ import { z } from 'zod'
 
 export const availabilities = ['in_stock', 'made_to_order', 'out_of_stock'] as const
 export const volumeUnits = ['ml', 'g', 'pcs'] as const
+// For the admin and the owner's price list; the storefront translates units through messages/*.json.
+export const volumeUnitLabels: Record<(typeof volumeUnits)[number], string> = { ml: 'мл', g: 'г', pcs: 'шт' }
 
 export const kopiyky = z.number().int().min(0)
 export const madeToOrderDays = z.number().int().min(1).max(90)

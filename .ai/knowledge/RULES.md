@@ -51,6 +51,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `src/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
   A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:
   Vitest in `src/access.test.ts`)
+- A custom admin view (`admin.components.views`) is open to anyone: Payload sends a visitor
+  without admin access to the login only from its own views. The view redirects when
+  `permissions.canAccessAdmin` is false and checks the role itself; its endpoints check the role
+  again. (adr-20261029-catalog-import; checked by: review)
 - UI strings live in `messages/uk.json` and `messages/en.json`, never inline, and both files keep
   the same keys. (adr-20261028-storefront-languages-uk-en; checked by: a key-parity check in CI)
 - Content text fields are localized with `uk` as default and fallback; prices, INCI, SKU and images
