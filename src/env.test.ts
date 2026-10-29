@@ -27,6 +27,20 @@ describe('parseEnv', () => {
     )
   })
 
+  it('needs a long site password on Vercel Production only', () => {
+    const vercel = { ...valid, VERCEL: '1', BLOB_READ_WRITE_TOKEN: 'token' }
+    expect(() => parseEnv({ ...vercel, VERCEL_ENV: 'production' })).toThrow(
+      'Invalid environment variables: SITE_PASSWORD',
+    )
+    expect(() => parseEnv({ ...vercel, VERCEL_ENV: 'production', SITE_PASSWORD: 'short' })).toThrow(
+      'Invalid environment variables: SITE_PASSWORD',
+    )
+    expect(parseEnv({ ...vercel, VERCEL_ENV: 'production', SITE_PASSWORD: 'x'.repeat(12) }).SITE_PASSWORD).toBe(
+      'x'.repeat(12),
+    )
+    expect(parseEnv({ ...vercel, VERCEL_ENV: 'preview' }).SITE_PASSWORD).toBeUndefined()
+  })
+
   it('never puts a value into the error', () => {
     const leaky = { ...valid, PAYLOAD_SECRET: 'secret-but-too-short' }
     expect(() => parseEnv(leaky)).toThrow(/^(?!.*secret-but-too-short).*$/)

@@ -13,12 +13,12 @@ filled from its Ukrainian ones with «Перекласти з українськ
 reviewed and published. Every admin user is an owner («Власник»: users, prices, availability,
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). No storefront
 page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
-Preview; both are visible only to the developer. Nothing is sold yet.
+Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
+Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: `deployment-access` — the owner and the cosmetologist reach the admin; Phase 1 —
-  `design-direction`, then the product page and the catalog listing.
+- Next: Phase 1 — `design-direction`, then the product page and the catalog listing.
 
 ## Stack
 

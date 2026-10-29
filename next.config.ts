@@ -10,6 +10,9 @@ const withNextIntl = createNextIntlPlugin()
 const nextConfig: NextConfig = {
   // AGENTS.md is written by people and Jig; `next dev` would otherwise add its own block.
   agentRules: false,
+  // src/proxy.ts sees every request, /api included, and Next cuts a body it buffers there at 10 MB:
+  // a phone photo uploaded through the server (locally, on the production host) would arrive cut.
+  experimental: { proxyClientMaxBodySize: '50mb' },
   // From Payload's template: its sources import `.js` paths that are `.ts` files.
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
