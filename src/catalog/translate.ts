@@ -21,3 +21,10 @@ export function toTranslate(uk: ProductTexts, other: ProductTexts): { path: stri
   })
   return pairs.flatMap(([path, from, to]) => (from?.trim() && !to?.trim() ? [{ path, text: from }] : []))
 }
+
+// The translation takes a while: by the time it arrives someone may have typed into a field, or
+// moved an actives row. Only what `toTranslate` still names, for the same Ukrainian text, is filled.
+export function stillEmpty<Job extends { path: string; text: string }>(jobs: Job[], uk: ProductTexts, other: ProductTexts) {
+  const now = new Set(toTranslate(uk, other).map(({ path, text }) => `${path}\n${text}`))
+  return jobs.filter(({ path, text }) => now.has(`${path}\n${text}`))
+}
