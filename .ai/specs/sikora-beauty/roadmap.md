@@ -6,7 +6,8 @@ by card or cash on delivery, delivered by Nova Poshta; the owner and the cosmeto
 catalog, orders and requests in the admin without a developer.
 
 No epic: each task merges into `master` through its own pull request, only on green CI, and deploys
-at once — to the development host (Vercel Hobby + Neon, visible only to the developer) until
+at once — to the development host (Vercel Hobby + Neon; Production behind the site password the
+owner and the cosmetologist share, Previews visible only to the developer) until
 `production host` moves the store to Hetzner + Coolify; the store opens to shoppers in Phase 2.
 
 Rules for every item:
@@ -47,7 +48,8 @@ cosmetologist each have a role in the admin.
 Goal: products are filled in the admin and shown on the storefront with filters. Done when: the
 owner sees on the development host, from a phone and a laptop, in both languages, the catalog of
 one brand filled in by the cosmetologist in the admin, with filters by zone, skin type, condition,
-need and brand. How the two of them get past Vercel Authentication is open question 12.
+need and brand. Both reach it with the site password, then their own admin accounts
+(`deployment-access`, adr-20261029-site-password).
 
 - [ ] `design-direction` — the storefront has a face and a component set (after: walking skeleton — lives in the application)
   - Backend: —
@@ -117,14 +119,16 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     deployed by `deploy.yml` through the Coolify API, waiting for the result; migrations on start
     (`prodMigrations`) behind a health check; Cloudflare Access in front of `/admin`; the first
     admin created from env, production refusing to start with an empty users collection; data
-    moved from Neon
+    moved from Neon; the site password set in Coolify, and `src/env.ts` requiring it there, not
+    only when `VERCEL_ENV` is `production`
   - Frontend: —
 - [ ] backups and restore — the database survives a crash (after: production host — backs up its database)
   - Backend: a daily backup to R2, a tested restore, a runbook, secrets in a password manager
   - Frontend: —
 - [ ] launch readiness — the site is open (after: cart and checkout — the conversion measures a purchase; header, home and about — public navigation; production host — the store opens there; backups and restore — no launch without a tested restore)
   - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
-    value; open the store to shoppers on the production host
+    value; open the store to shoppers on the production host: the site password removed
+    (`src/proxy.ts`, `src/env.ts`)
   - Frontend: offer, privacy, delivery and payment, returns pages in both languages; consent banner
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
