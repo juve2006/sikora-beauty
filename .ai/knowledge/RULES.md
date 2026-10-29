@@ -59,6 +59,11 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   (developer, 2026-10-28; checked by: review)
 - A new check joins `ci.yml` as a job of its own, in the pull request that brings the code it
   checks. (spec `sikora-beauty`; checked by: review)
+- CI fails on a high or critical advisory (`npm audit --audit-level=high`). One reached through a
+  package that pins the vulnerable version is lifted by an entry in `overrides` in `package.json`:
+  `dompurify` (pinned at 3.4.8 by `monaco-editor` in `@payloadcms/ui`) and `graphql-scalars`
+  (pinned at 1.22.2 by `@payloadcms/graphql`; GHSA-x8rm-f576-gq67). An entry goes once its
+  parent ships the fix. (task `deps-audit`; checked by: `npm audit` in CI, review)
 - Dependency install scripts stay denied (`allowScripts` in `package.json`): the packages that
   have them ship prebuilt binaries as platform packages, and npm skips unlisted scripts anyway.
   Approving one needs the reason in its pull request. (task `build-warnings`; checked by: npm's
