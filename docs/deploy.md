@@ -64,6 +64,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
     The seed signs nothing, so a throwaway secret will do, and the URL never enters the shell
     history. It prints how many records it created; run again, it creates none.
+11. **Products from cosmetika.com.ua** (after the seed: it needs the brands). As the owner,
+    `/admin` → Інструменти → Імпорт → «Перевірити» → «Імпортувати нові». The page sends a few
+    products at a time and must stay open; the photos go to Blob. Interrupted, «Перевірити» shows
+    what is left; run again, it creates none.
 
 ## Check it
 

@@ -52,6 +52,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     and scripts pass `context.disableRevalidate` (outside a Next request it throws).
   - `npm run seed:catalog` creates the missing zones, categories, vocabularies and brands by slug
     and never overwrites what the cosmetologist changed.
+  - The owner's «Імпорт» page (`/admin/import`, a Payload admin view) brings our brands' products
+    from cosmetika.com.ua as drafts, five per request, and applies a CSV of prices whole or not at
+    all; its endpoints sit on `products` (`importEndpoints.ts`) and refuse anyone but the owner
+    (adr-20261029-catalog-import).
 - **Configuration** — `src/payload.config.ts` reads the environment through `src/env.ts` (Zod;
   an error names variables, never values). Content localization `uk`/`en`, `uk` default and
   fallback.
@@ -103,7 +107,9 @@ frontend and backend are separated by folders, not services.
 - Each external integration (monobank, Nova Poshta, Telegram) is one module without a port
   interface; an abstraction comes with a second implementation.
 - Every domain's boundary is a Zod schema in `src/<domain>/schema.ts`, shared by the storefront
-  form and the server action, webhook or import.
+  form and the server action, webhook or import. An outside source's own format — a supplier's
+  API, a file the owner uploads — is parsed by a schema next to its parser (`cosmetika.ts`,
+  `prices.ts`).
 
 ### Runtime flows
 

@@ -11,7 +11,9 @@ where the catalog can be filled in: brands, zones and categories, skin types, co
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), then
 reviewed and published. Every admin user is an owner («Власник»: users, prices, availability,
-deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). No storefront
+deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
+«Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
+drafts with photos, texts and prices, and changes prices in bulk through a CSV. No storefront
 page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.

@@ -1,13 +1,13 @@
 import { type CollectionBeforeChangeHook, type CollectionConfig, ValidationError } from 'payload'
 
 import { editors, ownerField } from '../access'
+import { importEndpoints } from './importEndpoints'
 import { revalidateStorefront } from './revalidate'
-import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnits } from './schema'
+import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnitLabels, volumeUnits } from './schema'
 import { slugField } from './slug'
 
 // Admin labels only: the storefront translates the values through messages/*.json.
 const availabilityLabels = { in_stock: 'В наявності', made_to_order: 'Під замовлення', out_of_stock: 'Немає в наявності' }
-const volumeUnitLabels = { ml: 'мл', g: 'г', pcs: 'шт' }
 
 // Drafts skip field validation; these run when a product is published.
 const rule = (ok: boolean, message: string) => ok || message
@@ -69,6 +69,8 @@ export const Products: CollectionConfig = {
     afterChange: [revalidateStorefront],
     afterDelete: [revalidateStorefront],
   },
+  // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV.
+  endpoints: importEndpoints,
   fields: [
     {
       name: 'translate',

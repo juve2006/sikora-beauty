@@ -18,6 +18,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV.
+    components: {
+      views: { import: { Component: '/catalog/ImportView#ImportView', path: '/import', meta: { title: 'Імпорт' } } },
+      afterNavLinks: ['/catalog/ImportView#ImportNavLink'],
+    },
   },
   collections,
   i18n: {
