@@ -1,5 +1,6 @@
 import { APIError, type CollectionConfig, type PayloadRequest } from 'payload'
 
+import { editors } from '../access'
 import { revalidateStorefront } from './revalidate'
 import { slugField } from './slug'
 
@@ -13,7 +14,7 @@ export const Brands: CollectionConfig = {
   labels: { singular: 'Бренд', plural: 'Бренди' },
   admin: { group, useAsTitle: 'name', defaultColumns: ['name', 'slug'] },
   defaultSort: 'name',
-  access: { read: () => true },
+  access: { read: () => true, ...editors },
   hooks,
   fields: [{ name: 'name', type: 'text', label: 'Назва', required: true }, slugField('name')],
 }
@@ -36,7 +37,7 @@ export const Categories: CollectionConfig = {
     description: 'Зона — запис без батька (Обличчя, Тіло…). Категорія — запис, чий батько зона.',
   },
   orderable: true,
-  access: { read: () => true },
+  access: { read: () => true, ...editors },
   hooks: {
     ...hooks,
     // The database sets a deleted zone's categories' parent to null, which would make them zones.
@@ -105,7 +106,7 @@ function vocabulary(slug: string, singular: string, plural: string): CollectionC
     labels: { singular, plural },
     admin: { group, useAsTitle: 'title', defaultColumns: ['title', 'slug'] },
     orderable: true,
-    access: { read: () => true },
+    access: { read: () => true, ...editors },
     hooks,
     fields: [{ name: 'title', type: 'text', label: 'Назва', localized: true, required: true }, slugField('title')],
   }
@@ -120,7 +121,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Фото', plural: 'Фото' },
   admin: { group },
-  access: { read: () => true },
+  access: { read: () => true, ...editors },
   hooks,
   upload: { mimeTypes: ['image/*'] },
   fields: [

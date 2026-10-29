@@ -37,7 +37,7 @@ cosmetologist each have a role in the admin.
     localization `uk`/`en` and the admin in Ukrainian
   - Frontend: next-intl routing (`uk` at `/`, `en` at `/en`), `messages/` files, a placeholder
     page with a language switcher
-- [ ] `admin-roles` — the owner and the cosmetologist work in the admin with their own rights (after: walking skeleton — roles live on its users)
+- [x] `admin-roles` — the owner and the cosmetologist work in the admin with their own rights (after: walking skeleton — roles live on its users)
   - Backend: "owner" and "cosmetologist" roles on users, access rules per collection, Ukrainian
     labels; Vitest for the access rules
   - Frontend: —

@@ -1,5 +1,6 @@
 import { type CollectionBeforeChangeHook, type CollectionConfig, ValidationError } from 'payload'
 
+import { editors, ownerField } from '../access'
 import { revalidateStorefront } from './revalidate'
 import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnits } from './schema'
 import { slugField } from './slug'
@@ -11,6 +12,19 @@ const volumeUnitLabels = { ml: 'мл', g: 'г', pcs: 'шт' }
 // Drafts skip field validation; these run when a product is published.
 const rule = (ok: boolean, message: string) => ok || message
 const priceMessage = 'Вкажіть ціну: 1245 або 1245,50'
+
+// Prices and availability are the owner's (GLOSSARY): the cosmetologist sees them, and a value she
+// sends is dropped. Both are required on publishing, so her new product waits for the owner.
+const ownerOnly = { create: ownerField, update: ownerField }
+// Restoring a version skips the step that puts a dropped value back from the document, so the
+// cosmetologist's restore would lose them and fail validation: she keeps the current ones. A
+// collection hook, not a field one: Payload runs the fields at once, and the days' condition would
+// read availability before a field hook put it back, skipping its check.
+export const keepOnRestore: CollectionBeforeChangeHook = ({ data, originalDoc, req }) => {
+  if (!req.context.isRestoringVersion) return data
+  const dropped = (['price', 'availability', 'madeToOrderDays'] as const).filter((name) => data[name] === undefined)
+  return { ...data, ...Object.fromEntries(dropped.map((name) => [name, originalDoc?.[name]])) }
+}
 
 // Payload checks `required` only in the locale being saved: a product written in English alone
 // would be published with no Ukrainian name and show nameless at `/`.
@@ -48,9 +62,10 @@ export const Products: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
+    ...editors,
   },
   hooks: {
-    beforeChange: [requireUkrainianName],
+    beforeChange: [keepOnRestore, requireUkrainianName],
     afterChange: [revalidateStorefront],
     afterDelete: [revalidateStorefront],
   },
@@ -85,6 +100,7 @@ export const Products: CollectionConfig = {
           type: 'number',
           label: 'Ціна, грн',
           required: true,
+          access: ownerOnly,
           admin: { components: { Field: '/catalog/PriceField#PriceField', Cell: '/catalog/PriceField#PriceCell' } },
           validate: (value: unknown) => rule(kopiyky.safeParse(value).success, priceMessage),
           // Money is integer kopiyky in a draft too (RULES.md); a draft may only leave it empty.
@@ -121,12 +137,14 @@ export const Products: CollectionConfig = {
           type: 'select',
           label: 'Наявність',
           required: true,
+          access: ownerOnly,
           options: availabilities.map((value) => ({ value, label: availabilityLabels[value] })),
         },
         {
           name: 'madeToOrderDays',
           type: 'number',
           label: 'Днів до відправки',
+          access: ownerOnly,
           admin: { condition: (_, sibling) => sibling.availability === 'made_to_order' },
           validate: (value: unknown, { siblingData }: { siblingData: { availability?: string } }) =>
             rule(hasDaysIfMadeToOrder({ ...siblingData, madeToOrderDays: value }), 'Вкажіть від 1 до 90 днів'),

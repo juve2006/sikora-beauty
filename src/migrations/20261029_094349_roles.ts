@@ -1,0 +1,15 @@
+import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
+
+export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.execute(sql`
+   CREATE TYPE "public"."enum_users_role" AS ENUM('owner', 'cosmetologist');
+  ALTER TABLE "users" ADD COLUMN "role" "enum_users_role" DEFAULT 'cosmetologist' NOT NULL;`)
+  // Before roles every user could do everything: those who exist keep it as owners.
+  await db.execute(sql`UPDATE "users" SET "role" = 'owner';`)
+}
+
+export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.execute(sql`
+   ALTER TABLE "users" DROP COLUMN "role";
+  DROP TYPE "public"."enum_users_role";`)
+}

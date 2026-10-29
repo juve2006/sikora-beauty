@@ -197,14 +197,14 @@ Use in: source code, schema, API, documentation.
 
 ## Owner
 
-The admin role that runs the store: orders, prices, availability, settings.
+The admin role that runs the store: orders, prices, availability, settings, users. Role value `owner`, «Власник».
 
 Informal synonyms: власник, брат.
 Use in: source code, schema, API, documentation.
 
 ## Cosmetologist
 
-The admin role that reviews and publishes product content and answers consultation requests.
+The admin role that reviews and publishes product content and answers consultation requests. Role value `cosmetologist`, «Косметолог».
 
 Informal synonyms: косметолог.
 Use in: source code, schema, API, documentation.
