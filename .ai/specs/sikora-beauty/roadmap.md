@@ -62,24 +62,25 @@ need and brand. Both reach it with the site password, then their own admin accou
     related products, drafts, localized text fields, Ukrainian admin labels, the product Zod
     schema, vocabulary seed in both languages, on-demand revalidation
   - Frontend: —
-- [ ] product page — the product page (after: catalog model — shows its fields; design direction — built on its components)
+- [ ] `product-page` — the product page (after: catalog model — shows its fields; design direction — built on its components)
   - Backend: product query with related products, SEO data (meta, OG, JSON-LD Product, `hreflang`)
   - Frontend: every required field, gallery, delivery and payment block, related products; mobile
     + desktop; components in `/canvas`
-- [ ] catalog listing — the catalog with filters (after: catalog model — filters by its vocabularies; design direction — built on its components)
+- [ ] `catalog-listing` — the catalog with filters (after: catalog model — filters by its vocabularies; design direction — built on its components)
   - Backend: queries by zone, category, skin type, condition, need and brand; facets with counts;
     pagination; Zod for URL parameters
   - Frontend: zone and category pages, filters as URL parameters (a sheet on mobile), landing pages
     for needs and skin types, sorting, empty facets hidden
-- [ ] brands and collections — brands and collections (after: catalog listing — the same lists with a fixed filter)
+- [ ] `brands-and-collections` — brands and collections (after: catalog listing — the same lists with a fixed filter)
   - Backend: collection queries by flag
   - Frontend: brand pages, "New", "Bestsellers", "Sets", "Minis"
-- [ ] catalog import — base data without typing it in (after: catalog model — writes into its collections)
-  - Backend: import from the cosmetika.com.ua Store API (3 brands) and from a distributor's
-    CSV/XLSX price list, also for bulk price updates; Zod validation per row; everything lands as
-    drafts; an error report
+- [x] `catalog-import` — base data without typing it in (after: catalog model — writes into its collections)
+  - Backend: import from the cosmetika.com.ua Store API (3 brands), everything as drafts; bulk
+    price updates from a CSV of every product, Zod validation per row, applied whole or not at all,
+    with an error report; a distributor's own price list, once there is one, decides its columns
+    (adr-20261029-catalog-import)
   - Frontend: an import page in the admin
-- [ ] content drafts — rich fields filled in and reviewed (after: catalog import — completes the imported products)
+- [ ] `content-drafts` — rich fields filled in and reviewed (after: catalog import — completes the imported products)
   - Backend: AI drafts of the rich fields from official brand material and of English
     translations; INCI only from a source + a "source" field; a wording checklist with no medical
     claims
@@ -174,9 +175,9 @@ been dropped on purpose.
 ## Waves
 
 1. walking-skeleton
-2. admin roles; design direction; catalog model
-3. product page; catalog listing; catalog import; search; consultation request
-4. brands and collections; content drafts; favorites; cart and checkout; production host
+2. admin-roles; design-direction; catalog-model
+3. product-page; catalog-listing; catalog-import; search; consultation request
+4. brands-and-collections; content-drafts; favorites; cart and checkout; production host
 5. header, home and about; care finder; backups and restore
 6. launch readiness; mono payment; np waybill
 
