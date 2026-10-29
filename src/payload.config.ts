@@ -37,7 +37,9 @@ export default buildConfig({
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(env.BLOB_READ_WRITE_TOKEN),
-      collections: { media: true },
+      // A photo's url is its public Blob URL, not /api/media/file/…: next/image fetches it without
+      // the site password, which the proxy would ask that path for (adr-20261029-site-password).
+      collections: { media: { disablePayloadAccessControl: true } },
       token: env.BLOB_READ_WRITE_TOKEN,
       // Uploads through a Vercel function stop at 4.5 MB; the browser sends the file to Blob itself.
       clientUploads: true,

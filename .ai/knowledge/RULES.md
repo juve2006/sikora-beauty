@@ -41,6 +41,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   the Local API sets `req.locale` to the locale it reads, and the save that ran the hook then
   writes into that locale — English texts over the Ukrainian ones. (task `english-content`;
   checked by: review)
+- A write that sets a localized field inside an array (`actives[].name`) in one locale carries the
+  rows' `id`s. Without them Payload replaces the rows, and the other locale's values in them are
+  gone; the admin keeps the ids, a script or an API call must send them. (task `product-page`;
+  checked by: review)
 
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
@@ -67,7 +71,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   task `design-direction`; checked by: review)
 - `next build` runs in CI without a database, so a page must not reach Payload while it is
   prerendered: a page that reads a Payload session awaits `headers()` before `getPayload`, which
-  makes it dynamic. (task `design-direction`; checked by: the CI `build` job)
+  makes it dynamic; a page of the catalog returns `[]` from `generateStaticParams`, so it renders
+  on its first visit and stays cached until a save revalidates it. (tasks `design-direction`,
+  `product-page`; checked by: the CI `build` job)
 - One roadmap item is one task and one pull request, with a Backend and a Frontend section.
   (spec `sikora-beauty`; checked by: review)
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec

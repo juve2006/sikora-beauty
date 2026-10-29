@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { routing } from '@/i18n/routing'
+import { siteUrl } from '@/lib/site'
 
 import './globals.css'
 
@@ -28,9 +29,14 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
+// Next makes canonical and hreflang URLs absolute only against an explicit metadataBase.
 export async function generateMetadata() {
   const t = await getTranslations('Metadata')
-  return { title: t('title'), description: t('description') }
+  return {
+    metadataBase: siteUrl,
+    title: { default: t('title'), template: `%s — ${t('title')}` },
+    description: t('description'),
+  }
 }
 
 type Props = {

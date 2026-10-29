@@ -9,7 +9,15 @@ import type { ReactNode } from 'react'
 
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { Logo } from '@/components/Logo'
+import { AddToCart } from '@/components/product/AddToCart'
+import { Availability } from '@/components/product/Availability'
+import { DeliveryPayment } from '@/components/product/DeliveryPayment'
+import { type CardProduct, ProductCard } from '@/components/product/ProductCard'
+import { ProductGallery } from '@/components/product/ProductGallery'
+import { ProductPrice } from '@/components/product/ProductPrice'
+import { SiteHeader } from '@/components/SiteHeader'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
 // Every storefront component in every variant and state (RULES.md): a component a task adds
@@ -72,96 +80,189 @@ function Specimen({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
+const samples = ['/samples/bottle.svg', '/samples/jar.svg', '/samples/tube.svg']
+const madeToOrderDays = [1, 3, 5]
+
 export default async function CanvasPage() {
   await requireAdminUser()
   const t = await getTranslations('Canvas')
+  const photos = samples.map((url) => ({ url, alt: t('sampleAlt') }))
+  const card = (overrides: Partial<CardProduct>): CardProduct => ({
+    slug: 'sample',
+    name: t('sampleName'),
+    brand: t('sampleBrand'),
+    price: 124550,
+    volume: 30,
+    volumeUnit: 'ml',
+    availability: 'in_stock',
+    photo: photos[0],
+    ...overrides,
+  })
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
-      <header className="flex items-center justify-between gap-4 py-4">
-        <Logo size="sm" />
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher />
-          <ThemeToggle />
+    <>
+      <SiteHeader />
+      <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
+        <div className="pt-8 pb-10">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t('title')}</h1>
+          <p className="mt-3 max-w-2xl text-muted-foreground">{t('description')}</p>
         </div>
-      </header>
 
-      <div className="pt-8 pb-10">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t('title')}</h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground">{t('description')}</p>
-      </div>
+        <Section title={t('colors')}>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+            {colors.map(([name, className]) => (
+              <li key={name} className="flex flex-col gap-2">
+                <span className={cn('h-14 rounded-lg border', className)} />
+                <span className="text-xs break-all text-muted-foreground">{name}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
 
-      <Section title={t('colors')}>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-          {colors.map(([name, className]) => (
-            <li key={name} className="flex flex-col gap-2">
-              <span className={cn('h-14 rounded-lg border', className)} />
-              <span className="text-xs break-all text-muted-foreground">{name}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title={t('typography')}>
-        <div className="flex flex-col gap-5">
-          {textSizes.map((size) => (
-            <Specimen key={size} label={size}>
-              <p className={cn(size, 'leading-tight font-semibold tracking-tight')}>{t('heading')}</p>
+        <Section title={t('typography')}>
+          <div className="flex flex-col gap-5">
+            {textSizes.map((size) => (
+              <Specimen key={size} label={size}>
+                <p className={cn(size, 'leading-tight font-semibold tracking-tight')}>{t('heading')}</p>
+              </Specimen>
+            ))}
+            <Specimen label="text-base">
+              <p className="max-w-[65ch] leading-relaxed">{t('body')}</p>
             </Specimen>
-          ))}
-          <Specimen label="text-base">
-            <p className="max-w-[65ch] leading-relaxed">{t('body')}</p>
-          </Specimen>
-          <Specimen label="text-sm text-muted-foreground">
-            <p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">{t('body')}</p>
-          </Specimen>
-          <Specimen label="font-light / font-normal / font-medium / font-semibold">
-            <p className="text-2xl font-light">{t('glyphs')}</p>
-            <p className="text-2xl font-normal">{t('glyphs')}</p>
-            <p className="text-2xl font-medium">{t('glyphs')}</p>
-            <p className="text-2xl font-semibold">{t('glyphs')}</p>
-          </Specimen>
-        </div>
-      </Section>
+            <Specimen label="text-sm text-muted-foreground">
+              <p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">{t('body')}</p>
+            </Specimen>
+            <Specimen label="font-light / font-normal / font-medium / font-semibold">
+              <p className="text-2xl font-light">{t('glyphs')}</p>
+              <p className="text-2xl font-normal">{t('glyphs')}</p>
+              <p className="text-2xl font-medium">{t('glyphs')}</p>
+              <p className="text-2xl font-semibold">{t('glyphs')}</p>
+            </Specimen>
+          </div>
+        </Section>
 
-      <Section title="Logo">
-        <div className="flex flex-col gap-5">
-          <Specimen label="size=sm">
-            <Logo size="sm" />
-          </Specimen>
-          <Specimen label="size=md">
-            <Logo size="md" />
-          </Specimen>
-        </div>
-      </Section>
+        <Section title="Logo">
+          <div className="flex flex-col gap-5">
+            <Specimen label="size=sm">
+              <Logo size="sm" />
+            </Specimen>
+            <Specimen label="size=md">
+              <Logo size="md" />
+            </Specimen>
+          </div>
+        </Section>
 
-      <Section title="Button">
-        <div className="flex flex-col gap-6">
-          {variants.map((variant) => (
-            <Specimen key={variant} label={`variant=${variant}`}>
-              {sizes.map((size) => (
-                <Button key={size} variant={variant} size={size}>
+        <Section title="Button">
+          <div className="flex flex-col gap-6">
+            {variants.map((variant) => (
+              <Specimen key={variant} label={`variant=${variant}`}>
+                {sizes.map((size) => (
+                  <Button key={size} variant={variant} size={size}>
+                    {t('buttonLabel')}
+                  </Button>
+                ))}
+                <Button variant={variant} size="icon" aria-label={t('buttonIcon')}>
+                  <ShoppingBag />
+                </Button>
+                <Button variant={variant} disabled>
                   {t('buttonLabel')}
                 </Button>
-              ))}
-              <Button variant={variant} size="icon" aria-label={t('buttonIcon')}>
-                <ShoppingBag />
-              </Button>
-              <Button variant={variant} disabled>
-                {t('buttonLabel')}
-              </Button>
+              </Specimen>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="LanguageSwitcher">
+          <LanguageSwitcher />
+        </Section>
+
+        <Section title="ThemeToggle">
+          <ThemeToggle />
+        </Section>
+
+        <Section title="SiteHeader">
+          <div className="rounded-lg border">
+            <SiteHeader />
+          </div>
+        </Section>
+
+        <Section title="Badge">
+          <Specimen label="variant=secondary / outline">
+            <Badge variant="secondary">{t('sampleSkin')}</Badge>
+            <Badge variant="outline">{t('sampleSkin')}</Badge>
+          </Specimen>
+        </Section>
+
+        <Section title="Availability">
+          <div className="flex flex-col gap-5">
+            <Specimen label="in_stock">
+              <Availability availability="in_stock" />
             </Specimen>
-          ))}
-        </div>
-      </Section>
+            <Specimen label="made_to_order (1 / 3 / 5)">
+              {madeToOrderDays.map((days) => (
+                <Availability key={days} availability="made_to_order" madeToOrderDays={days} />
+              ))}
+            </Specimen>
+            <Specimen label="out_of_stock">
+              <Availability availability="out_of_stock" />
+            </Specimen>
+          </div>
+        </Section>
 
-      <Section title="LanguageSwitcher">
-        <LanguageSwitcher />
-      </Section>
+        <Section title="ProductPrice">
+          <Specimen label="124500 / 124550">
+            <ProductPrice price={124500} className="text-3xl font-semibold tracking-tight" />
+            <ProductPrice price={124550} className="font-semibold" />
+          </Specimen>
+        </Section>
 
-      <Section title="ThemeToggle">
-        <ThemeToggle />
-      </Section>
-    </div>
+        <Section title="ProductGallery">
+          <div className="grid gap-8 sm:grid-cols-3">
+            <Specimen label="photos=3">
+              <div className="w-full">
+                <ProductGallery photos={photos} />
+              </div>
+            </Specimen>
+            <Specimen label="photos=1">
+              <div className="w-full">
+                <ProductGallery photos={photos.slice(0, 1)} />
+              </div>
+            </Specimen>
+            <Specimen label="photos=0">
+              <div className="w-full">
+                <ProductGallery photos={[]} />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="AddToCart">
+          <AddToCart />
+        </Section>
+
+        <Section title="DeliveryPayment">
+          <div className="max-w-md">
+            <DeliveryPayment />
+          </div>
+        </Section>
+
+        <Section title="ProductCard">
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+            <li>
+              <ProductCard product={card({})} />
+            </li>
+            <li>
+              <ProductCard product={card({ availability: 'made_to_order', madeToOrderDays: 3, photo: photos[1] })} />
+            </li>
+            <li>
+              <ProductCard product={card({ availability: 'out_of_stock', photo: photos[2] })} />
+            </li>
+            <li>
+              <ProductCard product={card({ photo: undefined, volume: null })} />
+            </li>
+          </ul>
+        </Section>
+      </div>
+    </>
   )
 }

@@ -13,6 +13,7 @@ paths:
   - ".agents/skills/shadcn/**"
   - skills-lock.json
   - components.json
+  - "public/samples/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
 reviewed_at: 2026-10-29
 ---
@@ -37,12 +38,15 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 
 - A shadcn component is added with `npx shadcn add <name>` — the CLI pinned in `devDependencies`,
   never `shadcn@latest` — and shown on `/canvas` in the same change. Variants and sizes nothing
-  uses are deleted from it, not kept for later.
+  uses are deleted from it, not kept for later. A radius step it uses that the theme does not
+  define (`rounded-4xl` in `Badge`) falls back to Tailwind's fixed default without an error, so the
+  step is added to `@theme inline` in `globals.css` as shadcn's multiple of `--radius`.
 - The one place with raw colours is `src/app/[locale]/icon.svg`: a favicon cannot read CSS
   variables, so it repeats the light theme's `--primary` and `--primary-foreground`. It changes
   with them.
 - On `/canvas` the names of components, variants and sizes are code identifiers and are not
-  translated; every other string comes from the `Canvas` messages.
+  translated; every other string comes from the `Canvas` messages. Its sample photos are drawn
+  SVGs in `public/samples/`, not files from the catalog: `/canvas` needs no database content.
 - Agents get shadcn's own skill, vendored twice — `.claude/skills/shadcn/` (Claude Code) and
   `.agents/skills/shadcn/` (Codex) — and recorded in `skills-lock.json`. Its commands were changed
   from `shadcn@latest` to the local `shadcn`; `npx skills update` brings `@latest` back, so repeat

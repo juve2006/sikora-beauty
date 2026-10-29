@@ -15,15 +15,17 @@ filled from its Ukrainian ones with «Перекласти з українськ
 reviewed and published. Every admin user is an owner («Власник»: users, prices, availability,
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
-drafts with photos, texts and prices, and changes prices in bulk through a CSV. No storefront
-page shows the catalog yet. `/canvas` shows every storefront component in every variant and
+drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
+product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
+its texts, delivery and payment, and related products; the cart button waits for the cart. No
+page lists the catalog yet. `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 1 — the product page and the catalog listing.
+- Next: Phase 1 — the catalog listing with filters.
 
 ## Stack
 

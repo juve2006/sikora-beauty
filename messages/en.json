@@ -24,6 +24,32 @@
   "ThemeToggle": {
     "label": "Switch theme"
   },
+  "Product": {
+    "price": "UAH {amount}",
+    "volume": "{volume} {unit, select, ml {ml} g {g} pcs {pcs} other {}}",
+    "availability": {
+      "in_stock": "In stock",
+      "made_to_order": "Made to order, ships in {days, plural, one {# day} other {# days}}",
+      "out_of_stock": "Out of stock"
+    },
+    "addToCart": "Add to cart",
+    "cartSoon": "The cart arrives before the store opens.",
+    "photo": "Photo {n} of {total}",
+    "noPhoto": "No photo yet",
+    "skin": "Suits",
+    "skinTypes": "Skin type",
+    "skinConditions": "Skin condition",
+    "skinConcerns": "Skin concerns",
+    "purpose": "Purpose and cosmetic effect",
+    "actives": "Actives",
+    "howToUse": "How to use",
+    "warnings": "Warnings",
+    "inci": "Ingredients (INCI)",
+    "related": "Goes well with",
+    "deliveryTitle": "Delivery and payment",
+    "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine.",
+    "payment": "Pay on delivery or by card — a manager sends the link once they confirm your order."
+  },
   "Canvas": {
     "title": "Components",
     "description": "Every store component in every variant and state. The buttons at the top switch the language and the theme.",
@@ -33,6 +59,10 @@
     "body": "Retinol serum for mature skin, 30 ml. Professional skincare matched to skin type and condition.",
     "glyphs": "Ґанок, їжак, єнот, Іван",
     "buttonLabel": "Add to cart",
-    "buttonIcon": "Cart"
+    "buttonIcon": "Cart",
+    "sampleName": "Retinol serum for mature skin",
+    "sampleBrand": "Dr.Spiller",
+    "sampleAlt": "A serum bottle",
+    "sampleSkin": "Dry"
   }
 }
