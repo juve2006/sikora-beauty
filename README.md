@@ -10,13 +10,15 @@ A placeholder page at `/` (Ukrainian) and `/en` (English), and the Payload admin
 where the catalog can be filled in: brands, zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), then
-reviewed and published. No storefront page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+reviewed and published. Every admin user is an owner («Власник»: users, prices, availability,
+deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). No storefront
+page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview; both are visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 0 — `admin-roles`; Phase 1 — `design-direction`, then the product page and the
-  catalog listing.
+- Next: `deployment-access` — the owner and the cosmetologist reach the admin; Phase 1 —
+  `design-direction`, then the product page and the catalog listing.
 
 ## Stack
 

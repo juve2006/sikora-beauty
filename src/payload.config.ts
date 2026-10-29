@@ -5,8 +5,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Brands, Categories, Media, SkinConcerns, SkinConditions, SkinTypes } from './catalog/collections'
-import { Products } from './catalog/products'
+import { collections } from './collections'
 import { Users } from './collections/Users'
 import { parseEnv } from './env'
 
@@ -20,7 +19,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Categories, Brands, SkinTypes, SkinConditions, SkinConcerns, Media, Users],
+  collections,
   i18n: {
     supportedLanguages: { uk },
     fallbackLanguage: 'uk',

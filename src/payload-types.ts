@@ -287,6 +287,7 @@ export interface SkinConcern {
  */
 export interface User {
   id: number;
+  role?: ('owner' | 'cosmetologist') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -526,6 +527,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

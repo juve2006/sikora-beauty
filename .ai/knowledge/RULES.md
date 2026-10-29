@@ -22,9 +22,11 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   (adr-20261028-two-step-launch; checked by: Vitest on checkout)
 - INCI is never generated; every INCI has a recorded source. (adr-20261028-reviewed-ai-content-drafts;
   checked by: a required source field, review)
-- A product is visible on the storefront only after the cosmetologist publishes it.
-  (adr-20261028-reviewed-ai-content-drafts; checked by: Payload drafts and `access.read` on
-  `products`)
+- A product is visible on the storefront only after a person with an admin role publishes it; an
+  import or an AI draft never publishes by itself. (adr-20261028-reviewed-ai-content-drafts,
+  refined by adr-20261029-admin-roles; checked by: Payload drafts and `access.read` on `products`)
+- The store always has an owner: nobody changes their own role or deletes themselves.
+  (adr-20261029-admin-roles; checked by: Vitest on `src/access.ts`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the content checklist, review)
 - A published product has a Ukrainian name, whichever locale it was published from.
@@ -42,6 +44,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
   control by default, so without it a page would show drafts. (task `catalog-model`; checked by:
   review)
+- Every collection states its own `create`, `update` and `delete` access per role, from
+  `src/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
+  A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:
+  Vitest in `src/access.test.ts`)
 - UI strings live in `messages/uk.json` and `messages/en.json`, never inline, and both files keep
   the same keys. (adr-20261028-storefront-languages-uk-en; checked by: a key-parity check in CI)
 - Content text fields are localized with `uk` as default and fallback; prices, INCI, SKU and images
