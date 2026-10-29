@@ -112,6 +112,14 @@ such an order cannot be paid online.
 Informal synonyms: під замовлення, preorder.
 Use in: source code, schema, API, documentation.
 
+## Related Product
+
+A product the cosmetologist links to another to be shown on its page, in the order they set; one
+that is not published is left out.
+
+Informal synonyms: супутні товари, goes well with, cross-sell.
+Use in: source code (`related`), schema, API, documentation.
+
 ## Care Finder
 
 The "pick my care" questionnaire that maps a shopper's answers to skin type, condition and

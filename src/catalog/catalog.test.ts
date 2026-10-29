@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { parentError } from './collections'
-import { formatHryvnias, parseHryvnias } from './price'
+import type { Product } from '../payload-types'
+import { formatHryvnias, offerPrice, parseHryvnias } from './price'
+import { brandName, jsonLdScript, productJsonLd } from './productPage'
 import { productRules } from './schema'
 import { slugify } from './slug'
 import { stillEmpty, toTranslate } from './translate'
@@ -22,6 +24,57 @@ describe('prices', () => {
     expect(formatHryvnias(124500)).toBe('1245')
     expect(formatHryvnias(124505)).toBe('1245,05')
     expect(formatHryvnias(99)).toBe('0,99')
+  })
+
+  it('writes the schema.org price with a dot and two decimals', () => {
+    expect(offerPrice(124550)).toBe('1245.50')
+    expect(offerPrice(124500)).toBe('1245.00')
+    expect(offerPrice(5)).toBe('0.05')
+  })
+})
+
+describe('product JSON-LD', () => {
+  const product = {
+    name: 'Сироватка',
+    shortDescription: 'Для зневодненої шкіри',
+    brand: { id: 1, name: 'Dr.Spiller' },
+    images: [
+      { id: 2, alt: 'Флакон', url: 'https://store.public.blob.vercel-storage.com/a.jpg' },
+      3,
+      { id: 4, alt: 'Банка', url: '/api/media/file/b.jpg' },
+    ],
+    price: 124550,
+    availability: 'made_to_order',
+  } as unknown as Product
+  const url = new URL('https://sikora.example/en/product/syrovatka')
+
+  it('carries the price, the currency and the availability shoppers see', () => {
+    const ld = productJsonLd(product, url)
+    expect(ld.url).toBe('https://sikora.example/en/product/syrovatka')
+    expect(ld.brand).toEqual({ '@type': 'Brand', name: 'Dr.Spiller' })
+    expect(ld.image).toEqual([
+      'https://store.public.blob.vercel-storage.com/a.jpg',
+      'https://sikora.example/api/media/file/b.jpg',
+    ])
+    expect(ld.offers).toEqual({
+      '@type': 'Offer',
+      price: '1245.50',
+      priceCurrency: 'UAH',
+      availability: 'https://schema.org/MadeToOrder',
+    })
+  })
+
+  it('survives a deleted brand', () => {
+    expect(brandName(null)).toBeNull()
+    expect(brandName(1)).toBeNull()
+    expect(brandName(product.brand)).toBe('Dr.Spiller')
+    expect(productJsonLd({ ...product, brand: null } as unknown as Product, url).brand).toBeUndefined()
+  })
+
+  it('cannot close its script tag', () => {
+    const script = jsonLdScript(productJsonLd({ ...product, name: '</script><script>alert(1)</script>' }, url))
+    expect(script).not.toContain('<')
+    expect(JSON.parse(script).name).toBe('</script><script>alert(1)</script>')
   })
 })
 

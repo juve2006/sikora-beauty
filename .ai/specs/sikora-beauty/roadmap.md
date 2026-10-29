@@ -62,7 +62,7 @@ need and brand. Both reach it with the site password, then their own admin accou
     related products, drafts, localized text fields, Ukrainian admin labels, the product Zod
     schema, vocabulary seed in both languages, on-demand revalidation
   - Frontend: —
-- [ ] `product-page` — the product page (after: catalog model — shows its fields; design direction — built on its components)
+- [x] `product-page` — the product page (after: catalog model — shows its fields; design direction — built on its components)
   - Backend: product query with related products, SEO data (meta, OG, JSON-LD Product, `hreflang`)
   - Frontend: every required field, gallery, delivery and payment block, related products; mobile
     + desktop; components in `/canvas`
