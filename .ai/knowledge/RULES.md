@@ -27,8 +27,15 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `products`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the content checklist, review)
+- A published product has a Ukrainian name, whichever locale it was published from.
+  (adr-20261028-storefront-languages-uk-en; checked by: the `beforeChange` hook on `products`)
 
 ## Rules
+
+- A hook that reads a document in another locale calls the Local API without `req`. Given `req`,
+  the Local API sets `req.locale` to the locale it reads, and the save that ran the hook then
+  writes into that locale — English texts over the Ukrainian ones. (task `english-content`;
+  checked by: review)
 
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)

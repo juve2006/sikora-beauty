@@ -4,6 +4,7 @@ import { parentError } from './collections'
 import { formatHryvnias, parseHryvnias } from './price'
 import { productRules } from './schema'
 import { slugify } from './slug'
+import { toTranslate } from './translate'
 
 describe('prices', () => {
   it('reads hryvnias as integer kopiyky', () => {
@@ -77,5 +78,34 @@ describe('parentError', () => {
     expect(parentError(category, 5, 0)).toBe('Батьком може бути лише зона')
     expect(parentError(zone, 1, 0)).toBe('Батьком може бути лише зона')
     expect(parentError(zone, 5, 2)).toBe('Зона з категоріями не може стати категорією')
+  })
+})
+
+describe('toTranslate', () => {
+  const uk = {
+    name: 'Сироватка',
+    shortDescription: 'Зволожує',
+    purpose: '  ',
+    actives: [
+      { id: 'a', name: 'Гіалуронова кислота', role: 'Утримує вологу' },
+      { id: 'b', name: 'Ніацинамід', role: null },
+    ],
+  }
+
+  it('fills only empty texts whose Ukrainian text exists', () => {
+    const en = { name: 'Serum', shortDescription: '', purpose: null, actives: [{ id: 'a', name: 'Hyaluronic acid' }] }
+    expect(toTranslate(uk, en)).toEqual([
+      { path: 'shortDescription', text: 'Зволожує' },
+      { path: 'actives.0.role', text: 'Утримує вологу' },
+    ])
+  })
+
+  it('matches actives rows by id, not by position', () => {
+    const en = { name: 'Serum', shortDescription: 'Hydrates', actives: [{ id: 'b' }, { id: 'new' }] }
+    expect(toTranslate(uk, en)).toEqual([{ path: 'actives.0.name', text: 'Ніацинамід' }])
+  })
+
+  it('reads a form without actives rows, where the array is its row count', () => {
+    expect(toTranslate({ name: 'Крем', actives: [] }, { name: '', actives: 0 })).toEqual([{ path: 'name', text: 'Крем' }])
   })
 })

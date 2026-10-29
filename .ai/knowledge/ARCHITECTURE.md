@@ -35,6 +35,12 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     Payload skips validation on a draft, so these rules hold from publishing on; an import or AI
     draft may store an incomplete product. The price alone is checked on a draft too (a field
     hook): money is integer kopiyky everywhere.
+  - English texts are Payload's `en` locale. There «Перекласти з української» (`TranslateButton.tsx`)
+    fills the product's empty texts from its Ukrainian version through Chrome's built-in Translator
+    API — desktop Chrome and Edge, free, the text never leaves the machine — and saves nothing: the
+    cosmetologist reads the result and publishes it. Payload checks `required` only in the locale
+    being saved, so a `beforeChange` hook refuses to publish from another locale a product with no
+    Ukrainian name.
   - A slug is one per document, not localized, transliterated from the Ukrainian name (national
     system, `slug.ts`): a localized slug has no fallback, so a product without an English slug
     would not be found on `/en`.

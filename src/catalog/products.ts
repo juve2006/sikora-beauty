@@ -1,4 +1,4 @@
-import { type CollectionConfig, ValidationError } from 'payload'
+import { type CollectionBeforeChangeHook, type CollectionConfig, ValidationError } from 'payload'
 
 import { revalidateStorefront } from './revalidate'
 import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnits } from './schema'
@@ -11,6 +11,29 @@ const volumeUnitLabels = { ml: 'мл', g: 'г', pcs: 'шт' }
 // Drafts skip field validation; these run when a product is published.
 const rule = (ok: boolean, message: string) => ok || message
 const priceMessage = 'Вкажіть ціну: 1245 або 1245,50'
+
+// Payload checks `required` only in the locale being saved: a product written in English alone
+// would be published with no Ukrainian name and show nameless at `/`.
+const requireUkrainianName: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) => {
+  if (data._status !== 'published' || req.locale === 'uk') return data
+  // Without `req`: given one, the Local API sets its locale to 'uk', and this save would then
+  // write the English texts over the Ukrainian ones.
+  const uk = originalDoc?.id
+    ? await req.payload.findByID({
+        collection: 'products',
+        id: originalDoc.id,
+        locale: 'uk',
+        fallbackLocale: false,
+        draft: true,
+        depth: 0,
+      })
+    : null
+  if (!uk?.name?.trim()) {
+    const message = 'Спершу заповніть назву українською: Локалізація → uk'
+    throw new ValidationError({ errors: [{ label: 'Назва', message, path: 'name' }] }, req.t)
+  }
+  return data
+}
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -26,8 +49,13 @@ export const Products: CollectionConfig = {
   access: {
     read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
   },
-  hooks: { afterChange: [revalidateStorefront], afterDelete: [revalidateStorefront] },
+  hooks: {
+    beforeChange: [requireUkrainianName],
+    afterChange: [revalidateStorefront],
+    afterDelete: [revalidateStorefront],
+  },
   fields: [
+    { name: 'translate', type: 'ui', admin: { components: { Field: '/catalog/TranslateButton#TranslateButton' } } },
     { name: 'name', type: 'text', label: 'Назва', localized: true, required: true },
     slugField('name'),
     {
