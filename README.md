@@ -8,8 +8,9 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 
 A placeholder page at `/` (Ukrainian) and `/en` (English), and the Payload admin at `/admin`,
 where the catalog can be filled in: brands, zones and categories, skin types, conditions and
-concerns, products with photos, as drafts and published. No storefront page shows the catalog
-yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+concerns, products with photos, as drafts and published. A product's English texts can be
+filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), then
+reviewed and published. No storefront page shows the catalog yet. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview; both are visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
