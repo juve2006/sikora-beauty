@@ -112,7 +112,9 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
 - [ ] header, home and about — navigation and the home page (after: brands and collections — links to every section)
   - Backend: home page blocks editable in the admin (a global)
   - Frontend: header (logo, search, favorites, cart, navigation, consultation, language switcher)
-    with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"
+    with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"; a link to the
+    admin for a signed-in owner or cosmetologist, checked in the browser (`/api/users/me`) so the
+    pages stay cached (the developer, 2026-10-30)
 - [ ] production host — the store runs on its own server and domain (after: walking skeleton — moves the same application)
   - Backend: the store's domain on Cloudflare (DNS; TLS full strict with an Origin CA
     certificate); a Hetzner VPS with Coolify, its panel and API only over HTTPS, a firewall that
@@ -167,7 +169,8 @@ waybill is created from an order and the delivery status updates.
 Goal: the store grows with real demand. Done when: each item below has become a concrete task or
 been dropped on purpose.
 
-- [ ] fog: customer accounts — once there are repeat buyers
+- [ ] fog: customer accounts — once there are repeat buyers; the developer wants them, scope to be
+  discussed (2026-10-30)
 - [ ] fog: stock and price sync with the distributor — depends on the stock model
 - [ ] fog: reviews, promo codes, loyalty, blog — by demand after launch
 - [ ] fog: languages beyond Ukrainian and English — by traffic
