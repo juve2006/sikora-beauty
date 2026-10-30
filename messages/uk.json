@@ -82,7 +82,14 @@
     "previous": "Попередня",
     "next": "Наступна",
     "page": "Сторінка {page} з {pageCount}",
-    "landingTitle": "{kind}: {title}"
+    "landingTitle": "{kind}: {title}",
+    "brands": "Бренди",
+    "collections": {
+      "new": "Новинки",
+      "bestsellers": "Бестселери",
+      "sets": "Набори",
+      "minis": "Мініатюри"
+    }
   },
   "Canvas": {
     "title": "Компоненти",

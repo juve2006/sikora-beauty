@@ -71,7 +71,7 @@ need and brand. Both reach it with the site password, then their own admin accou
     pagination; Zod for URL parameters
   - Frontend: zone and category pages, filters as URL parameters (a sheet on mobile), landing pages
     for needs and skin types, sorting, empty facets hidden
-- [ ] `brands-and-collections` — brands and collections (after: catalog listing — the same lists with a fixed filter)
+- [x] `brands-and-collections` — brands and collections (after: catalog listing — the same lists with a fixed filter)
   - Backend: collection queries by flag
   - Frontend: brand pages, "New", "Bestsellers", "Sets", "Minis"
 - [x] `catalog-import` — base data without typing it in (after: catalog model — writes into its collections)

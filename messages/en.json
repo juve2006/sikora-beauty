@@ -82,7 +82,14 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {page} of {pageCount}",
-    "landingTitle": "{kind}: {title}"
+    "landingTitle": "{kind}: {title}",
+    "brands": "Brands",
+    "collections": {
+      "new": "New",
+      "bestsellers": "Bestsellers",
+      "sets": "Sets",
+      "minis": "Minis"
+    }
   },
   "Canvas": {
     "title": "Components",

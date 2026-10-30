@@ -64,6 +64,22 @@ export const getSkinTerm = cache(
   },
 );
 
+// A brand's page, with its name as the title a landing page shows.
+export const getBrand = cache(async (slug: string, locale: Locale) => {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: 'brands',
+    where: { slug: { equals: slug } },
+    locale,
+    depth: 0,
+    limit: 1,
+    overrideAccess: false,
+    select: { name: true, slug: true },
+  });
+  const brand = docs[0];
+  return brand ? { id: brand.id, title: brand.name } : null;
+});
+
 // The filters a list offers, in the admin's order; brands by name.
 export const getFacets = cache(async (locale: Locale): Promise<Facet[]> => {
   const payload = await getPayload({ config });
