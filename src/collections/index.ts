@@ -1,6 +1,6 @@
-import { Brands, Categories, Media, SkinConcerns, SkinConditions, SkinTypes } from '../catalog/collections'
-import { Products } from '../catalog/products'
-import { Users } from './Users'
+import { Brands, Categories, Media, SkinConcerns, SkinConditions, SkinTypes } from './categories'
+import { Products } from './products'
+import { Users } from './users'
 
 // Every Payload collection: payload.config.ts registers them, access.test.ts checks each states its
 // own access.

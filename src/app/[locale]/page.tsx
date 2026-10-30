@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl'
 
-import { SiteHeader } from '@/components/SiteHeader'
+import { SiteHeader } from '@/components/shared/header'
 
 export default function HomePage() {
   const t = useTranslations('HomePage')

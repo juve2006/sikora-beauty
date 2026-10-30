@@ -1,18 +1,18 @@
-import { TranslateButton as TranslateButton_c38d3b8b11d21da18cf68071995bad8d } from '../../../catalog/TranslateButton'
-import { PriceCell as PriceCell_a1ff7b3de4b4f07aff23ba2fc353e382 } from '../../../catalog/PriceField'
-import { PriceField as PriceField_a1ff7b3de4b4f07aff23ba2fc353e382 } from '../../../catalog/PriceField'
-import { ImportNavLink as ImportNavLink_1240dc8edb1044e10c394c360450bfeb } from '../../../catalog/ImportView'
-import { ImportView as ImportView_1240dc8edb1044e10c394c360450bfeb } from '../../../catalog/ImportView'
+import { TranslateButton as TranslateButton_1dd85d924dd65c61c634b8e47eed9bfd } from '../../../components/admin/translate-button'
+import { PriceCell as PriceCell_74c0d38c611d0190c74d6fb01d6a76e9 } from '../../../components/admin/price-field'
+import { PriceField as PriceField_74c0d38c611d0190c74d6fb01d6a76e9 } from '../../../components/admin/price-field'
+import { ImportNavLink as ImportNavLink_55be252b65b9903d7b09ec23283207a0 } from '../../../components/admin/import-view'
+import { ImportView as ImportView_55be252b65b9903d7b09ec23283207a0 } from '../../../components/admin/import-view'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
-  "/catalog/TranslateButton#TranslateButton": TranslateButton_c38d3b8b11d21da18cf68071995bad8d,
-  "/catalog/PriceField#PriceCell": PriceCell_a1ff7b3de4b4f07aff23ba2fc353e382,
-  "/catalog/PriceField#PriceField": PriceField_a1ff7b3de4b4f07aff23ba2fc353e382,
-  "/catalog/ImportView#ImportNavLink": ImportNavLink_1240dc8edb1044e10c394c360450bfeb,
-  "/catalog/ImportView#ImportView": ImportView_1240dc8edb1044e10c394c360450bfeb,
+  "/components/admin/translate-button#TranslateButton": TranslateButton_1dd85d924dd65c61c634b8e47eed9bfd,
+  "/components/admin/price-field#PriceCell": PriceCell_74c0d38c611d0190c74d6fb01d6a76e9,
+  "/components/admin/price-field#PriceField": PriceField_74c0d38c611d0190c74d6fb01d6a76e9,
+  "/components/admin/import-view#ImportNavLink": ImportNavLink_55be252b65b9903d7b09ec23283207a0,
+  "/components/admin/import-view#ImportView": ImportView_55be252b65b9903d7b09ec23283207a0,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e
 }
