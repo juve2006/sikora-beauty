@@ -7,6 +7,11 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import type { ReactNode } from 'react'
 
+import { type Listing as ListingResult, listingParams } from '@/catalog/listing'
+import { FilterPanel } from '@/components/catalog/FilterPanel'
+import { FiltersSheet } from '@/components/catalog/FiltersSheet'
+import { CategoryNav, Listing, ListingEmpty, ListingPagination } from '@/components/catalog/Listing'
+import { SortSelect } from '@/components/catalog/SortSelect'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { Logo } from '@/components/Logo'
 import { AddToCart } from '@/components/product/AddToCart'
@@ -19,6 +24,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 
 // Every storefront component in every variant and state (RULES.md): a component a task adds
 // gets a section here in the same pull request.
@@ -98,6 +104,30 @@ export default async function CanvasPage() {
     photo: photos[0],
     ...overrides,
   })
+  const zone = { slug: 'face', title: t('sampleZone') }
+  const categories = [
+    { slug: 'face-serums', title: t('sampleCategory') },
+    { slug: 'face-creams', title: t('sampleCategory2') },
+  ]
+  const noFilters = listingParams.parse({})
+  const filtered = listingParams.parse({ type: 'dry', concern: 'dehydration' })
+  // Counts as a list shows them; a chosen value with nothing left stays, at 0.
+  const facets = (chosen: string[]): ListingResult['facets'] => [
+    {
+      key: 'type',
+      values: [
+        { slug: 'dry', title: t('sampleSkin'), count: 3, selected: chosen.includes('dry') },
+        { slug: 'oily', title: t('sampleOily'), count: 5, selected: false },
+      ],
+    },
+    {
+      key: 'concern',
+      values: [
+        { slug: 'dehydration', title: t('sampleConcern'), count: chosen.includes('dehydration') ? 0 : 4, selected: chosen.includes('dehydration') },
+      ],
+    },
+    { key: 'brand', values: [{ slug: 'dr-spiller', title: t('sampleBrand'), count: 12, selected: false }] },
+  ]
 
   return (
     <>
@@ -261,6 +291,97 @@ export default async function CanvasPage() {
               <ProductCard product={card({ photo: undefined, volume: null })} />
             </li>
           </ul>
+        </Section>
+
+        <Section title="Checkbox">
+          <Specimen label="unchecked / checked / disabled">
+            <Checkbox aria-label={t('sampleSkin')} />
+            <Checkbox aria-label={t('sampleSkin')} defaultChecked />
+            <Checkbox aria-label={t('sampleSkin')} disabled />
+          </Specimen>
+        </Section>
+
+        <Section title="CategoryNav">
+          <div className="flex flex-col gap-5">
+            <Specimen label="current=zone">
+              <CategoryNav zone={zone} categories={categories} current="face" search="" />
+            </Specimen>
+            <Specimen label="current=category">
+              <CategoryNav zone={zone} categories={categories} current="face-serums" search="" />
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="FilterPanel">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <Specimen label="selected=0">
+              <div className="w-52">
+                <FilterPanel facets={facets([])} params={noFilters} basePath="/canvas" />
+              </div>
+            </Specimen>
+            <Specimen label="selected=2 (one with nothing left)">
+              <div className="w-52">
+                <FilterPanel facets={facets(['dry', 'dehydration'])} params={filtered} basePath="/canvas" />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="FiltersSheet">
+          <Specimen label="selected=0 / selected=2">
+            <FiltersSheet facets={facets([])} params={noFilters} basePath="/canvas" total={12} selected={0} />
+            <FiltersSheet facets={facets(['dry', 'dehydration'])} params={filtered} basePath="/canvas" total={3} selected={2} />
+          </Specimen>
+        </Section>
+
+        <Section title="SortSelect">
+          <Specimen label="default / price-asc">
+            <SortSelect params={noFilters} basePath="/canvas" />
+            <SortSelect params={{ ...noFilters, sort: 'price-asc' }} basePath="/canvas" />
+          </Specimen>
+        </Section>
+
+        <Section title="ListingPagination">
+          <div className="flex flex-col gap-5">
+            {[1, 2, 3].map((page) => (
+              <Specimen key={page} label={`page=${page} pageCount=3`}>
+                <ListingPagination page={page} pageCount={3} href={() => '/canvas'} />
+              </Specimen>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="ListingEmpty">
+          <div className="flex flex-col gap-5">
+            <Specimen label="empty">
+              <ListingEmpty />
+            </Specimen>
+            <Specimen label="filtered">
+              <ListingEmpty resetHref="/canvas" />
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="Listing">
+          <div className="rounded-lg border">
+            <Listing
+              title={t('sampleCategory')}
+              above={t('sampleZone')}
+              nav={<CategoryNav zone={zone} categories={categories} current="face-serums" search="" />}
+              result={{
+                products: [card({}), card({ photo: photos[1] }), card({ availability: 'out_of_stock', photo: photos[2] })].map(
+                  (product, id) => ({ id, card: product }),
+                ),
+                total: 27,
+                page: 1,
+                pageCount: 2,
+                selected: 1,
+                facets: facets(['dry']),
+              }}
+              params={{ ...noFilters, type: ['dry'] }}
+              basePath="/canvas"
+            />
+          </div>
         </Section>
       </div>
     </>

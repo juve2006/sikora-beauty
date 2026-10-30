@@ -19,7 +19,8 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-// Latin, unique, one for both locales: a lookup by a localized slug has no fallback.
+// Latin, unique, one for both locales: a lookup by a localized slug has no fallback. A typed slug
+// goes through slugify too: a list's URL carries slugs unencoded, comma-joined.
 export function slugField(from: string): TextField {
   return {
     name: 'slug',
@@ -30,7 +31,7 @@ export function slugField(from: string): TextField {
     admin: { position: 'sidebar', description: 'Латиницею. Порожнє — створиться з назви.' },
     hooks: {
       beforeValidate: [
-        ({ value, siblingData }) => value || slugify(String(siblingData[from] ?? '')) || undefined,
+        ({ value, siblingData }) => slugify(String(value || siblingData[from] || '')) || undefined,
       ],
     },
   }

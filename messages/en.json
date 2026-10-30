@@ -24,6 +24,12 @@
   "ThemeToggle": {
     "label": "Switch theme"
   },
+  "Nav": {
+    "label": "Catalog",
+    "face": "Face",
+    "body": "Body",
+    "hair": "Hair"
+  },
   "Product": {
     "price": "UAH {amount}",
     "volume": "{volume, number} {unit, select, ml {ml} g {g} pcs {pcs} other {}}",
@@ -50,6 +56,34 @@
     "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine.",
     "payment": "Pay on delivery or by card — a manager sends the link once they confirm your order."
   },
+  "Catalog": {
+    "count": "{count, plural, one {# product} other {# products}}",
+    "all": "All",
+    "filters": "Filters",
+    "facets": {
+      "type": "Skin type",
+      "condition": "Skin condition",
+      "concern": "Skin concern",
+      "brand": "Brand"
+    },
+    "reset": "Clear filters",
+    "show": "Show {count, plural, one {# product} other {# products}}",
+    "close": "Close",
+    "sort": "Sort",
+    "sorts": {
+      "default": "In stock first",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low",
+      "new": "Newest first"
+    },
+    "empty": "No products here yet.",
+    "emptyFiltered": "No products match these filters.",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {pageCount}",
+    "landingTitle": "{kind}: {title}"
+  },
   "Canvas": {
     "title": "Components",
     "description": "Every store component in every variant and state. The buttons at the top switch the language and the theme.",
@@ -63,6 +97,11 @@
     "sampleName": "Retinol serum for mature skin",
     "sampleBrand": "Dr.Spiller",
     "sampleAlt": "A serum bottle",
-    "sampleSkin": "Dry"
+    "sampleSkin": "Dry",
+    "sampleOily": "Oily",
+    "sampleConcern": "Dehydration",
+    "sampleZone": "Face",
+    "sampleCategory": "Serums",
+    "sampleCategory2": "Creams"
   }
 }

@@ -17,15 +17,18 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
-its texts, delivery and payment, and related products; the cart button waits for the cart. No
-page lists the catalog yet. `/canvas` shows every storefront component in every variant and
+its texts, delivery and payment, and related products; the cart button waits for the cart. The
+header leads to the zones: `/catalog/<zone>` and `/catalog/<category>` list published products,
+24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
+price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and
+`/concern/<slug>`, the same list for that term. `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 1 — the catalog listing with filters.
+- Next: Phase 1 — brands and collections.
 
 ## Stack
 

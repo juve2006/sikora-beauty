@@ -24,6 +24,12 @@
   "ThemeToggle": {
     "label": "Змінити тему"
   },
+  "Nav": {
+    "label": "Каталог",
+    "face": "Обличчя",
+    "body": "Тіло",
+    "hair": "Волосся"
+  },
   "Product": {
     "price": "{amount} грн",
     "volume": "{volume, number} {unit, select, ml {мл} g {г} pcs {шт} other {}}",
@@ -50,6 +56,34 @@
     "delivery": "Новою Поштою у відділення або поштомат по всій Україні.",
     "payment": "Оплата при отриманні або карткою — посилання надішле менеджер, коли підтвердить замовлення."
   },
+  "Catalog": {
+    "count": "{count, plural, one {# товар} few {# товари} many {# товарів} other {# товару}}",
+    "all": "Усі",
+    "filters": "Фільтри",
+    "facets": {
+      "type": "Тип шкіри",
+      "condition": "Стан шкіри",
+      "concern": "Потреба шкіри",
+      "brand": "Бренд"
+    },
+    "reset": "Скинути фільтри",
+    "show": "Показати {count, plural, one {# товар} few {# товари} many {# товарів} other {# товару}}",
+    "close": "Закрити",
+    "sort": "Сортування",
+    "sorts": {
+      "default": "Спершу в наявності",
+      "price-asc": "Спершу дешевші",
+      "price-desc": "Спершу дорожчі",
+      "new": "Спершу нові"
+    },
+    "empty": "У цьому розділі ще немає товарів.",
+    "emptyFiltered": "За цими фільтрами товарів немає.",
+    "pagination": "Сторінки",
+    "previous": "Попередня",
+    "next": "Наступна",
+    "page": "Сторінка {page} з {pageCount}",
+    "landingTitle": "{kind}: {title}"
+  },
   "Canvas": {
     "title": "Компоненти",
     "description": "Кожен компонент магазину в кожному варіанті й стані. Мову й тему перемикають кнопки вгорі.",
@@ -63,6 +97,11 @@
     "sampleName": "Сироватка з ретинолом для зрілої шкіри",
     "sampleBrand": "Dr.Spiller",
     "sampleAlt": "Флакон сироватки",
-    "sampleSkin": "Суха"
+    "sampleSkin": "Суха",
+    "sampleOily": "Жирна",
+    "sampleConcern": "Зневоднення",
+    "sampleZone": "Обличчя",
+    "sampleCategory": "Сироватки",
+    "sampleCategory2": "Креми"
   }
 }

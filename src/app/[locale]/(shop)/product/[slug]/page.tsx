@@ -14,7 +14,7 @@ import { ProductGallery } from '@/components/product/ProductGallery'
 import { ProductPrice } from '@/components/product/ProductPrice'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Badge } from '@/components/ui/badge'
-import { getPathname } from '@/i18n/navigation'
+import { alternates, getPathname, Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
 import type { SkinCondition, SkinConcern, SkinType } from '@/payload-types'
@@ -33,22 +33,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(slug, locale)
   if (!product) return {}
 
-  const href = `/product/${slug}`
   const [photo] = photos(product.images)
   return {
     title: product.name,
     description: product.shortDescription ?? undefined,
-    alternates: {
-      canonical: getPathname({ href, locale }),
-      languages: {
-        uk: getPathname({ href, locale: 'uk' }),
-        en: getPathname({ href, locale: 'en' }),
-        'x-default': getPathname({ href, locale: routing.defaultLocale }),
-      },
-    },
+    alternates: alternates(`/product/${slug}`, locale),
     openGraph: { title: product.name, description: product.shortDescription ?? undefined, images: photo && [photo] },
   }
 }
+
+// Skin types and concerns have landing pages; skin conditions do not (spec `sikora-beauty`).
+const landings = { skinTypes: 'skin-type', skinConcerns: 'concern' } as const
 
 function TextSection({ title, className, children }: { title: string; className?: string; children: ReactNode }) {
   return (
@@ -114,9 +109,16 @@ export default async function ProductPage({ params }: Props) {
                     <div key={key}>
                       <dt className="text-sm text-muted-foreground">{t(key)}</dt>
                       <dd className="mt-1.5 flex flex-wrap gap-1.5">
-                        {terms.map((term) => (
-                          <Badge key={term.id}>{term.title}</Badge>
-                        ))}
+                        {terms.map((term) => {
+                          const landing = key === 'skinConditions' || !term.slug ? null : `/${landings[key]}/${term.slug}`
+                          return landing ? (
+                            <Badge key={term.id} asChild>
+                              <Link href={landing}>{term.title}</Link>
+                            </Badge>
+                          ) : (
+                            <Badge key={term.id}>{term.title}</Badge>
+                          )
+                        })}
                       </dd>
                     </div>
                   ))}

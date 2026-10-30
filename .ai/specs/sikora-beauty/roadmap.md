@@ -66,7 +66,7 @@ need and brand. Both reach it with the site password, then their own admin accou
   - Backend: product query with related products, SEO data (meta, OG, JSON-LD Product, `hreflang`)
   - Frontend: every required field, gallery, delivery and payment block, related products; mobile
     + desktop; components in `/canvas`
-- [ ] `catalog-listing` — the catalog with filters (after: catalog model — filters by its vocabularies; design direction — built on its components)
+- [x] `catalog-listing` — the catalog with filters (after: catalog model — filters by its vocabularies; design direction — built on its components)
   - Backend: queries by zone, category, skin type, condition, need and brand; facets with counts;
     pagination; Zod for URL parameters
   - Frontend: zone and category pages, filters as URL parameters (a sheet on mobile), landing pages

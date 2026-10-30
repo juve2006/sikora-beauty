@@ -5,7 +5,7 @@ import type { Product } from '../payload-types'
 import { formatHryvnias, offerPrice, parseHryvnias } from './price'
 import { brandName, jsonLdScript, productJsonLd } from './productPage'
 import { productRules } from './schema'
-import { slugify } from './slug'
+import { slugField, slugify } from './slug'
 import { stillEmpty, toTranslate } from './translate'
 
 describe('prices', () => {
@@ -89,6 +89,19 @@ describe('slugify', () => {
   it('keeps Latin names and drops the rest', () => {
     expect(slugify('Dr.Spiller Aloe Vera 50 ml')).toBe('dr-spiller-aloe-vera-50-ml')
     expect(slugify('  Glymed+  ')).toBe('glymed')
+  })
+})
+
+describe('slugField', () => {
+  const [hook] = slugField('name').hooks?.beforeValidate ?? []
+  const slug = (value: unknown, name = 'Гель') =>
+    hook({ value, siblingData: { name } } as unknown as Parameters<typeof hook>[0])
+
+  it('makes a typed slug as safe for a URL as a generated one', () => {
+    expect(slug('Dr.Spiller')).toBe('dr-spiller')
+    expect(slug('face-serums')).toBe('face-serums')
+    expect(slug('')).toBe('hel')
+    expect(slug(undefined, '')).toBeUndefined()
   })
 })
 

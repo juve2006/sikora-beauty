@@ -13,8 +13,9 @@ export type CardProduct = Pick<Product, 'name' | 'price' | 'volume' | 'volumeUni
   photo?: Photo
 }
 
-// One product in a list: related products now, the catalog's lists later.
-export function ProductCard({ product }: { product: CardProduct }) {
+// One product in a list: related products and the catalog's lists. `eager` for the first row, the
+// page's largest paint, which a lazy image would delay.
+export function ProductCard({ product, eager = false }: { product: CardProduct; eager?: boolean }) {
   const t = useTranslations('Product')
   return (
     <Link
@@ -27,6 +28,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
             src={product.photo.url}
             alt={product.photo.alt}
             fill
+            loading={eager ? 'eager' : 'lazy'}
             sizes="(min-width: 1024px) 240px, 50vw"
             className="object-contain"
           />
