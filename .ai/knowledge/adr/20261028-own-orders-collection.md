@@ -5,7 +5,8 @@ status: accepted
 date: 2026-10-28
 domains: []
 paths:
-  - "src/orders/**"
+  - src/collections/orders.ts
+  - src/lib/actions/order.actions.ts
 summary: Own orders collection; Payload ecommerce plugin rejected (beta, CVE-2026-105850)
 ---
 # Orders are a small Payload collection of our own, not Payload's ecommerce plugin

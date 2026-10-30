@@ -5,7 +5,7 @@ status: accepted
 date: 2026-10-28
 domains: []
 paths:
-  - "src/search/**"
+  - src/lib/search.ts
 summary: "Search in Postgres: pg_trgm, unaccent, synonyms; no external search service"
 ---
 # Search runs in Postgres with pg_trgm, unaccent and a synonyms table

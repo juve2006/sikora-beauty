@@ -7,10 +7,10 @@ domains:
   - catalog
 paths:
   - src/payload.config.ts
-  - src/env.ts
-  - src/catalog/collections.ts
+  - src/lib/env.ts
+  - src/collections/media.ts
 summary: Product photos go to a public Vercel Blob store, token required on Vercel, until the production host moves them to R2
-reviewed_at: 2026-10-28
+reviewed_at: 2026-10-30
 ---
 # Until the production host exists, uploaded photos live in a public Vercel Blob store
 

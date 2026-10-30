@@ -58,12 +58,17 @@ unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`).
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
 storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components
-are shadcn/ui in `src/components/ui/` (`npx shadcn add <component>`), each shown on `/canvas`.
+are shadcn/ui in `src/components/ui/` (`npx shadcn add <component>`), composed in
+`src/components/shared/`, each shown on `/canvas`.
+
+The code is laid out and written as in nextjs-store
+([`adr-20261030-code-layout-nextjs-store`](.ai/knowledge/adr/20261030-code-layout-nextjs-store.md));
+`npm run format` applies its prettier style, which CI checks.
 
 ## Checks and deploy
 
 Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
-`unit`, `build`, `migrations` (on an empty Postgres), `i18n` (same keys in both message files),
+`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `i18n` (same keys in both message files),
 `knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull

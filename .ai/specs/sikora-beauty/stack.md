@@ -5,7 +5,8 @@ people, minimal hosting cost, one developer.
 
 One Next.js application with Payload inside it, so frontend and backend share one repository and
 one process, separated by folders. Shared by both: Node 24 LTS, TypeScript strict, npm (the
-existing lockfile), **Zod** — schemas in `src/<domain>/schema.ts`, shared by form and server.
+existing lockfile), **Zod** — schemas in `src/<domain>/schema.ts`, shared by form and server
+(since 2026-10-30 all in `src/lib/validators.ts`, adr-20261030-code-layout-nextjs-store).
 
 Versions current on 2026-10-28: Next.js 16.4, Payload 3.92 (past the CVE-2026-105850 fix),
 next-intl 4.14. Pin exact versions in `walking skeleton`.

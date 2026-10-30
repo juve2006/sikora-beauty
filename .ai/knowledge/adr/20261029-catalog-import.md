@@ -7,14 +7,15 @@ domains:
   - catalog
   - admin
 paths:
-  - src/catalog/cosmetika.ts
-  - src/catalog/prices.ts
-  - src/catalog/importEndpoints.ts
-  - src/catalog/ImportView.tsx
-  - src/catalog/CosmetikaImport.tsx
-  - src/catalog/PricesCsv.tsx
+  - src/lib/cosmetika.ts
+  - src/lib/prices.ts
+  - src/collections/import-endpoints.ts
+  - src/components/admin/import-view.tsx
+  - src/components/admin/import-nav-link.tsx
+  - src/components/admin/cosmetika-import.tsx
+  - src/components/admin/prices-csv.tsx
 summary: The owner's admin page imports cosmetika.com.ua products as drafts, a few per request, and applies a CSV of prices whole or not at all
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # The owner imports products from cosmetika.com.ua and prices from a CSV on one admin page, a few products per request
 

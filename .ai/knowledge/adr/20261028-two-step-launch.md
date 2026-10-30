@@ -5,8 +5,8 @@ status: accepted
 date: 2026-10-28
 domains: []
 paths:
-  - "src/orders/**"
-  - "src/payments/**"
+  - src/lib/actions/order.actions.ts
+  - src/lib/monobank.ts
 summary: "Launch 1: manager-confirmed orders; launch 2: online payment, only for orders fully in stock"
 ---
 # The store launches in two steps, and online payment is offered only for orders fully in stock

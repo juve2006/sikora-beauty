@@ -7,11 +7,11 @@ domains:
   - deploy
 paths:
   - src/proxy.ts
-  - src/env.ts
   - docs/deploy.md
   - next.config.ts
+  - src/lib/env.ts
 summary: Until the launch src/proxy.ts closes the production domain with one shared site password (SITE_PASSWORD, Production only); Vercel Standard Protection keeps the Previews
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # Until the launch the store is closed by one site password of its own; Vercel guards only the Previews
 

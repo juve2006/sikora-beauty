@@ -1,4 +1,4 @@
-import { defineRouting } from 'next-intl/routing'
+import { defineRouting } from 'next-intl/routing';
 
 export const routing = defineRouting({
   locales: ['uk', 'en'],
@@ -7,4 +7,4 @@ export const routing = defineRouting({
   // `/` is always Ukrainian: with detection on, an English browser or a cookie from a visit to
   // `/en` redirects `/` to `/en`, and the switcher cannot get back.
   localeDetection: false,
-})
+});

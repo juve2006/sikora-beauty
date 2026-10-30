@@ -5,8 +5,8 @@ status: accepted
 date: 2026-10-28
 domains: []
 paths:
-  - "src/payments/**"
-  - "src/orders/**"
+  - src/lib/monobank.ts
+  - src/lib/actions/order.actions.ts
 summary: Card via monobank acquiring with Checkbox receipts, plus Nova Poshta cash on delivery
 ---
 # Customers pay by card through monobank acquiring or cash on delivery through Nova Poshta

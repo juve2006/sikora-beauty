@@ -1,6 +1,6 @@
-import { landing } from '../../landing'
+import { landing } from '../../landing';
 
-const { generateMetadata, LandingPage } = landing('type')
+const { generateMetadata, LandingPage } = landing('type');
 
-export { generateMetadata }
-export default LandingPage
+export { generateMetadata };
+export default LandingPage;
