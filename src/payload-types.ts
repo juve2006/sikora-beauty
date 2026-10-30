@@ -74,6 +74,7 @@ export interface Config {
     'skin-conditions': SkinCondition;
     'skin-concerns': SkinConcern;
     media: Media;
+    'consultation-requests': ConsultationRequest;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     'skin-conditions': SkinConditionsSelect<false> | SkinConditionsSelect<true>;
     'skin-concerns': SkinConcernsSelect<false> | SkinConcernsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'consultation-requests': ConsultationRequestsSelect<false> | ConsultationRequestsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -287,6 +289,21 @@ export interface SkinConcern {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-requests".
+ */
+export interface ConsultationRequest {
+  id: number;
+  name: string;
+  phone: string;
+  message?: string | null;
+  product?: (number | null) | Product;
+  locale?: ('uk' | 'en') | null;
+  status: 'new' | 'in_progress' | 'closed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -363,6 +380,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'consultation-requests';
+        value: number | ConsultationRequest;
       } | null)
     | ({
         relationTo: 'users';
@@ -526,6 +547,20 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-requests_select".
+ */
+export interface ConsultationRequestsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  message?: T;
+  product?: T;
+  locale?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

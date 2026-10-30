@@ -92,7 +92,7 @@ Goal: the store is open and takes orders a manager confirms. Done when: a visito
 phone, places an order with a Nova Poshta warehouse; the owner gets it in Telegram and sees it in
 the admin; a consultation request reaches the cosmetologist; Google Ads counts the conversion.
 
-- [ ] consultation request — a consultation request (after: design direction — built on its components)
+- [x] `consultation-request` — a consultation request (after: design direction — built on its components)
   - Backend: a requests collection with a status (new / in progress / closed), a server action,
     Zod, Turnstile, Telegram
   - Frontend: the "get a consultation" button, a modal form, a "sent" state
@@ -179,7 +179,7 @@ been dropped on purpose.
 
 1. walking-skeleton
 2. admin-roles; design-direction; catalog-model
-3. product-page; catalog-listing; catalog-import; search; consultation request
+3. product-page; catalog-listing; catalog-import; search; consultation-request
 4. brands-and-collections; content-drafts; favorites; cart and checkout; production host
 5. header, home and about; care finder; backups and restore
 6. launch readiness; mono payment; np waybill

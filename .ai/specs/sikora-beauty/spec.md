@@ -301,6 +301,13 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   is not published before it; an untranslated field shows the Ukrainian text at `/en`
   (`content-drafts`, adr-20261030-ai-drafts-and-review) — rejected: a status per language
   (Payload publishes every locale at once), hiding untranslated products on `/en`.
+- Consultation requests (developer, 2026-10-30; was open question 6) — the cosmetologist
+  consults; the shopper leaves a name, a Ukrainian phone and, if they want, what concerns their
+  skin, from the header or a product page, and is promised a call «найближчим часом», with no
+  hours stated; requests, and orders later, go to one Telegram group of the owner and the
+  cosmetologist (`consultation-request`, adr-20261030-consultation-requests) — rejected: a field
+  for the way to be contacted, the button on the product page only or in the header only, a promise
+  of an answer «протягом робочого дня».
 - Design — made within the project: 2–3 prototypes for the owner to choose from, a text logo —
   rejected: an outside designer (none available).
 - Cache — price and availability refresh through on-demand revalidation from a Payload hook on
@@ -341,8 +348,7 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
    `cart and checkout` and `mono payment`.
 5. Nova Poshta: business account and API key, who pays for delivery, free delivery above a
    threshold — decides `cart and checkout` and `np waybill`.
-6. Who consults, response hours, the Telegram group for orders and requests — decides
-   `consultation request`.
+6. Answered — see Decisions, "Consultation requests" (2026-10-30).
 7. The questionnaire's questions and matching rules — written by the cosmetologist — decides
    `care finder`.
 8. The domain — needed by `production host`; the owner picks the store's name.

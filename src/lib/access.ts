@@ -11,6 +11,9 @@ export const isOwner = ({ req: { user } }: { req: PayloadRequest }) =>
   owner(user);
 export const hasRole = ({ req: { user } }: { req: PayloadRequest }) =>
   Boolean(user?.role);
+// Nobody, through the API or the admin: a consultation request is created only by its server
+// action, after Zod and Turnstile, with the Local API's access skipped.
+export const nobody = () => false;
 
 // Users: the owner sees and edits everyone, anyone else only themselves.
 export const ownerOrSelf: Access = ({ req: { user } }) =>

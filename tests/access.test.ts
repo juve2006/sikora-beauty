@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { Brands } from '@/collections/brands';
 import { Categories } from '@/collections/categories';
+import { ConsultationRequests } from '@/collections/consultation-requests';
 import { Media } from '@/collections/media';
 import {
   SkinConcerns,
@@ -121,6 +122,40 @@ describe('catalog', () => {
       _status: { equals: 'published' },
     });
     expect(run(Products.access!.read, cosmetologist)).toBe(true);
+  });
+});
+
+// Shoppers' names and phones (AC-10…AC-12 of the task `consultation-request`).
+describe('consultation requests', () => {
+  const { access } = ConsultationRequests;
+  const roles = (operation: 'read' | 'create' | 'update' | 'delete') => [
+    run(access![operation], owner),
+    run(access![operation], cosmetologist),
+    run(access![operation], null),
+  ];
+
+  it('only a role reads and changes them', () => {
+    expect(roles('read')).toEqual([true, true, false]);
+    expect(roles('update')).toEqual([true, true, false]);
+  });
+
+  it('nobody creates one through the API: the server action does', () => {
+    expect(roles('create')).toEqual([false, false, false]);
+  });
+
+  it.each(['name', 'phone', 'message', 'product', 'locale'])(
+    'nobody changes the %s the shopper sent, only the status',
+    (name) => {
+      const { update } = fieldAccess(ConsultationRequests.fields, name) ?? {};
+      expect([run(update, owner), run(update, cosmetologist)]).toEqual([
+        false,
+        false,
+      ]);
+    },
+  );
+
+  it('only the owner deletes one', () => {
+    expect(roles('delete')).toEqual([true, false, false]);
   });
 });
 

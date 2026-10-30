@@ -11,6 +11,12 @@ const schema = z
     SITE_PASSWORD: z.string().min(12).optional(),
     // «Заповнити з AI»; without it, or empty as in .env.example, the button says so.
     ANTHROPIC_API_KEY: z.string().optional(),
+    // Consultation requests in the owner's Telegram group; without them the request is only stored.
+    TELEGRAM_BOT_TOKEN: z.string().optional(),
+    TELEGRAM_CHAT_ID: z.string().optional(),
+    // Cloudflare Turnstile on the consultation form; without them the form has no check.
+    TURNSTILE_SECRET_KEY: z.string().optional(),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
   })
   // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
   // away; on Vercel that must fail the build instead. Locally the disk is fine.
@@ -21,7 +27,25 @@ const schema = z
   // build would open the store, so it fails instead.
   .refine((env) => env.VERCEL_ENV !== 'production' || env.SITE_PASSWORD, {
     path: ['SITE_PASSWORD'],
-  });
+  })
+  // A pair or nothing: a secret without the widget refuses every request, a widget without the
+  // secret checks nothing, a token without a chat sends nowhere.
+  .refine(
+    (env) => !env.TURNSTILE_SECRET_KEY === !env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    { path: ['TURNSTILE_SECRET_KEY'] },
+  )
+  .refine((env) => !env.TELEGRAM_BOT_TOKEN === !env.TELEGRAM_CHAT_ID, {
+    path: ['TELEGRAM_BOT_TOKEN'],
+  })
+  // Behind the site password nobody but the owner and the cosmetologist reaches the form; once
+  // `launch readiness` removes it, Production does not build without Turnstile.
+  .refine(
+    (env) =>
+      env.VERCEL_ENV !== 'production' ||
+      env.SITE_PASSWORD ||
+      env.TURNSTILE_SECRET_KEY,
+    { path: ['TURNSTILE_SECRET_KEY'] },
+  );
 
 export type Env = z.infer<typeof schema>;
 

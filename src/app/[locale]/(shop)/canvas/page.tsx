@@ -1,6 +1,6 @@
 import config from '@payload-config';
 import { cn } from 'cn';
-import { ShoppingBag } from 'lucide-react';
+import { MessageCircle, ShoppingBag } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -18,6 +18,8 @@ import SortSelect from '@/components/shared/catalog/sort-select';
 import LanguageSwitcher from '@/components/shared/header/language-switcher';
 import Logo from '@/components/shared/header/logo';
 import AddToCart from '@/app/[locale]/(shop)/product/[slug]/add-to-cart';
+import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
+import ConsultationForm from '@/components/shared/consultation/consultation-form';
 import Availability from '@/components/shared/product/availability';
 import DeliveryPayment from '@/app/[locale]/(shop)/product/[slug]/delivery-payment';
 import ProductCard from '@/components/shared/product/product-card';
@@ -110,6 +112,8 @@ const madeToOrderDays = [1, 3, 5];
 const CanvasPage = async () => {
   await requireAdminUser();
   const t = await getTranslations('Canvas');
+  const consultation = await getTranslations('Consultation');
+  const sampleProduct = { id: 0, name: t('sampleName') };
   const photos = samples.map((url) => ({ url, alt: t('sampleAlt') }));
   const card = (overrides: Partial<CardProduct>): CardProduct => ({
     slug: 'sample',
@@ -332,6 +336,57 @@ const CanvasPage = async () => {
 
         <Section title="AddToCart">
           <AddToCart />
+        </Section>
+
+        <Section title="ConsultationDialog">
+          <Specimen label="header / product">
+            <ConsultationDialog>
+              <Button variant="ghost" size="sm">
+                <MessageCircle data-icon="inline-start" aria-hidden />
+                {consultation('openShort')}
+              </Button>
+            </ConsultationDialog>
+            <ConsultationDialog product={sampleProduct}>
+              <Button variant="outline" size="sm">
+                {consultation('productOpen')}
+              </Button>
+            </ConsultationDialog>
+          </Specimen>
+        </Section>
+
+        <Section title="ConsultationForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle (product)">
+              <div className="w-full max-w-sm">
+                <ConsultationForm product={sampleProduct} />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full max-w-sm">
+                <ConsultationForm
+                  initialState={{
+                    status: 'invalid',
+                    errors: { name: ['nameRequired'], phone: ['phoneInvalid'] },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full max-w-sm">
+                <ConsultationForm sending />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full max-w-sm">
+                <ConsultationForm initialState={{ status: 'failed' }} />
+              </div>
+            </Specimen>
+            <Specimen label="sent">
+              <div className="w-full max-w-sm">
+                <ConsultationForm initialState={{ status: 'sent' }} />
+              </div>
+            </Specimen>
+          </div>
         </Section>
 
         <Section title="DeliveryPayment">

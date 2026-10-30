@@ -1,9 +1,11 @@
 import { z } from 'zod';
 
 import { AVAILABILITIES, SORTS } from '@/lib/constants';
+import { routing } from '@/i18n/routing';
 import { parseHryvnias } from '@/lib/utils';
 
-// The boundary of every input from outside (RULES.md): the admin's fields, a list's URL, an import.
+// The boundary of every input from outside (RULES.md): the admin's fields, a list's URL, an import,
+// a shopper's form.
 
 export const kopiyky = z.number().int().min(0);
 export const madeToOrderDays = z.number().int().min(1).max(90);
@@ -132,4 +134,53 @@ export const priceRow = z.object({
       'Ціна — не сума в гривнях, як 1245 або 1245,50',
     )
     .transform((value) => (value === '' ? null : parseHryvnias(value))),
+});
+
+// A shopper's consultation request: the form checks it before sending, the server action again.
+// A message is a key of `Consultation.errors` in messages/*.json, translated by the form.
+export const consultationRequest = z.object({
+  name: z.string().trim().min(1, 'nameRequired').max(100, 'nameLong'),
+  // A Ukrainian number however it is typed — 067 123-45-67, 380671234567, +38 (067)… — kept as
+  // +380671234567, so it can be dialled from Telegram with one tap.
+  phone: z
+    .string()
+    .transform((value) => value.replace(/[\s().-]/g, ''))
+    .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
+    .transform((value) => `+38${value.slice(-10)}`),
+  message: z
+    .string()
+    .trim()
+    .max(1000, 'messageLong')
+    .transform((value) => value || undefined)
+    .optional(),
+  // The hidden fields the shopper does not type: a broken one is dropped, never shown as an error.
+  product: z.coerce.number().int().positive().optional().catch(undefined),
+  locale: z.enum(routing.locales).catch(routing.defaultLocale),
+  token: z.string().max(2048).optional().catch(undefined),
+});
+
+// The form's fields by name, Turnstile's own `cf-turnstile-response` among them: the request, or
+// the error keys of each field the shopper typed.
+export const parseConsultationForm = (form: FormData) => {
+  const field = (name: string) => form.get(name) ?? undefined;
+  const result = consultationRequest.safeParse({
+    name: field('name'),
+    phone: field('phone'),
+    message: field('message'),
+    product: field('product'),
+    locale: field('locale'),
+    token: field('cf-turnstile-response'),
+  });
+  return result.success
+    ? { data: result.data }
+    : { errors: z.flattenError(result.error).fieldErrors };
+};
+
+// Cloudflare's answer to a Turnstile token.
+export const turnstileAnswer = z.object({ success: z.boolean() });
+
+// Telegram's answer to `sendMessage`: `ok`, and why not when it is false.
+export const telegramAnswer = z.object({
+  ok: z.boolean(),
+  description: z.string().optional(),
 });

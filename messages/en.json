@@ -110,5 +110,32 @@
     "sampleZone": "Face",
     "sampleCategory": "Serums",
     "sampleCategory2": "Creams"
+  },
+  "Consultation": {
+    "open": "Get a consultation",
+    "openShort": "Consultation",
+    "productHint": "Not sure it suits you?",
+    "productOpen": "Ask the cosmetologist",
+    "title": "Cosmetologist consultation",
+    "description": "Leave your name and phone — the cosmetologist will contact you and help choose your care.",
+    "about": "About: {product}",
+    "name": "Name",
+    "phone": "Phone",
+    "phonePlaceholder": "067 123 45 67",
+    "message": "What concerns your skin",
+    "optional": "optional",
+    "consent": "By sending the request, you agree that we keep your name and phone to contact you.",
+    "submit": "Send",
+    "sending": "Sending…",
+    "failed": "Could not send. Please try again.",
+    "sentTitle": "Thank you!",
+    "sent": "The cosmetologist will contact you soon.",
+    "close": "Close",
+    "errors": {
+      "nameRequired": "Enter your name",
+      "nameLong": "The name is too long: up to 100 characters",
+      "phoneInvalid": "Enter a Ukrainian number, such as 067 123 45 67",
+      "messageLong": "The text is too long: up to 1000 characters"
+    }
   }
 }
