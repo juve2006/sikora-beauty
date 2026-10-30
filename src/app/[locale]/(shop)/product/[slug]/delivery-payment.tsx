@@ -1,10 +1,10 @@
-import { CreditCard, Truck } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { CreditCard, Truck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 // General terms until the owner settles them (spec `sikora-beauty`, open question 5): launch step 1
 // takes cash on delivery or a payment link the manager sends.
-export function DeliveryPayment() {
-  const t = useTranslations('Product')
+const DeliveryPayment = () => {
+  const t = useTranslations('Product');
   return (
     <section className="rounded-lg border p-4">
       <h2 className="font-medium">{t('deliveryTitle')}</h2>
@@ -19,5 +19,7 @@ export function DeliveryPayment() {
         </li>
       </ul>
     </section>
-  )
-}
+  );
+};
+
+export default DeliveryPayment;

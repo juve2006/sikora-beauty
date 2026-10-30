@@ -1,16 +1,16 @@
-import { postgresAdapter } from '@payloadcms/db-postgres'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
-import { uk } from '@payloadcms/translations/languages/uk'
-import path from 'path'
-import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
+import { postgresAdapter } from '@payloadcms/db-postgres';
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
+import { uk } from '@payloadcms/translations/languages/uk';
+import path from 'path';
+import { buildConfig } from 'payload';
+import { fileURLToPath } from 'url';
 
-import { collections } from './collections'
-import { Users } from '@/collections/users'
-import { parseEnv } from '@/lib/env'
+import { collections } from './collections';
+import { Users } from '@/collections/users';
+import { parseEnv } from '@/lib/env';
 
-const env = parseEnv(process.env)
-const dirname = path.dirname(fileURLToPath(import.meta.url))
+const env = parseEnv(process.env);
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default buildConfig({
   admin: {
@@ -20,8 +20,14 @@ export default buildConfig({
     },
     // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV.
     components: {
-      views: { import: { Component: '/components/admin/import-view#ImportView', path: '/import', meta: { title: 'Імпорт' } } },
-      afterNavLinks: ['/components/admin/import-view#ImportNavLink'],
+      views: {
+        import: {
+          Component: '/components/admin/import-view',
+          path: '/import',
+          meta: { title: 'Імпорт' },
+        },
+      },
+      afterNavLinks: ['/components/admin/import-nav-link'],
     },
   },
   collections,
@@ -56,4 +62,4 @@ export default buildConfig({
       connectionString: env.DATABASE_URL,
     },
   }),
-})
+});

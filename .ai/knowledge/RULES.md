@@ -26,10 +26,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   import or an AI draft never publishes by itself. (adr-20261028-reviewed-ai-content-drafts,
   refined by adr-20261029-admin-roles; checked by: Payload drafts and `access.read` on `products`)
 - The store always has an owner: nobody changes their own role or deletes themselves.
-  (adr-20261029-admin-roles; checked by: Vitest on `src/access.ts`)
+  (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password; a Production
   build without `SITE_PASSWORD` fails. (adr-20261029-site-password; checked by: Vitest on
-  `src/proxy.ts` and `src/env.ts`)
+  `src/proxy.ts` and `src/lib/env.ts`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the content checklist, review)
 - A published product has a Ukrainian name, whichever locale it was published from.
@@ -52,9 +52,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   control by default, so without it a page would show drafts. (task `catalog-model`; checked by:
   review)
 - Every collection states its own `create`, `update` and `delete` access per role, from
-  `src/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
+  `src/lib/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
   A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:
-  Vitest in `src/access.test.ts`)
+  Vitest in `tests/access.test.ts`)
 - A custom admin view (`admin.components.views`) is open to anyone: Payload sends a visitor
   without admin access to the login only from its own views. The view redirects when
   `permissions.canAccessAdmin` is false and checks the role itself; its endpoints check the role

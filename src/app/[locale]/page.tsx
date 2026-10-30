@@ -1,9 +1,8 @@
-import { useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl';
+import SiteHeader from '@/components/shared/header';
 
-import { SiteHeader } from '@/components/shared/header'
-
-export default function HomePage() {
-  const t = useTranslations('HomePage')
+const HomePage = () => {
+  const t = useTranslations('HomePage');
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -14,5 +13,7 @@ export default function HomePage() {
         </h1>
       </main>
     </div>
-  )
-}
+  );
+};
+
+export default HomePage;

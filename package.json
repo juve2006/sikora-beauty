@@ -17,7 +17,9 @@
     "payload": "payload",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
-    "seed:catalog": "NODE_ENV=production payload run src/db/seed.ts"
+    "seed:catalog": "NODE_ENV=production payload run src/db/seed.ts",
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",

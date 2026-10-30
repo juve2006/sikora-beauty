@@ -5,8 +5,13 @@ status: accepted
 date: 2026-10-28
 domains: []
 paths:
-  - "src/catalog/**"
+  - "src/collections/**"
+  - src/lib/validators.ts
+  - src/lib/cosmetika.ts
+  - src/lib/translate.ts
+  - "src/components/admin/**"
 summary: Imported + AI-drafted content published only after review; INCI only from a source
+reviewed_at: 2026-10-30
 ---
 # Product content is imported, drafted by AI and published only after the cosmetologist's review; INCI comes only from a source
 

@@ -7,11 +7,11 @@ domains:
   - admin
   - catalog
 paths:
-  - src/access.ts
   - "src/collections/**"
-  - "src/catalog/**"
+  - src/lib/access.ts
+  - "src/components/admin/**"
 summary: Two admin roles, owner and cosmetologist; the access matrix in src/access.ts, every collection stating its own access
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # Every admin user is an owner or a cosmetologist, and access functions in code decide what each may do
 

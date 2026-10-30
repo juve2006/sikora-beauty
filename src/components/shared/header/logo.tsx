@@ -1,21 +1,20 @@
-import { cn } from 'cn'
-import { useTranslations } from 'next-intl'
-
-import { Link } from '@/i18n/navigation'
+import { cn } from 'cn';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 const sizes = {
   sm: 'text-xl',
   md: 'text-3xl',
-}
+};
 
 type Props = {
-  size?: keyof typeof sizes
-  className?: string
-}
+  size?: keyof typeof sizes;
+  className?: string;
+};
 
 // A two-weight wordmark: the brand's name, then its kind.
-export function Logo({ size = 'md', className }: Props) {
-  const t = useTranslations('Logo')
+const Logo = ({ size = 'md', className }: Props) => {
+  const t = useTranslations('Logo');
 
   return (
     <Link
@@ -29,5 +28,7 @@ export function Logo({ size = 'md', className }: Props) {
       <span className="font-semibold">{t('name')}</span>{' '}
       <span className="font-light text-muted-foreground">{t('kind')}</span>
     </Link>
-  )
-}
+  );
+};
+
+export default Logo;

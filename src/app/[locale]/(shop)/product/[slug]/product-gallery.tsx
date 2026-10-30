@@ -1,35 +1,19 @@
-'use client'
+'use client';
 
-import { cn } from 'cn'
-import { ImageOff } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-import Image from 'next/image'
-import { useState } from 'react'
-
-export type Photo = { url: string; alt: string }
-
-export function NoPhoto({ className }: { className?: string }) {
-  const t = useTranslations('Product')
-  return (
-    <div
-      className={cn(
-        'flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border bg-muted text-sm text-muted-foreground',
-        className,
-      )}
-    >
-      <ImageOff className="size-6" aria-hidden />
-      {t('noPhoto')}
-    </div>
-  )
-}
+import { cn } from 'cn';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useState } from 'react';
+import type { Photo } from '@/types';
+import NoPhoto from '@/components/shared/product/no-photo';
 
 // The first photo is the main one (the admin says so); thumbnails switch it.
-export function ProductGallery({ photos }: { photos: Photo[] }) {
-  const t = useTranslations('Product')
-  const [current, setCurrent] = useState(0)
-  if (photos.length === 0) return <NoPhoto />
+const ProductGallery = ({ photos }: { photos: Photo[] }) => {
+  const t = useTranslations('Product');
+  const [current, setCurrent] = useState(0);
+  if (photos.length === 0) return <NoPhoto />;
 
-  const photo = photos[current]
+  const photo = photos[current];
   return (
     <div className="flex flex-col gap-3">
       <div className="relative aspect-square overflow-hidden rounded-lg border bg-card">
@@ -56,12 +40,20 @@ export function ProductGallery({ photos }: { photos: Photo[] }) {
                   index === current && 'border-primary ring-1 ring-primary',
                 )}
               >
-                <Image src={thumbnail.url} alt="" fill sizes="96px" className="object-contain" />
+                <Image
+                  src={thumbnail.url}
+                  alt=""
+                  fill
+                  sizes="96px"
+                  className="object-contain"
+                />
               </button>
             </li>
           ))}
         </ul>
       )}
     </div>
-  )
-}
+  );
+};
+
+export default ProductGallery;

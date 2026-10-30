@@ -5,7 +5,6 @@ status: active
 domains:
   - storefront
 paths:
-  - "src/components/**"
   - "src/app/*/(shop)/**"
   - "src/app/*/page.tsx"
   - "src/app/*/icon.svg"
@@ -14,18 +13,21 @@ paths:
   - skills-lock.json
   - components.json
   - "public/samples/**"
+  - "src/components/shared/**"
+  - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # Storefront components take their look from the theme tokens
 
 ## Practice
 
-What every storefront component — `src/components/**`, and the pages under `src/app/[locale]/` —
-may, must and must not do:
+What every storefront component — `src/components/shared/**`, `src/components/ui/**`, and the
+pages and components under `src/app/[locale]/` — may, must and must not do. `src/components/admin/`
+is not the storefront: it is Payload's admin, on Payload's UI.
 
 ```
-Storefront component (src/components/**, src/app/[locale]/**)
+Storefront component (src/components/shared/**, src/components/ui/**, src/app/[locale]/**)
 
 MAY:      compose src/components/ui/* (shadcn); edit a ui/* file in place when the design needs it
 MUST:     take colours, fonts and radii from the theme tokens in src/app/[locale]/globals.css;
@@ -36,8 +38,13 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
           outside a server component
 ```
 
+- A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
+  uses, in that page's route folder (`/canvas` does not count). Either is a kebab-case file holding
+  one component, `const Name = (…) => {…};` and `export default Name;`
+  (adr-20261030-code-layout-nextjs-store).
 - A shadcn component is added with `npx shadcn add <name>` — the CLI pinned in `devDependencies`,
-  never `shadcn@latest` — and shown on `/canvas` in the same change. Variants and sizes nothing
+  never `shadcn@latest` — formatted with `npm run format`, since the CLI writes its own style and
+  the CI job `format` refuses it, and shown on `/canvas` in the same change. Variants and sizes nothing
   uses are deleted from it, not kept for later. A radius step it uses that the theme does not
   define (`rounded-4xl` in `Badge`) falls back to Tailwind's fixed default without an error, so the
   step is added to `@theme inline` in `globals.css` as shadcn's multiple of `--radius`.
@@ -59,7 +66,8 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 `Button` in `src/components/ui/button.tsx` takes `bg-primary text-primary-foreground` and
 `rounded-lg` from the tokens, keeps only the variants and sizes the storefront uses (its smallest
 is 36 px, for a thumb on a 360 px phone), and `LanguageSwitcher` composes it with `asChild` around
-next-intl's `Link` instead of styling a link of its own.
+a plain `<a>` — another language is a full page load (ARCHITECTURE) — instead of styling a link
+of its own.
 
 ## Rationale
 

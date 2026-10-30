@@ -1,18 +1,17 @@
-'use client'
+'use client';
 
-import { useLocale, useTranslations } from 'next-intl'
-
-import { Button } from '@/components/ui/button'
-import { getPathname, usePathname } from '@/i18n/navigation'
-import { routing } from '@/i18n/routing'
+import { useLocale, useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { getPathname, usePathname } from '@/i18n/navigation';
+import { routing } from '@/i18n/routing';
 
 // Links, not a menu: a search engine follows them to the other language. Plain <a>, not next-intl's
 // Link: another language is another root layout, and a client navigation into it renders <html>
 // without the `dark` class the theme script set; a full load runs the script again.
-export function LanguageSwitcher() {
-  const t = useTranslations('LanguageSwitcher')
-  const current = useLocale()
-  const pathname = usePathname()
+const LanguageSwitcher = () => {
+  const t = useTranslations('LanguageSwitcher');
+  const current = useLocale();
+  const pathname = usePathname();
 
   return (
     <nav aria-label={t('label')}>
@@ -40,5 +39,7 @@ export function LanguageSwitcher() {
         ))}
       </ul>
     </nav>
-  )
-}
+  );
+};
+
+export default LanguageSwitcher;

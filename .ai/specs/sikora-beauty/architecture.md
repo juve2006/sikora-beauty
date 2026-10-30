@@ -8,6 +8,11 @@ One Next.js application with Payload CMS inside it: the storefront, the admin, t
 integrations live in one repository, one process and one Docker image. Frontend and backend are
 separated by folders, not by services.
 
+The domain folders below were the plan; adr-20261030-code-layout-nextjs-store replaced them on
+2026-10-30. A domain is files, not a folder: its collection in `src/collections/`, its reads in
+`src/lib/actions/<x>.actions.ts`, its integration in `src/lib/<x>.ts`, its schemas in
+`src/lib/validators.ts`.
+
 ```
 src/app/[locale]/(shop)/…   storefront (SSR/RSC), `uk` at `/`, `en` at `/en` — frontend
 src/app/[locale]/(shop)/canvas/  every component in every variant and state, mobile + desktop

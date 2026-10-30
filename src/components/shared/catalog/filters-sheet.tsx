@@ -1,17 +1,29 @@
-'use client'
+'use client';
 
-import { SlidersHorizontal } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-
-import { FilterPanel, type FilterProps } from './filter-panel'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { SlidersHorizontal } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import FilterPanel from './filter-panel';
+import type { FilterProps } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 // A phone's filters: a button with how many are chosen, the panel in a sheet from the bottom. The
 // sheet stays open while filters change, and its button shows how many products they leave.
-export function FiltersSheet({ total, selected, ...filters }: FilterProps & { total: number; selected: number }) {
-  const t = useTranslations('Catalog')
+const FiltersSheet = ({
+  total,
+  selected,
+  ...filters
+}: FilterProps & { total: number; selected: number }) => {
+  const t = useTranslations('Catalog');
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -35,5 +47,7 @@ export function FiltersSheet({ total, selected, ...filters }: FilterProps & { to
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  )
-}
+  );
+};
+
+export default FiltersSheet;

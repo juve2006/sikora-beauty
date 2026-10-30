@@ -1,35 +1,61 @@
-import { type CollectionBeforeChangeHook, type CollectionConfig, ValidationError } from 'payload'
+import {
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  ValidationError,
+} from 'payload';
 
-import { editors, ownerField } from '@/lib/access'
-import { importEndpoints } from './import-endpoints'
-import { revalidateStorefront } from './revalidate'
-import { availabilities, hasDaysIfMadeToOrder, hasInciSource, kopiyky, volumeUnitLabels, volumeUnits } from '@/lib/validators'
-import { slugField } from './slug-field'
+import { editors, ownerField } from '@/lib/access';
+import { importEndpoints } from './import-endpoints';
+import { revalidateStorefront } from './revalidate';
+import { hasDaysIfMadeToOrder, hasInciSource, kopiyky } from '@/lib/validators';
+import {
+  AVAILABILITIES,
+  VOLUME_UNIT_LABELS,
+  VOLUME_UNITS,
+} from '@/lib/constants';
+import { slugField } from './slug-field';
 
 // Admin labels only: the storefront translates the values through messages/*.json.
-const availabilityLabels = { in_stock: 'В наявності', made_to_order: 'Під замовлення', out_of_stock: 'Немає в наявності' }
+const availabilityLabels = {
+  in_stock: 'В наявності',
+  made_to_order: 'Під замовлення',
+  out_of_stock: 'Немає в наявності',
+};
 
 // Drafts skip field validation; these run when a product is published.
-const rule = (ok: boolean, message: string) => ok || message
-const priceMessage = 'Вкажіть ціну: 1245 або 1245,50'
+const rule = (ok: boolean, message: string) => ok || message;
+const priceMessage = 'Вкажіть ціну: 1245 або 1245,50';
 
 // Prices and availability are the owner's (GLOSSARY): the cosmetologist sees them, and a value she
 // sends is dropped. Both are required on publishing, so her new product waits for the owner.
-const ownerOnly = { create: ownerField, update: ownerField }
+const ownerOnly = { create: ownerField, update: ownerField };
 // Restoring a version skips the step that puts a dropped value back from the document, so the
 // cosmetologist's restore would lose them and fail validation: she keeps the current ones. A
 // collection hook, not a field one: Payload runs the fields at once, and the days' condition would
 // read availability before a field hook put it back, skipping its check.
-export const keepOnRestore: CollectionBeforeChangeHook = ({ data, originalDoc, req }) => {
-  if (!req.context.isRestoringVersion) return data
-  const dropped = (['price', 'availability', 'madeToOrderDays'] as const).filter((name) => data[name] === undefined)
-  return { ...data, ...Object.fromEntries(dropped.map((name) => [name, originalDoc?.[name]])) }
-}
+export const keepOnRestore: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  if (!req.context.isRestoringVersion) return data;
+  const dropped = (
+    ['price', 'availability', 'madeToOrderDays'] as const
+  ).filter((name) => data[name] === undefined);
+  return {
+    ...data,
+    ...Object.fromEntries(dropped.map((name) => [name, originalDoc?.[name]])),
+  };
+};
 
 // Payload checks `required` only in the locale being saved: a product written in English alone
 // would be published with no Ukrainian name and show nameless at `/`.
-const requireUkrainianName: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) => {
-  if (data._status !== 'published' || req.locale === 'uk') return data
+const requireUkrainianName: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  if (data._status !== 'published' || req.locale === 'uk') return data;
   // Without `req`: given one, the Local API sets its locale to 'uk', and this save would then
   // write the English texts over the Ukrainian ones.
   const uk = originalDoc?.id
@@ -41,13 +67,16 @@ const requireUkrainianName: CollectionBeforeChangeHook = async ({ data, original
         draft: true,
         depth: 0,
       })
-    : null
+    : null;
   if (!uk?.name?.trim()) {
-    const message = 'Спершу заповніть назву українською: Локалізація → uk'
-    throw new ValidationError({ errors: [{ label: 'Назва', message, path: 'name' }] }, req.t)
+    const message = 'Спершу заповніть назву українською: Локалізація → uk';
+    throw new ValidationError(
+      { errors: [{ label: 'Назва', message, path: 'name' }] },
+      req.t,
+    );
   }
-  return data
-}
+  return data;
+};
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -75,14 +104,29 @@ export const Products: CollectionConfig = {
     {
       name: 'translate',
       type: 'ui',
-      admin: { components: { Field: '/components/admin/translate-button#TranslateButton' }, disableListColumn: true },
+      admin: {
+        components: { Field: '/components/admin/translate-button' },
+        disableListColumn: true,
+      },
     },
-    { name: 'name', type: 'text', label: 'Назва', localized: true, required: true },
+    {
+      name: 'name',
+      type: 'text',
+      label: 'Назва',
+      localized: true,
+      required: true,
+    },
     slugField('name'),
     {
       type: 'row',
       fields: [
-        { name: 'brand', type: 'relationship', relationTo: 'brands', label: 'Бренд', required: true },
+        {
+          name: 'brand',
+          type: 'relationship',
+          relationTo: 'brands',
+          label: 'Бренд',
+          required: true,
+        },
         {
           name: 'categories',
           type: 'relationship',
@@ -103,16 +147,33 @@ export const Products: CollectionConfig = {
           label: 'Ціна, грн',
           required: true,
           access: ownerOnly,
-          admin: { components: { Field: '/components/admin/price-field#PriceField', Cell: '/components/admin/price-field#PriceCell' } },
-          validate: (value: unknown) => rule(kopiyky.safeParse(value).success, priceMessage),
+          admin: {
+            components: {
+              Field: '/components/admin/price-field',
+              Cell: '/components/admin/price-cell',
+            },
+          },
+          validate: (value: unknown) =>
+            rule(kopiyky.safeParse(value).success, priceMessage),
           // Money is integer kopiyky in a draft too (RULES.md); a draft may only leave it empty.
           hooks: {
             beforeChange: [
               ({ value, req }) => {
                 if (value != null && !kopiyky.safeParse(value).success) {
-                  throw new ValidationError({ errors: [{ label: 'Ціна, грн', message: priceMessage, path: 'price' }] }, req.t)
+                  throw new ValidationError(
+                    {
+                      errors: [
+                        {
+                          label: 'Ціна, грн',
+                          message: priceMessage,
+                          path: 'price',
+                        },
+                      ],
+                    },
+                    req.t,
+                  );
                 }
-                return value
+                return value;
               },
             ],
           },
@@ -127,7 +188,10 @@ export const Products: CollectionConfig = {
           name: 'volumeUnit',
           type: 'select',
           label: 'Одиниця',
-          options: volumeUnits.map((value) => ({ value, label: volumeUnitLabels[value] })),
+          options: VOLUME_UNITS.map((value) => ({
+            value,
+            label: VOLUME_UNIT_LABELS[value],
+          })),
         },
       ],
     },
@@ -140,16 +204,27 @@ export const Products: CollectionConfig = {
           label: 'Наявність',
           required: true,
           access: ownerOnly,
-          options: availabilities.map((value) => ({ value, label: availabilityLabels[value] })),
+          options: AVAILABILITIES.map((value) => ({
+            value,
+            label: availabilityLabels[value],
+          })),
         },
         {
           name: 'madeToOrderDays',
           type: 'number',
           label: 'Днів до відправки',
           access: ownerOnly,
-          admin: { condition: (_, sibling) => sibling.availability === 'made_to_order' },
-          validate: (value: unknown, { siblingData }: { siblingData: { availability?: string } }) =>
-            rule(hasDaysIfMadeToOrder({ ...siblingData, madeToOrderDays: value }), 'Вкажіть від 1 до 90 днів'),
+          admin: {
+            condition: (_, sibling) => sibling.availability === 'made_to_order',
+          },
+          validate: (
+            value: unknown,
+            { siblingData }: { siblingData: { availability?: string } },
+          ) =>
+            rule(
+              hasDaysIfMadeToOrder({ ...siblingData, madeToOrderDays: value }),
+              'Вкажіть від 1 до 90 днів',
+            ),
         },
       ],
     },
@@ -167,7 +242,12 @@ export const Products: CollectionConfig = {
         {
           label: 'Опис',
           fields: [
-            { name: 'shortDescription', type: 'textarea', label: 'Короткий опис', localized: true },
+            {
+              name: 'shortDescription',
+              type: 'textarea',
+              label: 'Короткий опис',
+              localized: true,
+            },
             {
               name: 'purpose',
               type: 'textarea',
@@ -180,12 +260,33 @@ export const Products: CollectionConfig = {
               label: 'Активні компоненти',
               labels: { singular: 'Компонент', plural: 'Компоненти' },
               fields: [
-                { name: 'name', type: 'text', label: 'Компонент', localized: true, required: true },
-                { name: 'role', type: 'textarea', label: 'Його роль', localized: true },
+                {
+                  name: 'name',
+                  type: 'text',
+                  label: 'Компонент',
+                  localized: true,
+                  required: true,
+                },
+                {
+                  name: 'role',
+                  type: 'textarea',
+                  label: 'Його роль',
+                  localized: true,
+                },
               ],
             },
-            { name: 'howToUse', type: 'textarea', label: 'Спосіб застосування', localized: true },
-            { name: 'warnings', type: 'textarea', label: 'Застереження', localized: true },
+            {
+              name: 'howToUse',
+              type: 'textarea',
+              label: 'Спосіб застосування',
+              localized: true,
+            },
+            {
+              name: 'warnings',
+              type: 'textarea',
+              label: 'Застереження',
+              localized: true,
+            },
           ],
         },
         {
@@ -195,22 +296,40 @@ export const Products: CollectionConfig = {
               name: 'inci',
               type: 'textarea',
               label: 'Склад INCI',
-              admin: { description: 'Лише скопійований з упаковки, сайту бренду чи від дистриб’ютора.' },
+              admin: {
+                description:
+                  'Лише скопійований з упаковки, сайту бренду чи від дистриб’ютора.',
+              },
             },
             {
               name: 'inciSource',
               type: 'text',
               label: 'Джерело INCI',
-              admin: { description: 'Звідки скопійовано: «упаковка», посилання на сторінку бренду…' },
-              validate: (value: unknown, { siblingData }: { siblingData: { inci?: string | null } }) =>
-                rule(hasInciSource({ inci: siblingData.inci, inciSource: value }), 'Вкажіть, звідки скопійовано склад'),
+              admin: {
+                description:
+                  'Звідки скопійовано: «упаковка», посилання на сторінку бренду…',
+              },
+              validate: (
+                value: unknown,
+                { siblingData }: { siblingData: { inci?: string | null } },
+              ) =>
+                rule(
+                  hasInciSource({ inci: siblingData.inci, inciSource: value }),
+                  'Вкажіть, звідки скопійовано склад',
+                ),
             },
           ],
         },
         {
           label: 'Шкіра',
           fields: [
-            { name: 'skinTypes', type: 'relationship', relationTo: 'skin-types', label: 'Типи шкіри', hasMany: true },
+            {
+              name: 'skinTypes',
+              type: 'relationship',
+              relationTo: 'skin-types',
+              label: 'Типи шкіри',
+              hasMany: true,
+            },
             {
               name: 'skinConditions',
               type: 'relationship',
@@ -245,8 +364,12 @@ export const Products: CollectionConfig = {
         { name: 'isNew', type: 'checkbox', label: 'Новинка' },
         { name: 'isBestseller', type: 'checkbox', label: 'Бестселер' },
         { name: 'isSet', type: 'checkbox', label: 'Набір або комплект' },
-        { name: 'isMini', type: 'checkbox', label: 'Мініатюра або travel-формат' },
+        {
+          name: 'isMini',
+          type: 'checkbox',
+          label: 'Мініатюра або travel-формат',
+        },
       ],
     },
   ],
-}
+};

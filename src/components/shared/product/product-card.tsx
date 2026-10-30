@@ -1,22 +1,21 @@
-import { useTranslations } from 'next-intl'
-import Image from 'next/image'
-
-import { Availability } from './availability'
-import { NoPhoto, type Photo } from '@/app/[locale]/(shop)/product/[slug]/product-gallery'
-import { ProductPrice } from './product-price'
-import { Link } from '@/i18n/navigation'
-import type { Product } from '@/payload-types'
-
-export type CardProduct = Pick<Product, 'name' | 'price' | 'volume' | 'volumeUnit' | 'availability' | 'madeToOrderDays'> & {
-  slug: string
-  brand: string
-  photo?: Photo
-}
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Availability from './availability';
+import NoPhoto from './no-photo';
+import ProductPrice from './product-price';
+import { Link } from '@/i18n/navigation';
+import type { CardProduct } from '@/types';
 
 // One product in a list: related products and the catalog's lists. `eager` for the first row, the
 // page's largest paint, which a lazy image would delay.
-export function ProductCard({ product, eager = false }: { product: CardProduct; eager?: boolean }) {
-  const t = useTranslations('Product')
+const ProductCard = ({
+  product,
+  eager = false,
+}: {
+  product: CardProduct;
+  eager?: boolean;
+}) => {
+  const t = useTranslations('Product');
   return (
     <Link
       href={`/product/${product.slug}`}
@@ -38,15 +37,22 @@ export function ProductCard({ product, eager = false }: { product: CardProduct; 
       )}
       <div className="flex flex-col items-start gap-1">
         <span className="text-sm text-muted-foreground">{product.brand}</span>
-        <span className="leading-snug font-medium group-hover:underline">{product.name}</span>
+        <span className="leading-snug font-medium group-hover:underline">
+          {product.name}
+        </span>
         {product.volume != null && product.volumeUnit && (
           <span className="text-sm text-muted-foreground">
             {t('volume', { volume: product.volume, unit: product.volumeUnit })}
           </span>
         )}
         <ProductPrice price={product.price} className="mt-1 font-semibold" />
-        <Availability availability={product.availability} madeToOrderDays={product.madeToOrderDays} />
+        <Availability
+          availability={product.availability}
+          madeToOrderDays={product.madeToOrderDays}
+        />
       </div>
     </Link>
-  )
-}
+  );
+};
+
+export default ProductCard;

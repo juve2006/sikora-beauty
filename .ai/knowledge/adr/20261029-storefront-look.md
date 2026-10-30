@@ -8,11 +8,12 @@ domains:
 paths:
   - "src/app/*/globals.css"
   - "src/app/*/layout.tsx"
-  - "src/components/**"
   - components.json
   - postcss.config.mjs
+  - "src/components/shared/**"
+  - "src/components/ui/**"
 summary: "Storefront look: Tailwind v4 + shadcn/ui on theme tokens in [locale]/globals.css, Onest, light and dark themes by an inline script; no prototypes, no next-themes"
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # The storefront's look lives in theme tokens on Tailwind and shadcn/ui, in a light and a dark theme
 

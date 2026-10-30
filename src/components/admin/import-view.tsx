@@ -1,18 +1,22 @@
-import { DefaultTemplate } from '@payloadcms/next/templates'
-import { Gutter, Link, NavGroup } from '@payloadcms/ui'
-import { redirect } from 'next/navigation'
-import type { AdminViewServerProps, ServerProps } from 'payload'
-
-import { CosmetikaImport } from './cosmetika-import'
-import { PricesCsv } from './prices-csv'
+import { DefaultTemplate } from '@payloadcms/next/templates';
+import { Gutter } from '@payloadcms/ui';
+import { redirect } from 'next/navigation';
+import type { AdminViewServerProps } from 'payload';
+import CosmetikaImport from './cosmetika-import';
+import PricesCsv from './prices-csv';
 
 // «Імпорт» (/admin/import): the owner's bulk tools. Their endpoints refuse anyone else as well
-// (importEndpoints.ts); hiding the page only spares the cosmetologist a dead end.
-export function ImportView({ initPageResult, params, searchParams }: AdminViewServerProps) {
-  const { req, permissions, visibleEntities, locale } = initPageResult
+// (import-endpoints.ts); hiding the page only spares the cosmetologist a dead end.
+const ImportView = ({
+  initPageResult,
+  params,
+  searchParams,
+}: AdminViewServerProps) => {
+  const { req, permissions, visibleEntities, locale } = initPageResult;
   // Payload sends a visitor who may not open the admin to the login from its own views, not from a
   // custom one: without this, anyone would see the admin's frame and menu here.
-  if (!permissions.canAccessAdmin) redirect(`${req.payload.config.routes.admin}/login`)
+  if (!permissions.canAccessAdmin)
+    redirect(`${req.payload.config.routes.admin}/login`);
   return (
     <DefaultTemplate
       i18n={req.i18n}
@@ -43,17 +47,7 @@ export function ImportView({ initPageResult, params, searchParams }: AdminViewSe
         )}
       </Gutter>
     </DefaultTemplate>
-  )
-}
+  );
+};
 
-// The menu entry, after the collections' groups; the owner's only.
-export function ImportNavLink({ payload, user }: ServerProps) {
-  if (user?.role !== 'owner') return null
-  return (
-    <NavGroup label="Інструменти">
-      <Link className="nav__link" href={`${payload.config.routes.admin}/import`} prefetch={false}>
-        <span className="nav__link-label">Імпорт</span>
-      </Link>
-    </NavGroup>
-  )
-}
+export default ImportView;
