@@ -6,7 +6,6 @@ domains:
   - storefront
 paths:
   - "src/app/*/(shop)/**"
-  - "src/app/*/page.tsx"
   - "src/app/*/icon.svg"
   - ".claude/skills/shadcn/**"
   - ".agents/skills/shadcn/**"

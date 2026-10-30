@@ -95,7 +95,7 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A page's slug never names a section of the store: `RESERVED_SLUGS` (`src/lib/constants`) lists
   every folder under `(shop)/` and the paths the proxy skips, and the page's slug field refuses
   them. A new section joins the list in the same change, or a page saved earlier under its name
-  hides it. (task `header-home-and-about`; checked by: `tests/pages.test.ts`)
+  hides it. (task `header-home-and-about`; checked by: `tests/pages.test.ts`, `tests/proxy.test.ts`)
 - No two GraphQL types share a name: a Payload block is named after its slug, so a block whose
   slug is a collection's takes an `interfaceName` (`products` → `ProductsBlock`); a clash breaks
   all of `/api/graphql`, not only the block. (task `header-home-and-about`; checked by:

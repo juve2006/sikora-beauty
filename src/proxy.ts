@@ -4,8 +4,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
 
 const intl = createMiddleware(routing);
-// Payload owns /admin and /api; files and Next internals need no locale.
-const localized = /^\/(?!api|admin|_next|_vercel|.*\..*)/;
+// Payload owns /admin and /api — whole segments, so a page's /administratsiia keeps its locale;
+// files and Next internals need no locale.
+const localized = /^\/(?!(?:api|admin)(?:\/|$)|_next|_vercel|.*\..*)/;
 
 // Until the launch the store is closed by one password (adr-20261029-site-password): Vercel guards
 // only the Previews. Any user name will do. Without SITE_PASSWORD (locally, on a Preview) no gate.

@@ -180,7 +180,7 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
   `/canvas`, the header, the pages, the product page, the catalog's lists and the consultation dialog are built (above). Knows domains through
   their actions, their pure helpers (`src/lib/listing.ts`, `src/lib/product-page.ts`) and their
   schemas (`src/lib/validators.ts`); never through a collection — `AdminLink`'s `/api/users/me`
-  is the one exception ({adr}).
+  is the one exception (adr-20261030-header-menu-and-pages-from-payload).
 - **Admin** (`src/app/(payload)/admin`, `src/components/admin/`) — Payload's admin in Ukrainian
   for the Owner and the Cosmetologist.
 - **Catalog** (the catalog's `src/collections/`, `product.actions.ts`, `category.actions.ts`,
