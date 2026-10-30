@@ -71,9 +71,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   task `design-direction`; checked by: review)
 - `next build` runs in CI without a database, so a page must not reach Payload while it is
   prerendered: a page that reads a Payload session awaits `headers()` before `getPayload`, which
-  makes it dynamic; a page of the catalog returns `[]` from `generateStaticParams`, so it renders
-  on its first visit and stays cached until a save revalidates it. (tasks `design-direction`,
-  `product-page`; checked by: the CI `build` job)
+  makes it dynamic; a product page returns `[]` from `generateStaticParams`, so it renders on its
+  first visit and stays cached until a save revalidates it; a list of the catalog reads
+  `searchParams`, so it renders on every request. (tasks `design-direction`, `product-page`,
+  `catalog-listing`; checked by: the CI `build` job)
 - One roadmap item is one task and one pull request, with a Backend and a Frontend section.
   (spec `sikora-beauty`; checked by: review)
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec
