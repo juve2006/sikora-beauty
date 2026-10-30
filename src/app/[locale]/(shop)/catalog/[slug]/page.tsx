@@ -7,7 +7,6 @@ import { getCatalogTerm, getFacets } from '@/lib/actions/category.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
 import CategoryNav from './category-nav';
 import Listing from '@/components/shared/catalog/listing';
-import SiteHeader from '@/components/shared/header';
 import { alternates, Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 
@@ -69,32 +68,29 @@ const CatalogPage = async ({ params, searchParams }: Props) => {
   );
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
-      <Listing
-        title={term.title}
-        above={
-          term.id !== zone.id && (
-            <Link href={`/catalog/${zone.slug}`} className="hover:underline">
-              {zone.title}
-            </Link>
-          )
-        }
-        nav={
-          stocked.length > 0 && (
-            <CategoryNav
-              zone={zone}
-              categories={stocked}
-              current={slug}
-              search={listingSearch(query, {})}
-            />
-          )
-        }
-        result={result}
-        params={query}
-        basePath={`/catalog/${slug}`}
-      />
-    </div>
+    <Listing
+      title={term.title}
+      above={
+        term.id !== zone.id && (
+          <Link href={`/catalog/${zone.slug}`} className="hover:underline">
+            {zone.title}
+          </Link>
+        )
+      }
+      nav={
+        stocked.length > 0 && (
+          <CategoryNav
+            zone={zone}
+            categories={stocked}
+            current={slug}
+            search={listingSearch(query, {})}
+          />
+        )
+      }
+      result={result}
+      params={query}
+      basePath={`/catalog/${slug}`}
+    />
   );
 };
 

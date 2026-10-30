@@ -3,6 +3,7 @@ import * as migration_20261028_185141_catalog from './20261028_185141_catalog';
 import * as migration_20261029_094349_roles from './20261029_094349_roles';
 import * as migration_20261030_100929_content_review from './20261030_100929_content_review';
 import * as migration_20261030_111524_consultation_requests from './20261030_111524_consultation_requests';
+import * as migration_20261030_124715_pages from './20261030_124715_pages';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20261030_111524_consultation_requests.up,
     down: migration_20261030_111524_consultation_requests.down,
-    name: '20261030_111524_consultation_requests'
+    name: '20261030_111524_consultation_requests',
+  },
+  {
+    up: migration_20261030_124715_pages.up,
+    down: migration_20261030_124715_pages.down,
+    name: '20261030_124715_pages'
   },
 ];

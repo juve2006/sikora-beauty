@@ -109,8 +109,9 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Frontend: cart, a checkout form with Nova Poshta autocomplete, a choice of "cash on delivery /
     payment link from the manager", a thank-you page; an `e2e` CI job — Playwright at 360 px and
     desktop, in both locales: catalog → cart → order
-- [ ] header, home and about — navigation and the home page (after: brands and collections — links to every section)
-  - Backend: home page blocks editable in the admin (a global)
+- [x] `header-home-and-about` — navigation and the home page (after: brands and collections — links to every section)
+  - Backend: home page blocks editable in the admin — the `pages` collection, not a global (the
+    developer, 2026-10-30)
   - Frontend: header (logo, search, favorites, cart, navigation, consultation, language switcher)
     with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"; a link to the
     admin for a signed-in owner or cosmetologist, checked in the browser (`/api/users/me`) so the

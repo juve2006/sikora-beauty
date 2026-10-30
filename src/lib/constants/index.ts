@@ -9,6 +9,23 @@ export const SITE_URL = new URL(
   host ? `https://${host}` : `http://localhost:${process.env.PORT ?? 3000}`,
 );
 
+// A page's address may not be a storefront section's, whose route would hide the page, nor a
+// language's or Payload's own path.
+export const RESERVED_SLUGS = [
+  'brand',
+  'brands',
+  'canvas',
+  'catalog',
+  'collection',
+  'concern',
+  'product',
+  'skin-type',
+  'admin',
+  'api',
+  'uk',
+  'en',
+] as const;
+
 export const ROLES = ['owner', 'cosmetologist'] as const;
 export const ROLE_LABELS: Record<(typeof ROLES)[number], string> = {
   owner: 'Власник',

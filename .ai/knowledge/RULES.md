@@ -83,12 +83,23 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   in production it answers 404 to anyone without a Payload session, and it is `noindex`. Its
   component, variant and size names are code identifiers, not UI strings. (spec `sikora-beauty`,
   task `design-direction`; checked by: review)
-- `next build` runs in CI without a database, so a page must not reach Payload while it is
-  prerendered: a page that reads a Payload session awaits `headers()` before `getPayload`, which
-  makes it dynamic; a product page returns `[]` from `generateStaticParams`, so it renders on its
-  first visit and stays cached until a save revalidates it; a list of the catalog reads
-  `searchParams`, so it renders on every request. (tasks `design-direction`, `product-page`,
-  `catalog-listing`; checked by: the CI `build` job)
+- `next build` runs in CI without a database, so no page under `(shop)/` is prerendered: its
+  layout reads the menu from Payload while the page renders, and a page's own `connection()` does
+  not stop the layout. A page the build would prerender exports
+  `dynamic = 'force-dynamic'` (the home page, `/brands`, `/canvas`); a product page and a page by
+  slug return `[]` from `generateStaticParams`, so they render on the first visit and stay cached
+  until a save revalidates them; a list of the catalog reads `searchParams`. A miss only logs
+  `cannot connect to Postgres` and the build still passes, so read the build's log, not its exit
+  code. (tasks `design-direction`, `product-page`, `catalog-listing`, `header-home-and-about`,
+  adr-20261030-header-menu-and-pages-from-payload; checked by: the CI `build` job's log, review)
+- A page's slug never names a section of the store: `RESERVED_SLUGS` (`src/lib/constants`) lists
+  every folder under `(shop)/` and the paths the proxy skips, and the page's slug field refuses
+  them. A new section joins the list in the same change, or a page saved earlier under its name
+  hides it. (task `header-home-and-about`; checked by: `tests/pages.test.ts`)
+- No two GraphQL types share a name: a Payload block is named after its slug, so a block whose
+  slug is a collection's takes an `interfaceName` (`products` → `ProductsBlock`); a clash breaks
+  all of `/api/graphql`, not only the block. (task `header-home-and-about`; checked by:
+  `tests/graphql.test.ts`)
 - One roadmap item is one task and one pull request, with a Backend and a Frontend section.
   (spec `sikora-beauty`; checked by: review)
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec

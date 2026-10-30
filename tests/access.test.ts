@@ -5,6 +5,7 @@ import { Brands } from '@/collections/brands';
 import { Categories } from '@/collections/categories';
 import { ConsultationRequests } from '@/collections/consultation-requests';
 import { Media } from '@/collections/media';
+import { Pages } from '@/collections/pages';
 import {
   SkinConcerns,
   SkinConditions,
@@ -54,6 +55,7 @@ describe('catalog', () => {
       SkinConditions,
       SkinConcerns,
       Media,
+      Pages,
     ].map((c) => [c.slug, c] as const),
   )(
     '%s: both roles create and edit, only the owner deletes',

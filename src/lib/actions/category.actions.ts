@@ -43,6 +43,44 @@ export const getCatalogTerm = cache(async (slug: string, locale: Locale) => {
   return { term, zone, categories };
 });
 
+// The header's menu: the zones with their categories, and the skin concerns, in the admin's order —
+// a term the cosmetologist adds reaches the menu on save, without a deploy.
+export const getMenu = cache(async (locale: Locale) => {
+  const payload = await getPayload({ config });
+  const read = {
+    locale,
+    depth: 0,
+    sort: '_order',
+    pagination: false,
+    overrideAccess: false,
+  } as const;
+  const [categories, concerns] = await Promise.all([
+    payload.find({
+      ...read,
+      collection: 'categories',
+      select: { title: true, slug: true, parent: true },
+    }),
+    payload.find({
+      ...read,
+      collection: 'skin-concerns',
+      select: { title: true, slug: true },
+    }),
+  ]);
+  const link = ({ slug, title }: { slug?: string | null; title: string }) =>
+    slug ? [{ slug, title }] : [];
+  const zones = categories.docs
+    .filter(({ parent }) => !parent)
+    .flatMap((zone) =>
+      link(zone).map((term) => ({
+        ...term,
+        categories: categories.docs
+          .filter(({ parent }) => parent === zone.id)
+          .flatMap(link),
+      })),
+    );
+  return { zones, concerns: concerns.docs.flatMap(link) };
+});
+
 // A skin concern's or a skin type's landing page.
 export const getSkinTerm = cache(
   async (

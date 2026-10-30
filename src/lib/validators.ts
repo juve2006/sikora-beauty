@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { AVAILABILITIES, SORTS } from '@/lib/constants';
+import { AVAILABILITIES, RESERVED_SLUGS, ROLES, SORTS } from '@/lib/constants';
 import { routing } from '@/i18n/routing';
 import { parseHryvnias } from '@/lib/utils';
 
@@ -184,3 +184,17 @@ export const telegramAnswer = z.object({
   ok: z.boolean(),
   description: z.string().optional(),
 });
+
+// Payload's `/api/users/me`, asked by the browser: who is signed in to the admin, if anyone.
+export const adminSession = z.object({
+  user: z.object({ role: z.enum(ROLES) }).nullable(),
+});
+
+// A page's address, not a section's (RESERVED_SLUGS).
+export const pageSlug = z
+  .string()
+  .refine((slug) => !(RESERVED_SLUGS as readonly string[]).includes(slug));
+
+// A link the owner types into a page: a path of this store, never another site — `//host` and
+// `/\host` are one to a browser.
+export const internalPath = z.string().regex(/^\/(?![/\\])[^\s\\]*$/);

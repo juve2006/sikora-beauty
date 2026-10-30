@@ -12,7 +12,6 @@ import {
 } from '@/lib/actions/category.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
 import Listing from '@/components/shared/catalog/listing';
-import SiteHeader from '@/components/shared/header';
 import { alternates } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 
@@ -88,16 +87,13 @@ export function landing(facet: keyof typeof landings) {
     if (query.page > result.pageCount) notFound();
 
     return (
-      <div className="flex min-h-dvh flex-col">
-        <SiteHeader />
-        <Listing
-          title={term.title}
-          above={t(`facets.${facet}`)}
-          result={result}
-          params={query}
-          basePath={`/${path}/${slug}`}
-        />
-      </div>
+      <Listing
+        title={term.title}
+        above={t(`facets.${facet}`)}
+        result={result}
+        params={query}
+        basePath={`/${path}/${slug}`}
+      />
     );
   }
 

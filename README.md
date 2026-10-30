@@ -6,10 +6,12 @@ Braderm, Institutum — with a care finder and cosmetologist consultations. Stor
 
 ## Status
 
-A placeholder page at `/` (Ukrainian) and `/en` (English) in the store's own look — a text logo,
-a language switch and a light and a dark theme that follows the device until the shopper picks
-one — and the Payload admin at `/admin`,
-where the catalog can be filled in: brands, zones and categories, skin types, conditions and
+A home page at `/` (Ukrainian) and `/en` (English) in the store's own look — a text logo, a
+language switch and a light and a dark theme that follows the device until the shopper picks
+one — and the Payload admin at `/admin`. The home page, `/about` and any other page are built in
+the admin under «Сторінки» from blocks — a banner, a collection's products, tiles into the
+catalog, a consultation invitation, a text — and change without a deploy. In the admin
+the catalog can be filled in: brands, zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), and its
 Ukrainian texts drafted by AI (Claude) from the brand's material pasted into «Заповнити з AI».
@@ -21,7 +23,9 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
 its texts, delivery and payment, and related products; the cart button waits for the cart. The
-header leads to the zones: `/catalog/<zone>` and `/catalog/<category>` list published products,
+header's menu is read from the catalog — the zones with their categories, the skin concerns, the
+brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
+signed in to the admin; `/catalog/<zone>` and `/catalog/<category>` list published products,
 24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
 price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and
 `/concern/<slug>`, the same list for that term. «Консультація» in the header and «Запитати
@@ -59,7 +63,7 @@ Locally Payload creates the tables itself (`push`). A change to a collection als
 migration for the deployed database: `npm run payload -- migrate:create <name>`.
 
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
-skin vocabularies and brands; it never changes what exists. Uploaded photos go to `./media`
+skin vocabularies, brands and the home and about pages; it never changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
 `ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. A
 consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, and is
