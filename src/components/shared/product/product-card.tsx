@@ -2,7 +2,7 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 
 import { Availability } from './availability'
-import { NoPhoto, type Photo } from './product-gallery'
+import { NoPhoto, type Photo } from '@/app/[locale]/(shop)/product/[slug]/product-gallery'
 import { ProductPrice } from './product-price'
 import { Link } from '@/i18n/navigation'
 import type { Product } from '@/payload-types'
