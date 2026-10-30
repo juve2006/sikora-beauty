@@ -23,7 +23,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   - Its look is Tailwind CSS v4 and shadcn/ui on theme tokens in `src/app/[locale]/globals.css`,
     which only this layout imports, so the admin never gets the storefront's styles; a light and a
     dark theme, set before the first paint by an inline script in the layout
-    (adr-20261029-storefront-look). Components in `src/components/` take everything from the
+    (adr-20261029-storefront-look). A link to the other language is a plain `<a>`, never
+    next-intl's `Link` with `locale`: each language is its own root layout, and a client
+    navigation into it renders `<html>` without the class the script set. Components in `src/components/` take everything from the
     tokens (convention-storefront-components): `Logo`, `Button`, `Badge`, `LanguageSwitcher`,
     `ThemeToggle`, `SiteHeader`, and the product's own in `src/components/product/` — price,
     availability, gallery, card, delivery and payment, the cart button — and the catalog's in
