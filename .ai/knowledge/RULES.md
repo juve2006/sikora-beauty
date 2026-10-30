@@ -32,6 +32,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - Until the launch every request to the production domain passes the site password; a Production
   build without `SITE_PASSWORD` fails. (adr-20261029-site-password; checked by: Vitest on
   `src/proxy.ts` and `src/lib/env.ts`)
+- A consultation request is created only by `requestConsultation`, after the form's Zod schema
+  and Turnstile: no role creates one through REST or GraphQL, and no role changes what the shopper
+  sent — only its status. Only an admin role reads a request; only the owner deletes one.
+  (adr-20261030-consultation-requests; checked by: Vitest in `tests/access.test.ts` and
+  `tests/consultation.test.ts`)
+- Once the site password is gone, a Production build without the Turnstile keys fails.
+  (adr-20261030-consultation-requests; checked by: Vitest on `src/lib/env.ts`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
   checked by: the wording checklist — the status field's description and the words
   `src/lib/claims.ts` flags in the admin — and the person who marks the texts «Перевірено»)
@@ -87,6 +94,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
+- A shopper's personal data — name, phone, what they wrote — never reaches a log: a failed query
+  is logged without its params or the database's detail, which carry the row. (task
+  `consultation-request`; checked by: Vitest in `tests/consultation.test.ts`, review)
 - Secrets never enter the repository; they live in the host's environment (Vercel during
   development, Coolify in production), in GitHub Actions secrets when a workflow deploys, and in a
   password manager. (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)

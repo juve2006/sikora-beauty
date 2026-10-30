@@ -13,12 +13,14 @@ import {
 import { getProduct, getRelated } from '@/lib/actions/product.actions';
 import AddToCart from './add-to-cart';
 import Availability from '@/components/shared/product/availability';
+import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import DeliveryPayment from './delivery-payment';
 import ProductCard from '@/components/shared/product/product-card';
 import ProductGallery from './product-gallery';
 import ProductPrice from '@/components/shared/product/product-price';
 import SiteHeader from '@/components/shared/header';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { alternates, getPathname, Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
@@ -80,6 +82,7 @@ const ProductPage = async ({ params }: Props) => {
   if (!product) notFound();
 
   const t = await getTranslations('Product');
+  const consultation = await getTranslations('Consultation');
   const related = await getRelated(product, locale);
   const brand = brandName(product.brand);
   const brandSlug =
@@ -144,6 +147,18 @@ const ProductPage = async ({ params }: Props) => {
               />
             </div>
             <AddToCart />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <p className="text-sm text-muted-foreground">
+                {consultation('productHint')}
+              </p>
+              <ConsultationDialog
+                product={{ id: product.id, name: product.name }}
+              >
+                <Button variant="outline" size="sm">
+                  {consultation('productOpen')}
+                </Button>
+              </ConsultationDialog>
+            </div>
             {product.shortDescription && (
               <p className="leading-relaxed whitespace-pre-line">
                 {product.shortDescription}

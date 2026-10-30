@@ -147,7 +147,8 @@ Use in: source code, schema, API, documentation.
 ## Consultation Request
 
 A shopper's request to be contacted by the cosmetologist, stored with a status and sent to
-Telegram.
+Telegram. Collection `consultation-requests`, «Запит на консультацію»; status `new`, `in_progress`
+or `closed` — «Новий», «В роботі», «Закритий».
 
 Informal synonyms: заявка на консультацію, консультація.
 Use in: source code, schema, API, documentation.

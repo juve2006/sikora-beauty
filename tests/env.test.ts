@@ -54,6 +54,42 @@ describe('parseEnv', () => {
     ).toBeUndefined();
   });
 
+  it('takes Turnstile and Telegram in pairs or not at all', () => {
+    expect(() =>
+      parseEnv({ ...valid, NEXT_PUBLIC_TURNSTILE_SITE_KEY: 'site' }),
+    ).toThrow('Invalid environment variables: TURNSTILE_SECRET_KEY');
+    expect(() =>
+      parseEnv({ ...valid, TURNSTILE_SECRET_KEY: 'secret' }),
+    ).toThrow('Invalid environment variables: TURNSTILE_SECRET_KEY');
+    expect(() => parseEnv({ ...valid, TELEGRAM_CHAT_ID: '-100123' })).toThrow(
+      'Invalid environment variables: TELEGRAM_BOT_TOKEN',
+    );
+    expect(
+      parseEnv({
+        ...valid,
+        TELEGRAM_BOT_TOKEN: '',
+        TELEGRAM_CHAT_ID: '',
+        TURNSTILE_SECRET_KEY: '',
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: '',
+      }).TELEGRAM_BOT_TOKEN,
+    ).toBe('');
+  });
+
+  it('needs Turnstile on a Production with no site password, open to shoppers', () => {
+    const production = {
+      ...valid,
+      VERCEL: '1',
+      BLOB_READ_WRITE_TOKEN: 'token',
+      VERCEL_ENV: 'production',
+    };
+    expect(() => parseEnv(production)).toThrow(
+      'Invalid environment variables: SITE_PASSWORD, TURNSTILE_SECRET_KEY',
+    );
+    expect(() =>
+      parseEnv({ ...production, SITE_PASSWORD: 'x'.repeat(12) }),
+    ).not.toThrow();
+  });
+
   it('never puts a value into the error', () => {
     const leaky = { ...valid, PAYLOAD_SECRET: 'secret-but-too-short' };
     expect(() => parseEnv(leaky)).toThrow(/^(?!.*secret-but-too-short).*$/);

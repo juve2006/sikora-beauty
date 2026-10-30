@@ -23,6 +23,8 @@ export const AVAILABILITIES = [
 // Whose texts a product carries: a draft by AI or by the import waits for a person to read it
 // (adr-20261028-reviewed-ai-content-drafts).
 export const REVIEWS = ['ai', 'imported', 'reviewed'] as const;
+// A consultation request's way through: the cosmetologist takes it, calls, closes it.
+export const CONSULTATION_STATUSES = ['new', 'in_progress', 'closed'] as const;
 export const VOLUME_UNITS = ['ml', 'g', 'pcs'] as const;
 // For the admin and the owner's price list; the storefront translates units through messages/*.json.
 export const VOLUME_UNIT_LABELS: Record<(typeof VOLUME_UNITS)[number], string> =

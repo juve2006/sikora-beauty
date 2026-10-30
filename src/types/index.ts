@@ -9,6 +9,7 @@ import type {
 import type { listing } from '@/lib/listing';
 import type {
   aiDraft,
+  consultationRequest,
   cosmetikaProduct,
   listingParams,
   productRules,
@@ -19,6 +20,15 @@ export type ProductRules = z.infer<typeof productRules>;
 export type ListingParams = z.infer<typeof listingParams>;
 export type CosmetikaProduct = z.infer<typeof cosmetikaProduct>;
 export type AiDraft = z.infer<typeof aiDraft>;
+export type ConsultationRequest = z.infer<typeof consultationRequest>;
+
+// What the consultation form shows after a submit: the error keys of each field the shopper typed.
+export type ConsultationState =
+  | { status: 'idle' | 'failed' | 'sent' }
+  | {
+      status: 'invalid';
+      errors: Partial<Record<'name' | 'phone' | 'message', string[]>>;
+    };
 
 export type Availability = (typeof AVAILABILITIES)[number];
 export type VolumeUnit = (typeof VOLUME_UNITS)[number];

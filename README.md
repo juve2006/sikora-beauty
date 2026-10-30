@@ -24,14 +24,17 @@ its texts, delivery and payment, and related products; the cart button waits for
 header leads to the zones: `/catalog/<zone>` and `/catalog/<category>` list published products,
 24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
 price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and
-`/concern/<slug>`, the same list for that term. `/canvas` shows every storefront component in every variant and
+`/concern/<slug>`, the same list for that term. «Консультація» in the header and «Запитати
+косметолога» on a product page take a shopper's name, phone and what concerns their skin; the
+request waits in the admin under «Запити» (only an admin user reads it, only the owner deletes it)
+and reaches the cosmetologist's Telegram group. `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 1 — brands and collections.
+- Next: Phase 2 — search, favorites, cart and checkout.
 
 ## Stack
 
@@ -58,7 +61,11 @@ migration for the deployed database: `npm run payload -- migrate:create <name>`.
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
 skin vocabularies and brands; it never changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
-`ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up.
+`ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. A
+consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, and is
+checked by Cloudflare Turnstile with `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`;
+without the first pair a request is only saved, without the second it is not checked. A public
+Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
 storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components

@@ -1,4 +1,6 @@
+import { MessageCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import LanguageSwitcher from './language-switcher';
 import Logo from './logo';
 import ThemeToggle from './theme-toggle';
@@ -13,8 +15,9 @@ const zones = ['face', 'body', 'hair'] as const;
 // Until the roadmap item `header, home and about` brings search, favorites and the cart.
 const SiteHeader = () => {
   const t = useTranslations('Nav');
+  const consultation = useTranslations('Consultation');
   return (
-    <header className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 sm:flex-nowrap sm:px-6">
+    <header className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:flex-nowrap sm:gap-x-6 sm:px-6">
       <Logo size="sm" />
       <nav
         aria-label={t('label')}
@@ -31,6 +34,13 @@ const SiteHeader = () => {
         </ul>
       </nav>
       <div className="flex items-center gap-1">
+        <ConsultationDialog>
+          <Button variant="ghost" size="sm" aria-label={consultation('open')}>
+            <MessageCircle data-icon="inline-start" aria-hidden />
+            {/* A phone keeps the logo and these buttons on one line: the icon alone, named. */}
+            <span className="max-sm:sr-only">{consultation('openShort')}</span>
+          </Button>
+        </ConsultationDialog>
         <LanguageSwitcher />
         <ThemeToggle />
       </div>
