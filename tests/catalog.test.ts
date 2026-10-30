@@ -126,6 +126,12 @@ describe('slugField', () => {
     expect(slug('')).toBe('hel');
     expect(slug(undefined, '')).toBeUndefined();
   });
+
+  it('takes the name when a typed slug has nothing to transliterate', () => {
+    expect(slug(' ')).toBe('hel');
+    expect(slug('!!!')).toBe('hel');
+    expect(slug('—', '')).toBeUndefined();
+  });
 });
 
 describe('productRules', () => {

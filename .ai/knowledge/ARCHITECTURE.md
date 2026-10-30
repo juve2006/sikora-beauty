@@ -90,7 +90,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     system, `slugify` in `src/lib/utils.ts`, the field in `src/collections/slug-field.ts`): a localized slug has no fallback, so a product without an English slug
     would not be found on `/en`. A slug typed by hand is transliterated the same way: a list's URL
     carries slugs unencoded and comma-joined and drops any that is not `[a-z0-9-]`. A typed slug
-    with nothing to transliterate (punctuation only) is still stored as typed.
+    with nothing to transliterate (punctuation only) gives way to the name's, as the field's hint
+    promises.
   - Photos in `media`, stored in Vercel Blob (adr-20261028-media-on-vercel-blob). A photo's `url`
     is its public Blob URL (`disablePayloadAccessControl`), not `/api/media/file/…`, which the
     site password closes to `next/image`'s own request (adr-20261029-site-password);
