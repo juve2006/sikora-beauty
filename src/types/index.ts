@@ -8,6 +8,7 @@ import type {
 } from '@/lib/constants';
 import type { listing } from '@/lib/listing';
 import type {
+  aiDraft,
   cosmetikaProduct,
   listingParams,
   productRules,
@@ -17,6 +18,7 @@ import type { Product } from '@/payload-types';
 export type ProductRules = z.infer<typeof productRules>;
 export type ListingParams = z.infer<typeof listingParams>;
 export type CosmetikaProduct = z.infer<typeof cosmetikaProduct>;
+export type AiDraft = z.infer<typeof aiDraft>;
 
 export type Availability = (typeof AVAILABILITIES)[number];
 export type VolumeUnit = (typeof VOLUME_UNITS)[number];
@@ -102,8 +104,8 @@ export type Imported = ImportedTexts & {
   warnings: string[];
 };
 
-// A product's texts «Перекласти з української» reads and fills. The admin form's data holds an
-// array without rows as its row count, 0.
+// A product's texts «Перекласти з української» and «Заповнити з AI» read and fill. The admin
+// form's data holds an array without rows as its row count, 0.
 type Active = {
   id?: string | null;
   name?: string | null;

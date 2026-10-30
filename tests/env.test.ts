@@ -18,6 +18,12 @@ describe('parseEnv', () => {
     );
   });
 
+  it('takes the AI key as .env.example leaves it, empty', () => {
+    expect(
+      parseEnv({ ...valid, ANTHROPIC_API_KEY: '' }).ANTHROPIC_API_KEY,
+    ).toBe('');
+  });
+
   it('needs the Blob token on Vercel only', () => {
     expect(() => parseEnv({ ...valid, VERCEL: '1' })).toThrow(
       'Invalid environment variables: BLOB_READ_WRITE_TOKEN',

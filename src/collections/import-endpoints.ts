@@ -115,8 +115,10 @@ async function importOne(
       req,
       overrideAccess: false,
       // A draft: availability stays empty for the owner, and Payload checks the rest on publishing.
+      // A shop's texts and INCI wait for a person to read them, against the packaging too.
       data: {
         _status: 'draft',
+        review: 'imported',
         name: product.name,
         slug: product.slug,
         brand: brands.get(product.brand)!,

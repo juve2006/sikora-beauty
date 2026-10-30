@@ -86,10 +86,18 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     hook): money is integer kopiyky everywhere.
   - English texts are Payload's `en` locale. There «Перекласти з української» (`translate-button.tsx`)
     fills the product's empty texts from its Ukrainian version through Chrome's built-in Translator
-    API — desktop Chrome and Edge, free, the text never leaves the machine — and saves nothing: the
-    cosmetologist reads the result and publishes it. Payload checks `required` only in the locale
+    API — desktop Chrome and Edge, free, the text never leaves the machine — and saves nothing; it
+    marks the product «Чернетка AI», so a person reads the result before it is published. Payload checks `required` only in the locale
     being saved, so a `beforeChange` hook refuses to publish from another locale a product with no
     Ukrainian name.
+  - Texts written by AI or brought by the import wait for a person
+    (adr-20261030-ai-drafts-and-review): `products.review` is «Чернетка AI», «Імпорт» or
+    «Перевірено», and `requireReview` refuses to publish the first two; one status covers both
+    languages. «Заповнити з AI» (`ai-draft.tsx`)
+    sends the brand's pasted material to `POST /api/products/ai-draft` (`ai-draft-endpoint.ts`),
+    where Claude Haiku drafts the Ukrainian texts against a schema with no INCI; the form fills
+    what is empty and marks the product «Чернетка AI». Words of a medical claim are flagged as they
+    are typed (`src/lib/claims.ts`, `claims-warning.tsx`), never blocked.
   - A slug is one per document, not localized, transliterated from the Ukrainian name (national
     system, `slugify` in `src/lib/utils.ts`, the field in `src/collections/slug-field.ts`): a localized slug has no fallback, so a product without an English slug
     would not be found on `/en`. A slug typed by hand is transliterated the same way: a list's URL
@@ -133,7 +141,8 @@ out of this heading.
 One Next.js application with Payload CMS inside it (adr-20261028-next-payload-single-app);
 frontend and backend are separated by folders, not services. A domain is a set of files, not a
 folder of its own: its collection in `src/collections/`, its reads and mutations in
-`src/lib/actions/<x>.actions.ts`, its integrations in `src/lib/<x>.ts`, its schemas in
+`src/lib/actions/<x>.actions.ts`, its integrations in `src/lib/<x>.ts` — their pure parts; a call
+an endpoint makes may sit in the endpoint, as the import's and the AI draft's do — its schemas in
 `src/lib/validators.ts` (adr-20261030-code-layout-nextjs-store).
 
 - **Storefront** (`src/app/[locale]/`, `src/components/shared/`, `src/components/ui/`,

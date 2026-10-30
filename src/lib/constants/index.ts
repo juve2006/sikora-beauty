@@ -20,6 +20,9 @@ export const AVAILABILITIES = [
   'made_to_order',
   'out_of_stock',
 ] as const;
+// Whose texts a product carries: a draft by AI or by the import waits for a person to read it
+// (adr-20261028-reviewed-ai-content-drafts).
+export const REVIEWS = ['ai', 'imported', 'reviewed'] as const;
 export const VOLUME_UNITS = ['ml', 'g', 'pcs'] as const;
 // For the admin and the owner's price list; the storefront translates units through messages/*.json.
 export const VOLUME_UNIT_LABELS: Record<(typeof VOLUME_UNITS)[number], string> =

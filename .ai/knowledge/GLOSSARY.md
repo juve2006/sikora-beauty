@@ -89,6 +89,15 @@ An ingredient listed on the product page with an explanation of its role.
 Informal synonyms: активний компонент, active ingredient.
 Use in: source code, schema, API, documentation.
 
+## Text Review
+
+A product's status for its texts: an AI draft («Чернетка AI») or an import («Імпорт») waits until
+a person marks it «Перевірено», and the product cannot be published before. Not shoppers' reviews
+of products.
+
+Informal synonyms: перевірка текстів, AI draft, чернетка AI.
+Use in: source code (`review`), schema, documentation.
+
 ## INCI
 
 The product's full ingredient list in INCI names, copied from a source, never generated.

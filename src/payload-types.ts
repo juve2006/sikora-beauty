@@ -174,6 +174,10 @@ export interface Product {
   skinConditions?: (number | SkinCondition)[] | null;
   skinConcerns?: (number | SkinConcern)[] | null;
   related?: (number | Product)[] | null;
+  /**
+   * Перш ніж позначити «Перевірено», прочитайте тексти обома мовами: лише косметичний ефект — без хвороб, лікування, гарантій і «назавжди»; активні компоненти й застереження — як у матеріалі бренду; склад INCI — лише з джерела.
+   */
+  review?: ('ai' | 'imported' | 'reviewed') | null;
   isNew?: boolean | null;
   isBestseller?: boolean | null;
   isSet?: boolean | null;
@@ -438,6 +442,7 @@ export interface ProductsSelect<T extends boolean = true> {
   skinConditions?: T;
   skinConcerns?: T;
   related?: T;
+  review?: T;
   isNew?: T;
   isBestseller?: T;
   isSet?: T;

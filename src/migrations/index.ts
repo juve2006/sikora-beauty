@@ -1,6 +1,7 @@
 import * as migration_20261028_131519_initial from './20261028_131519_initial';
 import * as migration_20261028_185141_catalog from './20261028_185141_catalog';
 import * as migration_20261029_094349_roles from './20261029_094349_roles';
+import * as migration_20261030_100929_content_review from './20261030_100929_content_review';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20261029_094349_roles.up,
     down: migration_20261029_094349_roles.down,
-    name: '20261029_094349_roles'
+    name: '20261029_094349_roles',
+  },
+  {
+    up: migration_20261030_100929_content_review.up,
+    down: migration_20261030_100929_content_review.down,
+    name: '20261030_100929_content_review'
   },
 ];
