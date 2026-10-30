@@ -30,5 +30,13 @@ export const FACET_KEYS = ['type', 'condition', 'concern', 'brand'] as const;
 export const SORTS = ['price-asc', 'price-desc', 'new'] as const;
 export const PAGE_SIZE = 24;
 
+// The storefront's collections: a fixed list, each the product flag that puts a product in it.
+export const COLLECTIONS = {
+  new: 'isNew',
+  bestsellers: 'isBestseller',
+  sets: 'isSet',
+  minis: 'isMini',
+} as const;
+
 export const COSMETIKA_API =
   'https://cosmetika.com.ua/wp-json/wc/store/v1/products';

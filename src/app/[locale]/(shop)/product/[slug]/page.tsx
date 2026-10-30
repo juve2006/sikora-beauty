@@ -82,6 +82,8 @@ const ProductPage = async ({ params }: Props) => {
   const t = await getTranslations('Product');
   const related = await getRelated(product, locale);
   const brand = brandName(product.brand);
+  const brandSlug =
+    typeof product.brand === 'object' ? product.brand?.slug : null;
   const skin = (
     [
       ['skinTypes', populated<SkinType>(product.skinTypes)],
@@ -106,7 +108,18 @@ const ProductPage = async ({ params }: Props) => {
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               {brand && (
-                <p className="text-sm text-muted-foreground">{brand}</p>
+                <p className="text-sm text-muted-foreground">
+                  {brandSlug ? (
+                    <Link
+                      href={`/brand/${brandSlug}`}
+                      className="hover:text-foreground hover:underline"
+                    >
+                      {brand}
+                    </Link>
+                  ) : (
+                    brand
+                  )}
+                </p>
               )}
               <h1 className="text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl">
                 {product.name}

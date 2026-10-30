@@ -44,10 +44,14 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     The cart button is disabled until the cart exists; delivery and payment are general terms until
     the spec's open question 5 is answered.
   - The catalog's lists: `/catalog/<slug>` (a zone or a category; the header links the three
-    zones), `/skin-type/<slug>` and `/concern/<slug>` (the landings a product page's terms link
-    to; `landing.tsx` makes both). Filters, sort and page live in the URL's query and are applied
-    on the server: a list reads `searchParams`, so it renders on every request — never at build,
-    never cached — and a published product or a new price shows at once. A page fetches every
+    zones), `/skin-type/<slug>`, `/concern/<slug>` and `/brand/<slug>` (the landings a product
+    page's terms and brand link to; `landing.tsx` makes them, without the page's own facet), and
+    `/collection/new|bestsellers|sets|minis` — a collection is a product flag (`COLLECTIONS` in
+    `src/lib/constants`), not a document, so an unknown one is 404 without a query. `/brands`
+    lists the brands that have a published product, with their counts from `listing.ts`; it
+    calls `connection()`, as it reads no `searchParams`. Filters, sort and page live in the URL's
+    query and are applied on the server: a list reads `searchParams`, so it renders on every
+    request — never at build, never cached — and a published product or a new price shows at once. A page fetches every
     published product of its zone or term in one query and `src/lib/listing.ts` filters,
     counts, sorts and slices them in memory (ponytail: fine for hundreds of products; a database
     query per facet when one zone holds thousands). A click on a filter ticks it at once

@@ -5,32 +5,45 @@ import { notFound } from 'next/navigation';
 
 import { listing } from '@/lib/listing';
 import { listingParams } from '@/lib/validators';
-import { getFacets, getSkinTerm } from '@/lib/actions/category.actions';
+import {
+  getBrand,
+  getFacets,
+  getSkinTerm,
+} from '@/lib/actions/category.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
 import Listing from '@/components/shared/catalog/listing';
 import SiteHeader from '@/components/shared/header';
 import { alternates } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 
-// A skin concern's or a skin type's landing page: every published product with that term, across
-// the zones, and the other filters. Rendered on every request, as a catalog page.
+// A skin concern's, a skin type's or a brand's landing page: every published product with that
+// term, across the zones, and the other filters. Rendered on every request, as a catalog page.
 
 export type LandingProps = {
   params: Promise<{ locale: string; slug: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+type Locale = (typeof routing.locales)[number];
+
 const landings = {
   concern: {
-    collection: 'skin-concerns',
     path: 'concern',
     field: 'skinConcerns',
+    getTerm: (slug: string, locale: Locale) =>
+      getSkinTerm('skin-concerns', slug, locale),
   },
-  type: { collection: 'skin-types', path: 'skin-type', field: 'skinTypes' },
+  type: {
+    path: 'skin-type',
+    field: 'skinTypes',
+    getTerm: (slug: string, locale: Locale) =>
+      getSkinTerm('skin-types', slug, locale),
+  },
+  brand: { path: 'brand', field: 'brand', getTerm: getBrand },
 } as const;
 
 export function landing(facet: keyof typeof landings) {
-  const { collection, path, field } = landings[facet];
+  const { path, field, getTerm } = landings[facet];
 
   async function generateMetadata({
     params,
@@ -38,7 +51,7 @@ export function landing(facet: keyof typeof landings) {
   }: LandingProps): Promise<Metadata> {
     const { locale, slug } = await params;
     if (!hasLocale(routing.locales, locale)) return {};
-    const term = await getSkinTerm(collection, slug, locale);
+    const term = await getTerm(slug, locale);
     if (!term) return {};
     const t = await getTranslations({ locale, namespace: 'Catalog' });
     const { page } = listingParams.parse(await searchParams);
@@ -57,7 +70,7 @@ export function landing(facet: keyof typeof landings) {
   async function LandingPage({ params, searchParams }: LandingProps) {
     const { locale, slug } = await params;
     if (!hasLocale(routing.locales, locale)) notFound();
-    const term = await getSkinTerm(collection, slug, locale);
+    const term = await getTerm(slug, locale);
     if (!term) notFound();
 
     const t = await getTranslations('Catalog');
