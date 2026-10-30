@@ -23,15 +23,18 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - INCI is never generated; every INCI has a recorded source. (adr-20261028-reviewed-ai-content-drafts;
   checked by: a required source field, review)
 - A product is visible on the storefront only after a person with an admin role publishes it; an
-  import or an AI draft never publishes by itself. (adr-20261028-reviewed-ai-content-drafts,
-  refined by adr-20261029-admin-roles; checked by: Payload drafts and `access.read` on `products`)
+  import or an AI draft never publishes by itself, nor before a person marks its texts
+  «Перевірено». (adr-20261028-reviewed-ai-content-drafts, refined by adr-20261029-admin-roles and
+  adr-20261030-ai-drafts-and-review; checked by: Payload drafts and `access.read` on `products`,
+  `requireReview`, Vitest in `tests/content.test.ts`)
 - The store always has an owner: nobody changes their own role or deletes themselves.
   (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password; a Production
   build without `SITE_PASSWORD` fails. (adr-20261029-site-password; checked by: Vitest on
   `src/proxy.ts` and `src/lib/env.ts`)
 - Product texts describe cosmetic effects only; no medical claims. (adr-20261028-reviewed-ai-content-drafts;
-  checked by: the content checklist, review)
+  checked by: the wording checklist — the status field's description and the words
+  `src/lib/claims.ts` flags in the admin — and the person who marks the texts «Перевірено»)
 - A published product has a Ukrainian name, whichever locale it was published from.
   (adr-20261028-storefront-languages-uk-en; checked by: the `beforeChange` hook on `products`)
 
@@ -46,6 +49,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   gone; the admin keeps the ids, a script or an API call must send them. (task `product-page`;
   checked by: review)
 
+- A migration that adds a column with a default to a table that has rows sets the default after
+  adding the column, unless every existing row should take that value: Payload generates
+  `ADD COLUMN … DEFAULT`, which Postgres writes into every existing row. (task `content-drafts`;
+  checked by: review)
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access

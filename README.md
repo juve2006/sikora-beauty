@@ -11,8 +11,11 @@ a language switch and a light and a dark theme that follows the device until the
 one — and the Payload admin at `/admin`,
 where the catalog can be filled in: brands, zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
-filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), then
-reviewed and published. Every admin user is an owner («Власник»: users, prices, availability,
+filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), and its
+Ukrainian texts drafted by AI (Claude) from the brand's material pasted into «Заповнити з AI».
+A product with an AI draft or a translation, and one brought by the import, waits under
+«Перевірка текстів» and cannot be published until someone marks it «Перевірено»; words of a
+medical claim are flagged as they are typed. Every admin user is an owner («Власник»: users, prices, availability,
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
@@ -54,7 +57,8 @@ migration for the deployed database: `npm run payload -- migrate:create <name>`.
 
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
 skin vocabularies and brands; it never changes what exists. Uploaded photos go to `./media`
-unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`).
+unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
+`ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up.
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
 storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components

@@ -80,7 +80,7 @@ need and brand. Both reach it with the site password, then their own admin accou
     with an error report; a distributor's own price list, once there is one, decides its columns
     (adr-20261029-catalog-import)
   - Frontend: an import page in the admin
-- [ ] `content-drafts` — rich fields filled in and reviewed (after: catalog import — completes the imported products)
+- [x] `content-drafts` — rich fields filled in and reviewed (after: catalog import — completes the imported products)
   - Backend: AI drafts of the rich fields from official brand material and of English
     translations; INCI only from a source + a "source" field; a wording checklist with no medical
     claims

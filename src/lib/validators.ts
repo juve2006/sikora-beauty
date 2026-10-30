@@ -100,6 +100,26 @@ export const importPortion = z.object({
   ids: z.array(z.number().int().positive()).min(1).max(5),
 });
 
+// «Заповнити з AI»: a product's name and its brand's material, pasted by a person.
+export const aiDraftRequest = z.object({
+  name: z.string().trim().min(1, 'Спершу вкажіть назву товару').max(300),
+  material: z
+    .string()
+    .trim()
+    .min(100, 'Вставте щонайменше кілька речень матеріалу бренду')
+    .max(30_000, 'Матеріал задовгий: вставте лише про цей товар'),
+});
+
+// What the model drafts from that material. No INCI: it is copied from a source, never generated
+// (RULES.md), so the answer has nowhere to put one.
+export const aiDraft = z.object({
+  shortDescription: z.string(),
+  purpose: z.string(),
+  actives: z.array(z.object({ name: z.string(), role: z.string() })),
+  howToUse: z.string(),
+  warnings: z.string(),
+});
+
 // A row of the owner's price list.
 export const priceRow = z.object({
   slug: z.string().trim().min(1, 'Немає адреси товару (slug)'),

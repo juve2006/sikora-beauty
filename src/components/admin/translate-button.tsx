@@ -81,6 +81,9 @@ const TranslateButton = () => {
       filled.forEach(({ path, value }) =>
         dispatchFields({ type: 'UPDATE', path, value }),
       );
+      // A machine translation is an AI draft too: not published until a person has read it.
+      if (filled.length)
+        dispatchFields({ type: 'UPDATE', path: 'review', value: 'ai' });
       setModified(true);
       setStatus(
         `Перекладено полів: ${filled.length}. Перевірте їх перед публікацією.`,

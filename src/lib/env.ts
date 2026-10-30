@@ -9,6 +9,8 @@ const schema = z
     VERCEL_ENV: z.string().optional(),
     // Nothing limits the attempts at it: long enough not to be guessed.
     SITE_PASSWORD: z.string().min(12).optional(),
+    // «Заповнити з AI»; without it, or empty as in .env.example, the button says so.
+    ANTHROPIC_API_KEY: z.string().optional(),
   })
   // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
   // away; on Vercel that must fail the build instead. Locally the disk is fine.

@@ -5,11 +5,13 @@ import {
 } from 'payload';
 
 import { editors, ownerField } from '@/lib/access';
+import { aiDraftEndpoint } from './ai-draft-endpoint';
 import { importEndpoints } from './import-endpoints';
 import { revalidateStorefront } from './revalidate';
 import { hasDaysIfMadeToOrder, hasInciSource, kopiyky } from '@/lib/validators';
 import {
   AVAILABILITIES,
+  REVIEWS,
   VOLUME_UNIT_LABELS,
   VOLUME_UNITS,
 } from '@/lib/constants';
@@ -20,6 +22,12 @@ const availabilityLabels = {
   in_stock: 'В наявності',
   made_to_order: 'Під замовлення',
   out_of_stock: 'Немає в наявності',
+};
+
+const reviewLabels = {
+  ai: 'Чернетка AI — перевірте',
+  imported: 'Імпорт — перевірте',
+  reviewed: 'Перевірено',
 };
 
 // Drafts skip field validation; these run when a product is published.
@@ -78,13 +86,42 @@ const requireUkrainianName: CollectionBeforeChangeHook = async ({
   return data;
 };
 
+// An AI or imported draft is not published until a person has read it and marked it «Перевірено»
+// (adr-20261028-reviewed-ai-content-drafts). An update that does not send the status — the owner's
+// price list sends only the price — keeps the product's own.
+export const requireReview: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  const review = data.review === undefined ? originalDoc?.review : data.review;
+  if (
+    data._status === 'published' &&
+    (review === 'ai' || review === 'imported')
+  ) {
+    const message = 'Прочитайте тексти і позначте «Перевірено»';
+    throw new ValidationError(
+      { errors: [{ label: 'Перевірка текстів', message, path: 'review' }] },
+      req.t,
+    );
+  }
+  return data;
+};
+
 export const Products: CollectionConfig = {
   slug: 'products',
   labels: { singular: 'Товар', plural: 'Товари' },
   admin: {
     group: 'Каталог',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'brand', 'price', 'availability', '_status'],
+    defaultColumns: [
+      'name',
+      'brand',
+      'price',
+      'availability',
+      'review',
+      '_status',
+    ],
   },
   // A product reaches the storefront only once published (RULES.md). The storefront reads with
   // `overrideAccess: false`: the Local API's default skips this rule and would return drafts.
@@ -94,12 +131,12 @@ export const Products: CollectionConfig = {
     ...editors,
   },
   hooks: {
-    beforeChange: [keepOnRestore, requireUkrainianName],
+    beforeChange: [keepOnRestore, requireUkrainianName, requireReview],
     afterChange: [revalidateStorefront],
     afterDelete: [revalidateStorefront],
   },
-  // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV.
-  endpoints: importEndpoints,
+  // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV; «Заповнити з AI».
+  endpoints: [...importEndpoints, aiDraftEndpoint],
   fields: [
     {
       name: 'translate',
@@ -243,6 +280,14 @@ export const Products: CollectionConfig = {
           label: 'Опис',
           fields: [
             {
+              name: 'aiDraft',
+              type: 'ui',
+              admin: {
+                components: { Field: '/components/admin/ai-draft' },
+                disableListColumn: true,
+              },
+            },
+            {
               name: 'shortDescription',
               type: 'textarea',
               label: 'Короткий опис',
@@ -355,6 +400,31 @@ export const Products: CollectionConfig = {
       label: 'Супутні товари',
       hasMany: true,
       filterOptions: ({ id }) => (id ? { id: { not_equals: id } } : true),
+    },
+    {
+      name: 'review',
+      type: 'select',
+      label: 'Перевірка текстів',
+      defaultValue: 'reviewed',
+      options: REVIEWS.map((value) => ({ value, label: reviewLabels[value] })),
+      admin: {
+        position: 'sidebar',
+        // Cleared, it would read as a product from before the statuses and publish unread.
+        isClearable: false,
+        description:
+          'Перш ніж позначити «Перевірено», прочитайте тексти обома мовами: лише косметичний ' +
+          'ефект — без хвороб, лікування, гарантій і «назавжди»; активні компоненти й ' +
+          'застереження — як у матеріалі бренду; склад INCI — лише з джерела.',
+      },
+    },
+    {
+      name: 'claims',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/claims-warning' },
+        disableListColumn: true,
+      },
     },
     {
       type: 'collapsible',
