@@ -60,6 +60,15 @@ describe('listingParams', () => {
     });
   });
 
+  it('counts a repeated slug once', () => {
+    expect(
+      params({ type: 'dry,dry', brand: ['braderm', 'braderm'] }),
+    ).toMatchObject({
+      type: ['dry'],
+      brand: ['braderm'],
+    });
+  });
+
   it('drops what is not a slug, a sort or a page instead of failing', () => {
     expect(
       params({ type: 'dry,<script>,,DRY', sort: 'cheapest', page: 'abc' }),

@@ -1,6 +1,5 @@
 import type { z } from 'zod';
 
-import type { getListingProducts } from '@/lib/actions/product.actions';
 import type {
   AVAILABILITIES,
   FACET_KEYS,
@@ -38,9 +37,6 @@ export type Facet = {
   values: { slug: string; title: string }[];
 };
 export type Listing = ReturnType<typeof listing>;
-export type ListedProduct = Awaited<
-  ReturnType<typeof getListingProducts>
->[number];
 export type FilterProps = {
   facets: Listing['facets'];
   params: ListingParams;

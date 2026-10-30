@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useOptimistic, useTransition } from 'react';
 import { SORTS } from '@/lib/constants';
 import { listingSearch } from '@/lib/listing';
 import type { ListingParams, Sort } from '@/types';
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { useRouter } from '@/i18n/navigation';
 
+// The chosen order shows at once, before the server's new list arrives, as FilterPanel's boxes do.
 const SortSelect = ({
   params,
   basePath,
@@ -22,13 +24,18 @@ const SortSelect = ({
 }) => {
   const t = useTranslations('Catalog');
   const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [shown, setShown] = useOptimistic(params.sort);
   return (
     <Select
-      value={params.sort ?? 'default'}
+      value={shown ?? 'default'}
       onValueChange={(value) => {
         const sort = value === 'default' ? undefined : (value as Sort);
-        router.push(`${basePath}${listingSearch(params, { sort })}`, {
-          scroll: false,
+        startTransition(() => {
+          setShown(sort);
+          router.push(`${basePath}${listingSearch(params, { sort })}`, {
+            scroll: false,
+          });
         });
       }}
     >
