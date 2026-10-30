@@ -2,6 +2,7 @@ import { Brands } from './brands';
 import { Categories } from './categories';
 import { ConsultationRequests } from './consultation-requests';
 import { Media } from './media';
+import { Pages } from './pages';
 import { SkinConcerns, SkinConditions, SkinTypes } from './skin-vocabularies';
 import { Products } from './products';
 import { Users } from './users';
@@ -16,6 +17,7 @@ export const collections = [
   SkinConditions,
   SkinConcerns,
   Media,
+  Pages,
   ConsultationRequests,
   Users,
 ];

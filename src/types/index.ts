@@ -6,6 +6,7 @@ import type {
   SORTS,
   VOLUME_UNITS,
 } from '@/lib/constants';
+import type { getMenu } from '@/lib/actions/category.actions';
 import type { listing } from '@/lib/listing';
 import type {
   aiDraft,
@@ -14,7 +15,7 @@ import type {
   listingParams,
   productRules,
 } from '@/lib/validators';
-import type { Product } from '@/payload-types';
+import type { Page, Product } from '@/payload-types';
 
 export type ProductRules = z.infer<typeof productRules>;
 export type ListingParams = z.infer<typeof listingParams>;
@@ -49,6 +50,14 @@ export type Facet = {
   values: { slug: string; title: string }[];
 };
 export type Listing = ReturnType<typeof listing>;
+export type Menu = Awaited<ReturnType<typeof getMenu>>;
+
+// A page's block, by its kind.
+export type PageBlock = NonNullable<Page['blocks']>[number];
+export type BlockOf<T extends PageBlock['blockType']> = Extract<
+  PageBlock,
+  { blockType: T }
+>;
 export type FilterProps = {
   facets: Listing['facets'];
   params: ListingParams;

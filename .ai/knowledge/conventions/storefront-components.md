@@ -35,7 +35,7 @@ MUST:     take colours, fonts and radii from the theme tokens in src/app/[locale
           appear in /canvas in every variant and state; work at 360 px and on desktop,
           in both locales
 MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; read Payload
-          outside a server component
+          outside a server component (one exception: AdminLink's /api/users/me, adr-20261030-header-menu-and-pages-from-payload)
 ```
 
 - A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
@@ -54,6 +54,8 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 - On `/canvas` the names of components, variants and sizes are code identifiers and are not
   translated; every other string comes from the `Canvas` messages. Its sample photos are drawn
   SVGs in `public/samples/`, not files from the catalog: `/canvas` needs no database content.
+  A component that reads the store's data shows it through one that only takes props
+  (`Tiles` → `TileGrid`, `Listing` from a page), and `/canvas` shows that one with samples.
 - Agents get shadcn's own skill, vendored twice — `.claude/skills/shadcn/` (Claude Code) and
   `.agents/skills/shadcn/` (Codex) — and recorded in `skills-lock.json`. Its commands were changed
   from `shadcn@latest` to the local `shadcn`; `npx skills update` brings `@latest` back, so repeat

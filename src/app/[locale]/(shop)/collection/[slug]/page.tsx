@@ -9,7 +9,6 @@ import { listingParams } from '@/lib/validators';
 import { getFacets } from '@/lib/actions/category.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
 import Listing from '@/components/shared/catalog/listing';
-import SiteHeader from '@/components/shared/header';
 import { alternates } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import type { LandingProps } from '../../landing';
@@ -51,15 +50,12 @@ const CollectionPage = async ({ params, searchParams }: LandingProps) => {
   if (query.page > result.pageCount) notFound();
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
-      <Listing
-        title={t(`collections.${slug}`)}
-        result={result}
-        params={query}
-        basePath={`/collection/${slug}`}
-      />
-    </div>
+    <Listing
+      title={t(`collections.${slug}`)}
+      result={result}
+      params={query}
+      basePath={`/collection/${slug}`}
+    />
   );
 };
 

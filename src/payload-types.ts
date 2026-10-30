@@ -74,6 +74,7 @@ export interface Config {
     'skin-conditions': SkinCondition;
     'skin-concerns': SkinConcern;
     media: Media;
+    pages: Page;
     'consultation-requests': ConsultationRequest;
     users: User;
     'payload-kv': PayloadKv;
@@ -90,6 +91,7 @@ export interface Config {
     'skin-conditions': SkinConditionsSelect<false> | SkinConditionsSelect<true>;
     'skin-concerns': SkinConcernsSelect<false> | SkinConcernsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'consultation-requests': ConsultationRequestsSelect<false> | ConsultationRequestsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -288,6 +290,83 @@ export interface SkinConcern {
   createdAt: string;
 }
 /**
+ * Головна — сторінка з адресою home; будь-яка інша відкривається за своєю адресою.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  blocks?:
+    | (
+        | {
+            title: string;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text?: string | null;
+            image?: (number | null) | Media;
+            buttonLabel?: string | null;
+            /**
+             * Сторінка магазину, наприклад /catalog/face
+             */
+            buttonLink?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | ProductsBlock
+        | {
+            title: string;
+            source: 'zones' | 'concerns' | 'types';
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tiles';
+          }
+        | {
+            title: string;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'consultation';
+          }
+        | {
+            title: string;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text: string;
+            image?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductsBlock".
+ */
+export interface ProductsBlock {
+  title: string;
+  collection: 'new' | 'bestsellers' | 'sets' | 'minis';
+  limit: number;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'products';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "consultation-requests".
  */
@@ -380,6 +459,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'consultation-requests';
@@ -547,6 +630,68 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  blocks?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              buttonLabel?: T;
+              buttonLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        products?: T | ProductsBlockSelect<T>;
+        tiles?:
+          | T
+          | {
+              title?: T;
+              source?: T;
+              id?: T;
+              blockName?: T;
+            };
+        consultation?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+              blockName?: T;
+            };
+        text?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductsBlock_select".
+ */
+export interface ProductsBlockSelect<T extends boolean = true> {
+  title?: T;
+  collection?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

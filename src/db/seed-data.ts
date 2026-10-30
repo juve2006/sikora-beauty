@@ -119,3 +119,91 @@ export const brands = [
   { slug: 'braderm', name: 'Braderm' },
   { slug: 'institutum', name: 'Institutum' },
 ];
+
+// The home and the about page's first blocks, drafts for the owner to rewrite in the admin. `uk`
+// creates a block; `en` holds its English texts.
+export const pages = [
+  {
+    slug: 'home',
+    uk: 'Головна',
+    en: 'Home',
+    blocks: [
+      {
+        uk: {
+          blockType: 'hero',
+          title: 'Професійний догляд за шкірою',
+          text: `Засоби брендів, з якими працюють косметологи: ${brands.map(({ name }) => name).join(', ')}. Підберіть догляд за зоною, типом шкіри чи її потребою — або запитайте косметолога.`,
+          buttonLabel: 'Перейти до каталогу',
+          buttonLink: '/catalog/face',
+        },
+        en: {
+          title: 'Professional skincare',
+          text: `Products from the brands cosmetologists work with: ${brands.map(({ name }) => name).join(', ')}. Find your care by zone, skin type or concern — or ask the cosmetologist.`,
+          buttonLabel: 'Go to the catalog',
+        },
+      },
+      {
+        uk: {
+          blockType: 'products',
+          title: 'Новинки',
+          collection: 'new',
+          limit: 4,
+        },
+        en: { title: 'New arrivals' },
+      },
+      {
+        uk: { blockType: 'tiles', title: 'Догляд за зоною', source: 'zones' },
+        en: { title: 'Care by zone' },
+      },
+      {
+        uk: {
+          blockType: 'products',
+          title: 'Бестселери',
+          collection: 'bestsellers',
+          limit: 4,
+        },
+        en: { title: 'Bestsellers' },
+      },
+      {
+        uk: {
+          blockType: 'consultation',
+          title: 'Не впевнені, що підійде вашій шкірі?',
+          text: "Залиште ім'я й телефон — косметолог зв'яжеться з вами й допоможе підібрати догляд.",
+        },
+        en: {
+          title: 'Not sure what suits your skin?',
+          text: 'Leave your name and phone — the cosmetologist will get in touch and help you choose your care.',
+        },
+      },
+    ],
+  },
+  {
+    slug: 'about',
+    uk: 'Про Sikora Beauty',
+    en: 'About Sikora Beauty',
+    blocks: [
+      {
+        uk: {
+          blockType: 'hero',
+          title: 'Про Sikora Beauty',
+          text: 'Інтернет-магазин професійної косметики для догляду за шкірою.',
+        },
+        en: {
+          title: 'About Sikora Beauty',
+          text: 'An online store of professional skincare.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Що ми робимо',
+          text: 'Ми продаємо засоби брендів, з якими працюють косметологи, і допомагаємо підібрати догляд: за зоною, типом і станом шкіри, її потребами.\n\nЯкщо не знаєте, з чого почати, — запитайте косметолога: кнопка «Консультація» є на кожній сторінці.',
+        },
+        en: {
+          title: 'What we do',
+          text: 'We sell products from the brands cosmetologists work with and help you choose your care: by zone, skin type and condition, and what your skin needs.\n\nNot sure where to start? Ask the cosmetologist: the “Consultation” button is on every page.',
+        },
+      },
+    ],
+  },
+];

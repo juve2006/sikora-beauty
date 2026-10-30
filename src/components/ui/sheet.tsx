@@ -45,14 +45,23 @@ function SheetOverlay({
   );
 }
 
-// Slides up from the bottom, the one side the storefront uses: a phone's filters.
+// The two sides the storefront uses: a phone's filters slide up from the bottom, its menu in from
+// the left.
+const sides = {
+  bottom:
+    'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl border-t data-open:slide-in-from-bottom-10 data-closed:slide-out-to-bottom-10',
+  left: 'inset-y-0 left-0 w-3/4 max-w-sm border-r data-open:slide-in-from-left-10 data-closed:slide-out-to-left-10',
+};
+
 function SheetContent({
   className,
   children,
   closeLabel,
+  side = 'bottom',
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   closeLabel: string;
+  side?: keyof typeof sides;
 }) {
   return (
     <SheetPortal>
@@ -60,7 +69,8 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col gap-4 rounded-t-xl border-t bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg transition duration-200 ease-in-out data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-10 data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-bottom-10',
+          'fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg transition duration-200 ease-in-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
+          sides[side],
           className,
         )}
         {...props}

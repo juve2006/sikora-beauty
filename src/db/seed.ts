@@ -8,6 +8,7 @@ import { getPayload } from 'payload';
 
 import {
   brands,
+  pages,
   skinConcerns,
   skinConditions,
   skinTypes,
@@ -21,13 +22,19 @@ const context = { disableRevalidate: true };
 let created = 0;
 
 type Seeded =
-  'brands' | 'categories' | 'skin-types' | 'skin-conditions' | 'skin-concerns';
+  | 'brands'
+  | 'categories'
+  | 'skin-types'
+  | 'skin-conditions'
+  | 'skin-concerns'
+  | 'pages';
 
 async function ensure(
   collection: Seeded,
   slug: string,
   uk: object,
-  en?: object,
+  // Or made from the created document, when it must carry its rows' ids.
+  en?: object | ((doc: object) => object),
 ): Promise<number> {
   const { docs } = await payload.find({
     collection,
@@ -48,7 +55,7 @@ async function ensure(
       collection,
       id: doc.id,
       locale: 'en',
-      data: en as never,
+      data: (typeof en === 'function' ? en(doc) : en) as never,
       context,
     });
   created++;
@@ -81,5 +88,19 @@ for (const [collection, terms] of [
 }
 for (const brand of brands)
   await ensure('brands', brand.slug, { name: brand.name });
+// The English blocks carry the created ones' ids and fields: without the ids Payload would replace
+// the blocks, and the Ukrainian texts with them (RULES.md).
+for (const page of pages)
+  await ensure(
+    'pages',
+    page.slug,
+    { title: page.uk, blocks: page.blocks.map(({ uk }) => uk) },
+    (doc) => ({
+      title: page.en,
+      blocks: ((doc as { blocks: object[] }).blocks ?? []).map(
+        (block, index) => ({ ...block, ...page.blocks[index].en }),
+      ),
+    }),
+  );
 
 payload.logger.info(`seed:catalog: ${created} created`);

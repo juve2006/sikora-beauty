@@ -153,6 +153,24 @@ or `closed` — «Новий», «В роботі», «Закритий».
 Informal synonyms: заявка на консультацію, консультація.
 Use in: source code, schema, API, documentation.
 
+## Page
+
+A page of the store the owner builds in the admin from blocks: a title, a slug and blocks.
+Collection `pages`, «Сторінка»; the slug `home` is the home page, any other is `/<slug>` («Про
+нас» is `about`).
+
+Informal synonyms: сторінка, головна, «Про нас».
+Use in: source code, schema, API, documentation.
+
+## Block
+
+One part of a page, of one kind: `hero` («Головний банер»), `products` («Товари»), `tiles`
+(«Плитки»), `consultation` («Консультація»), `text` («Текст»). A page shows its blocks in the
+admin's order.
+
+Informal synonyms: блок, секція.
+Use in: source code, schema, documentation.
+
 ## Order
 
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment

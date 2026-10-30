@@ -8,7 +8,7 @@ paths:
   - src/proxy.ts
   - next.config.ts
 summary: Read node_modules/next/dist/docs/ for the installed Next.js before writing code in src/app, proxy.ts or next.config.ts; replaces agentRules and third-party Next skills
-reviewed_at: 2026-10-29
+reviewed_at: 2026-10-30
 ---
 # Next.js code is written from the docs of the installed version
 
@@ -20,9 +20,10 @@ installed version.
 
 ## Example
 
-`src/app/[locale]/(shop)/canvas/page.tsx` awaits `headers()` before `getPayload`:
-`01-app/03-api-reference/04-functions/headers.md` says `headers()` is a request-time API that opts
-the route into dynamic rendering, so `next build` never reaches for a database it does not have.
+`src/app/[locale]/(shop)/canvas/page.tsx` exports `dynamic = 'force-dynamic'`:
+`01-app/02-guides/caching-without-cache-components.md` says it renders the route for each request
+and never at build, layout included — a `connection()` in the page did not stop a layout that
+reads Payload — so `next build` never reaches for a database it does not have.
 
 ## Rationale
 

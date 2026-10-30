@@ -1,12 +1,15 @@
 import config from '@payload-config';
 import { cn } from 'cn';
 import { MessageCircle, ShoppingBag } from 'lucide-react';
+import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import type { ReactNode } from 'react';
-import type { Listing as ListingResult, CardProduct } from '@/types';
+import type { Listing as ListingResult, CardProduct, Menu } from '@/types';
+import type { Media } from '@/payload-types';
+import { routing } from '@/i18n/routing';
 import { listingParams } from '@/lib/validators';
 import FilterPanel from '@/components/shared/catalog/filter-panel';
 import FiltersSheet from '@/components/shared/catalog/filters-sheet';
@@ -25,14 +28,26 @@ import DeliveryPayment from '@/app/[locale]/(shop)/product/[slug]/delivery-payme
 import ProductCard from '@/components/shared/product/product-card';
 import ProductGallery from '@/app/[locale]/(shop)/product/[slug]/product-gallery';
 import ProductPrice from '@/components/shared/product/product-price';
-import SiteHeader from '@/components/shared/header';
+import AdminLink from '@/components/shared/header/admin-link';
+import MainMenu from '@/components/shared/header/main-menu';
+import MobileMenu from '@/components/shared/header/mobile-menu';
 import ThemeToggle from '@/components/shared/header/theme-toggle';
+import ConsultationBlock from '@/components/shared/blocks/consultation-block';
+import Hero from '@/components/shared/blocks/hero';
+import PageBlocks from '@/components/shared/blocks/page-blocks';
+import ProductGrid from '@/components/shared/blocks/product-grid';
+import TextBlock from '@/components/shared/blocks/text-block';
+import TileGrid from '@/components/shared/blocks/tile-grid';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
 // Every storefront component in every variant and state (RULES.md): a component a task adds
 // gets a section here in the same pull request.
+
+// Rendered on every request and never at build: the layout's header reads Payload, and `next build`
+// has no database (RULES.md).
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const t = await getTranslations('Canvas');
@@ -43,8 +58,6 @@ export async function generateMetadata() {
 // a cosmetologist; locally anyone does.
 async function requireAdminUser() {
   if (process.env.NODE_ENV !== 'production') return;
-  // Headers first: they make `next build` skip prerendering this page instead of reaching for a
-  // database the build does not have.
   const requestHeaders = await headers();
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers: requestHeaders });
@@ -109,12 +122,24 @@ const samples = [
 
 const madeToOrderDays = [1, 3, 5];
 
-const CanvasPage = async () => {
+type Props = { params: Promise<{ locale: string }> };
+
+const CanvasPage = async ({ params }: Props) => {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
   await requireAdminUser();
   const t = await getTranslations('Canvas');
   const consultation = await getTranslations('Consultation');
+  const nav = await getTranslations('Nav');
   const sampleProduct = { id: 0, name: t('sampleName') };
   const photos = samples.map((url) => ({ url, alt: t('sampleAlt') }));
+  const image: Media = {
+    id: 0,
+    alt: t('sampleAlt'),
+    url: samples[1],
+    updatedAt: '',
+    createdAt: '',
+  };
   const card = (overrides: Partial<CardProduct>): CardProduct => ({
     slug: 'sample',
     name: t('sampleName'),
@@ -131,6 +156,10 @@ const CanvasPage = async () => {
     { slug: 'face-serums', title: t('sampleCategory') },
     { slug: 'face-creams', title: t('sampleCategory2') },
   ];
+  const menu: Menu = {
+    zones: [{ ...zone, categories }],
+    concerns: [{ slug: 'dehydration', title: t('sampleConcern') }],
+  };
   const noFilters = listingParams.parse({});
   const filtered = listingParams.parse({ type: 'dry', concern: 'dehydration' });
   // Counts as a list shows them; a chosen value with nothing left stays, at 0.
@@ -173,7 +202,6 @@ const CanvasPage = async () => {
 
   return (
     <>
-      <SiteHeader />
       <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
         <div className="pt-8 pb-10">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -271,10 +299,116 @@ const CanvasPage = async () => {
           <ThemeToggle />
         </Section>
 
-        <Section title="SiteHeader">
-          <div className="rounded-lg border">
-            <SiteHeader />
+        <Section title="MainMenu">
+          <div className="flex min-h-80 items-start">
+            <MainMenu menu={menu} />
           </div>
+        </Section>
+
+        <Section title="MobileMenu">
+          <MobileMenu menu={menu} />
+        </Section>
+
+        <Section title="AdminLink">
+          <Specimen label="shown">
+            <AdminLink shown />
+          </Specimen>
+        </Section>
+
+        <Section title="PageBlocks">
+          <Specimen label="no banner first: the page's title and description (home with no page)">
+            <div className="w-full rounded-lg border">
+              <PageBlocks
+                title={t('heading')}
+                description={t('body')}
+                blocks={[]}
+                locale={locale}
+              />
+            </div>
+          </Specimen>
+        </Section>
+
+        <Section title="Hero">
+          <div className="flex flex-col gap-5">
+            <Specimen label="first (h1), with a photo and a button">
+              <div className="w-full">
+                <Hero
+                  first
+                  block={{
+                    blockType: 'hero',
+                    title: t('heading'),
+                    text: t('body'),
+                    image,
+                    buttonLabel: nav('brands'),
+                    buttonLink: '/brands',
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="not first (h2), a title only">
+              <div className="w-full">
+                <Hero
+                  first={false}
+                  block={{ blockType: 'hero', title: t('heading') }}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="TextBlock">
+          <div className="flex flex-col gap-5">
+            {[image, null].map((photo) => (
+              <Specimen
+                key={photo ? 'photo' : 'none'}
+                label={photo ? 'with a photo' : 'without'}
+              >
+                <div className="w-full">
+                  <TextBlock
+                    block={{
+                      blockType: 'text',
+                      title: t('heading'),
+                      text: `${t('body')}\n\n${t('body')}`,
+                      image: photo,
+                    }}
+                  />
+                </div>
+              </Specimen>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="ConsultationBlock">
+          <ConsultationBlock
+            block={{
+              blockType: 'consultation',
+              title: consultation('title'),
+              text: consultation('description'),
+            }}
+          />
+        </Section>
+
+        {/* Tiles and ProductsBlock read the store's data and hide with none; here, what they show. */}
+        <Section title="TileGrid">
+          <TileGrid title={nav('catalog')} source="zones" terms={[zone]} />
+          <TileGrid
+            title={nav('concerns')}
+            source="concerns"
+            terms={menu.concerns}
+          />
+        </Section>
+
+        <Section title="ProductGrid">
+          <ProductGrid
+            title={nav('collections')}
+            collection="new"
+            products={[
+              card({}),
+              card({ photo: photos[1] }),
+              card({ availability: 'out_of_stock', photo: photos[2] }),
+              card({ photo: undefined }),
+            ].map((product, id) => ({ id, card: product }))}
+          />
         </Section>
 
         <Section title="Badge">

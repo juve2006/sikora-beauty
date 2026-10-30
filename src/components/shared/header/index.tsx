@@ -1,48 +1,44 @@
 import { MessageCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
+import AdminLink from './admin-link';
 import LanguageSwitcher from './language-switcher';
 import Logo from './logo';
+import MainMenu from './main-menu';
+import MobileMenu from './mobile-menu';
 import ThemeToggle from './theme-toggle';
+import { getMenu } from '@/lib/actions/category.actions';
+import type { Config } from '@/payload-types';
 import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/navigation';
 
-// The zones are three and fixed (src/db/seed-data.ts), so the header names them without the
-// database, and a page built without one — the home page, `next build` in CI — can show it.
-// ponytail: a new zone needs a deploy; read them from Payload when zones start changing.
-const zones = ['face', 'body', 'hair'] as const;
-
-// Until the roadmap item `header, home and about` brings search, favorites and the cart.
-const SiteHeader = () => {
-  const t = useTranslations('Nav');
-  const consultation = useTranslations('Consultation');
+// Every storefront page's header, from (shop)/layout.tsx. Its menu is read from Payload, so a page
+// under it is never prerendered at build (RULES.md). Search, favorites and the cart join it with
+// their own roadmap items. On a desktop the menu has a row of its own: its five items and the
+// buttons do not fit the page's width in one.
+const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
+  const menu = await getMenu(locale);
+  const consultation = await getTranslations('Consultation');
   return (
-    <header className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:flex-nowrap sm:gap-x-6 sm:px-6">
+    <header className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-2 gap-y-2 px-4 py-4 sm:gap-x-6 sm:px-6">
+      <MobileMenu menu={menu} className="lg:hidden" />
       <Logo size="sm" />
-      <nav
-        aria-label={t('label')}
-        className="order-last -mx-3 w-full sm:order-none sm:mx-0 sm:w-auto sm:flex-1"
-      >
-        <ul className="flex">
-          {zones.map((zone) => (
-            <li key={zone}>
-              <Button asChild variant="ghost" size="sm">
-                <Link href={`/catalog/${zone}`}>{t(zone)}</Link>
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div className="flex items-center gap-1">
+      <MainMenu
+        menu={menu}
+        className="order-last -ml-2.5 basis-full max-lg:hidden"
+      />
+      <div className="ml-auto flex items-center gap-1">
+        <AdminLink className="max-lg:hidden" />
         <ConsultationDialog>
-          <Button variant="ghost" size="sm" aria-label={consultation('open')}>
+          <Button variant="ghost" size="sm">
             <MessageCircle data-icon="inline-start" aria-hidden />
-            {/* A phone keeps the logo and these buttons on one line: the icon alone, named. */}
+            {/* A phone's header keeps one line: the icon, named by the same word. */}
             <span className="max-sm:sr-only">{consultation('openShort')}</span>
           </Button>
         </ConsultationDialog>
-        <LanguageSwitcher />
-        <ThemeToggle />
+        <div className="flex items-center gap-1 max-sm:hidden">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

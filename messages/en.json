@@ -7,9 +7,6 @@
     "name": "Sikora",
     "kind": "Beauty"
   },
-  "HomePage": {
-    "comingSoon": "The professional skincare store is getting ready to open."
-  },
   "LanguageSwitcher": {
     "label": "Language",
     "uk": {
@@ -25,10 +22,15 @@
     "label": "Switch theme"
   },
   "Nav": {
-    "label": "Catalog",
-    "face": "Face",
-    "body": "Body",
-    "hair": "Hair"
+    "label": "Main menu",
+    "menu": "Menu",
+    "close": "Close menu",
+    "catalog": "Catalog",
+    "concerns": "By skin concern",
+    "brands": "Brands",
+    "collections": "Sets and new arrivals",
+    "about": "About Sikora Beauty",
+    "admin": "Admin"
   },
   "Product": {
     "price": "UAH {amount}",
@@ -137,5 +139,8 @@
       "phoneInvalid": "Enter a Ukrainian number, such as 067 123 45 67",
       "messageLong": "The text is too long: up to 1000 characters"
     }
+  },
+  "Page": {
+    "all": "View all"
   }
 }
