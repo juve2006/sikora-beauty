@@ -12,6 +12,7 @@ import {
   skinConcerns,
   skinConditions,
   skinTypes,
+  synonyms,
   zones,
 } from './seed-data';
 import config from '@/payload.config';
@@ -102,5 +103,20 @@ for (const page of pages)
       ),
     }),
   );
+
+// Synonyms have no slug: they go only into an empty collection, so what the owner keeps stays.
+const { totalDocs } = await payload.count({
+  collection: 'search-synonyms',
+  context,
+});
+if (totalDocs === 0)
+  for (const group of synonyms) {
+    await payload.create({
+      collection: 'search-synonyms',
+      data: { spellings: group.join('\n') },
+      context,
+    });
+    created++;
+  }
 
 payload.logger.info(`seed:catalog: ${created} created`);

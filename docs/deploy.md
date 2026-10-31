@@ -67,7 +67,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 10. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
     create the first user with a password from the password manager. From then on `/admin` shows
     the login page.
-11. **Catalog seed.** Zones, categories, skin vocabularies and brands, once: copy
+11. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
+    the first search synonyms (only while there are none), once: copy
     `DATABASE_URL_UNPOOLED` (Production) from Vercel → Settings → Environment Variables, then
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
     The seed signs nothing, so a throwaway secret will do, and the URL never enters the shell

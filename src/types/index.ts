@@ -50,6 +50,8 @@ export type Facet = {
   values: { slug: string; title: string }[];
 };
 export type Listing = ReturnType<typeof listing>;
+// A product as search reads it: every text a shopper may type for it, in both languages.
+export type SearchDoc = { id: number; name: string; texts: string[] };
 export type Menu = Awaited<ReturnType<typeof getMenu>>;
 
 // A page's block, by its kind.

@@ -31,14 +31,18 @@ price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` 
 `/concern/<slug>`, the same list for that term. «Консультація» in the header and «Запитати
 косметолога» on a product page take a shopper's name, phone and what concerns their skin; the
 request waits in the admin under «Запити» (only an admin user reads it, only the owner deletes it)
-and reaches the cosmetologist's Telegram group. `/canvas` shows every storefront component in every variant and
+and reaches the cosmetologist's Telegram group. «Пошук» in the header finds published products by
+name, brand or active ingredient — in either language, in Cyrillic or Latin, with a typo or by a
+synonym («доктор шпіллер») — six as you type, up to 48 at `/search?q=`; a query that found
+nothing waits in the admin under «Пошук → Пошук без результатів», where synonyms are added under
+«Синоніми пошуку». `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 2 — search, favorites, cart and checkout.
+- Next: Phase 2 — favorites, cart and checkout.
 
 ## Stack
 
@@ -63,7 +67,8 @@ Locally Payload creates the tables itself (`push`). A change to a collection als
 migration for the deployed database: `npm run payload -- migrate:create <name>`.
 
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
-skin vocabularies, brands and the home and about pages; it never changes what exists. Uploaded photos go to `./media`
+skin vocabularies, brands, the home and about pages, and the first search synonyms while there are
+none; it never changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
 `ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. A
 consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, and is

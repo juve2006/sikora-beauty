@@ -96,9 +96,10 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: a requests collection with a status (new / in progress / closed), a server action,
     Zod, Turnstile, Telegram
   - Frontend: the "get a consultation" button, a modal form, a "sent" state
-- [ ] search — search (after: catalog model — searches its products)
-  - Backend: name, brand, active ingredient; pg_trgm + `unaccent` + synonyms ("доктор шпіллер"),
-    per locale; a log of zero-result queries
+- [x] `search` — search (after: catalog model — searches its products)
+  - Backend: name, brand, active ingredient; word trigrams in memory + synonym groups ("доктор
+    шпіллер") for both locales, not `pg_trgm` (adr-20261031-search-in-memory, the developer,
+    2026-10-31); a log of zero-result queries
   - Frontend: a header field with suggestions, a results page, an empty state
 - [ ] favorites — favorites (after: product page — the button sits on the product card)
   - Backend: —

@@ -75,6 +75,8 @@ export interface Config {
     'skin-concerns': SkinConcern;
     media: Media;
     pages: Page;
+    'search-synonyms': SearchSynonym;
+    'search-misses': SearchMiss;
     'consultation-requests': ConsultationRequest;
     users: User;
     'payload-kv': PayloadKv;
@@ -92,6 +94,8 @@ export interface Config {
     'skin-concerns': SkinConcernsSelect<false> | SkinConcernsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    'search-synonyms': SearchSynonymsSelect<false> | SearchSynonymsSelect<true>;
+    'search-misses': SearchMissesSelect<false> | SearchMissesSelect<true>;
     'consultation-requests': ConsultationRequestsSelect<false> | ConsultationRequestsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -367,6 +371,32 @@ export interface ProductsBlock {
   blockType: 'products';
 }
 /**
+ * Різні написання одного й того самого, по одному в рядку: пошук за будь-яким знаходить і за рештою.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-synonyms".
+ */
+export interface SearchSynonym {
+  id: number;
+  spellings: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Що шукали й не знайшли. Додайте синонім чи товар — тоді видаліть запис.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-misses".
+ */
+export interface SearchMiss {
+  id: number;
+  query: string;
+  count: number;
+  locale: 'uk' | 'en';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "consultation-requests".
  */
@@ -463,6 +493,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'search-synonyms';
+        value: number | SearchSynonym;
+      } | null)
+    | ({
+        relationTo: 'search-misses';
+        value: number | SearchMiss;
       } | null)
     | ({
         relationTo: 'consultation-requests';
@@ -692,6 +730,26 @@ export interface ProductsBlockSelect<T extends boolean = true> {
   limit?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-synonyms_select".
+ */
+export interface SearchSynonymsSelect<T extends boolean = true> {
+  spellings?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-misses_select".
+ */
+export interface SearchMissesSelect<T extends boolean = true> {
+  query?: T;
+  count?: T;
+  locale?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

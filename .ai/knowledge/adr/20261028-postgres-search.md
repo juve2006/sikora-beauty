@@ -1,14 +1,17 @@
 ---
 id: adr-20261028-postgres-search
 type: adr
-status: accepted
+status: superseded
 date: 2026-10-28
 domains: []
-paths:
-  - src/lib/search.ts
+paths: []
 summary: "Search in Postgres: pg_trgm, unaccent, synonyms; no external search service"
+reviewed_at: 2026-10-31
 ---
 # Search runs in Postgres with pg_trgm, unaccent and a synonyms table
+
+Superseded by adr-20261031-search-in-memory (2026-10-31): `pg_trgm` sees no Cyrillic in a
+database whose `LC_CTYPE` is `C`; search matches in memory instead.
 
 ## Context
 

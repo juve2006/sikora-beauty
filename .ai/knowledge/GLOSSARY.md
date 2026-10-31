@@ -171,6 +171,24 @@ admin's order.
 Informal synonyms: блок, секція.
 Use in: source code, schema, documentation.
 
+## Search Synonym
+
+A group of spellings search takes for one another — a brand as shoppers write it in Cyrillic, an
+active by its other name: «Dr.Spiller / доктор шпіллер / др шпіллер». No language. Collection
+`search-synonyms`, «Синоніми пошуку»; one spelling per line, at least two.
+
+Informal synonyms: синонім, написання.
+Use in: source code, schema, documentation.
+
+## Search Miss
+
+A query the results page found nothing for, kept with how often it was searched, so a synonym
+can be added. Collection `search-misses`, «Пошук без результатів»; at most `SEARCH_MISSES`
+different queries.
+
+Informal synonyms: пошук без результатів, порожній пошук.
+Use in: source code, schema, documentation.
+
 ## Order
 
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment

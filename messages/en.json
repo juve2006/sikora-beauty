@@ -111,7 +111,9 @@
     "sampleConcern": "Dehydration",
     "sampleZone": "Face",
     "sampleCategory": "Serums",
-    "sampleCategory2": "Creams"
+    "sampleCategory2": "Creams",
+    "sampleQuery": "spiller",
+    "sampleMiss": "perfume"
   },
   "Consultation": {
     "open": "Get a consultation",
@@ -142,5 +144,22 @@
   },
   "Page": {
     "all": "View all"
+  },
+  "Search": {
+    "open": "Search",
+    "title": "Search",
+    "label": "What are you looking for",
+    "placeholder": "Name, brand or active ingredient",
+    "hint": "Type at least two letters: a name, a brand or an active ingredient.",
+    "searching": "Searching…",
+    "none": "Nothing found. Try another spelling or the brand’s name.",
+    "failed": "Search isn’t working right now. Please try again.",
+    "all": "All results",
+    "submit": "Search",
+    "found": "{count, plural, one {# product found} other {# products found}}",
+    "empty": "Nothing found for “{query}”.",
+    "emptyHint": "Check the spelling or try a brand or an active ingredient. Not sure what to choose? Ask the cosmetologist.",
+    "brands": "All brands",
+    "close": "Close"
   }
 }

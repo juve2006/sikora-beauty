@@ -19,6 +19,7 @@ export const RESERVED_SLUGS = [
   'collection',
   'concern',
   'product',
+  'search',
   'skin-type',
   'admin',
   'api',
@@ -51,6 +52,12 @@ export const VOLUME_UNIT_LABELS: Record<(typeof VOLUME_UNITS)[number], string> =
 export const FACET_KEYS = ['type', 'condition', 'concern', 'brand'] as const;
 export const SORTS = ['price-asc', 'price-desc', 'new'] as const;
 export const PAGE_SIZE = 24;
+
+// Search: the header's suggestions, the most the results page shows (no pages), and the most
+// different queries «Пошук без результатів» keeps — anyone can send one.
+export const SUGGESTIONS = 6;
+export const SEARCH_LIMIT = 48;
+export const SEARCH_MISSES = 1000;
 
 // The storefront's collections: a fixed list, each the product flag that puts a product in it.
 export const COLLECTIONS = {

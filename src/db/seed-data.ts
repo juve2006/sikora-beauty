@@ -207,3 +207,15 @@ export const pages = [
     ],
   },
 ];
+
+// Search's first synonyms: what search cannot reach by transliteration or a typo alone — a brand as
+// shoppers write it in Cyrillic, an active by its other name. One spelling per line in the admin.
+export const synonyms = [
+  ['Dr.Spiller', 'доктор шпіллер', 'др шпіллер', 'доктор шпиллер'],
+  ['Glymed+', 'глімед', 'глаймед', 'глимед'],
+  ['Innoaesthetics', 'інноестетікс', 'інно естетікс', 'іноестетікс'],
+  ['Me line', 'мі лайн', 'ме лайн', 'meline'],
+  ['вітамін C', 'vitamin C', 'аскорбінова кислота', 'ascorbic acid'],
+  ['гіалуронова кислота', 'гіалуронка', 'hyaluronic acid'],
+  ['ніацинамід', 'niacinamide', 'вітамін B3', 'vitamin B3'],
+];
