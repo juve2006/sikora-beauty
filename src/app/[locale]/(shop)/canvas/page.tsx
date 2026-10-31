@@ -23,6 +23,9 @@ import Logo from '@/components/shared/header/logo';
 import AddToCart from '@/app/[locale]/(shop)/product/[slug]/add-to-cart';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import ConsultationForm from '@/components/shared/consultation/consultation-form';
+import SearchDialog from '@/components/shared/search/search-dialog';
+import SearchSuggestions from '@/components/shared/search/search-suggestions';
+import SearchEmpty from '@/app/[locale]/(shop)/search/search-empty';
 import Availability from '@/components/shared/product/availability';
 import DeliveryPayment from '@/app/[locale]/(shop)/product/[slug]/delivery-payment';
 import ProductCard from '@/components/shared/product/product-card';
@@ -521,6 +524,67 @@ const CanvasPage = async ({ params }: Props) => {
               </div>
             </Specimen>
           </div>
+        </Section>
+
+        <Section title="SearchDialog">
+          <SearchDialog />
+        </Section>
+
+        <Section title="SearchSuggestions">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full max-w-md">
+                <SearchSuggestions status="idle" query="" products={[]} />
+              </div>
+            </Specimen>
+            <Specimen label="done">
+              <div className="w-full max-w-md">
+                <SearchSuggestions
+                  status="done"
+                  query={t('sampleQuery')}
+                  products={[
+                    card({}),
+                    card({ slug: 'sample-2', photo: photos[1] }),
+                    card({ slug: 'sample-3', photo: undefined }),
+                  ]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="loading">
+              <div className="w-full max-w-md">
+                <SearchSuggestions
+                  status="loading"
+                  query={t('sampleQuery')}
+                  products={[
+                    card({}),
+                    card({ slug: 'sample-2', photo: photos[2] }),
+                  ]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="done (none)">
+              <div className="w-full max-w-md">
+                <SearchSuggestions
+                  status="done"
+                  query={t('sampleMiss')}
+                  products={[]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full max-w-md">
+                <SearchSuggestions
+                  status="failed"
+                  query={t('sampleQuery')}
+                  products={[]}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="SearchEmpty">
+          <SearchEmpty query={t('sampleMiss')} />
         </Section>
 
         <Section title="DeliveryPayment">

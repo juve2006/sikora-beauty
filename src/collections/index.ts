@@ -3,6 +3,8 @@ import { Categories } from './categories';
 import { ConsultationRequests } from './consultation-requests';
 import { Media } from './media';
 import { Pages } from './pages';
+import { SearchMisses } from './search-misses';
+import { SearchSynonyms } from './search-synonyms';
 import { SkinConcerns, SkinConditions, SkinTypes } from './skin-vocabularies';
 import { Products } from './products';
 import { Users } from './users';
@@ -18,6 +20,8 @@ export const collections = [
   SkinConcerns,
   Media,
   Pages,
+  SearchSynonyms,
+  SearchMisses,
   ConsultationRequests,
   Users,
 ];

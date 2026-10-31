@@ -4,6 +4,7 @@ import * as migration_20261029_094349_roles from './20261029_094349_roles';
 import * as migration_20261030_100929_content_review from './20261030_100929_content_review';
 import * as migration_20261030_111524_consultation_requests from './20261030_111524_consultation_requests';
 import * as migration_20261030_124715_pages from './20261030_124715_pages';
+import * as migration_20261031_141921_search from './20261031_141921_search';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261030_124715_pages.up,
     down: migration_20261030_124715_pages.down,
-    name: '20261030_124715_pages'
+    name: '20261030_124715_pages',
+  },
+  {
+    up: migration_20261031_141921_search.up,
+    down: migration_20261031_141921_search.down,
+    name: '20261031_141921_search'
   },
 ];

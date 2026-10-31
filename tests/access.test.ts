@@ -1,4 +1,4 @@
-import type { Access, Field, FieldAccess } from 'payload';
+import type { Access, CollectionConfig, Field, FieldAccess } from 'payload';
 import { describe, expect, it } from 'vitest';
 
 import { Brands } from '@/collections/brands';
@@ -6,6 +6,8 @@ import { Categories } from '@/collections/categories';
 import { ConsultationRequests } from '@/collections/consultation-requests';
 import { Media } from '@/collections/media';
 import { Pages } from '@/collections/pages';
+import { SearchMisses } from '@/collections/search-misses';
+import { SearchSynonyms } from '@/collections/search-synonyms';
 import {
   SkinConcerns,
   SkinConditions,
@@ -158,6 +160,31 @@ describe('consultation requests', () => {
 
   it('only the owner deletes one', () => {
     expect(roles('delete')).toEqual([true, false, false]);
+  });
+});
+
+// AC-07 of the task `search`.
+describe('search', () => {
+  const roles = (
+    { access }: CollectionConfig,
+    operation: 'read' | 'create' | 'update' | 'delete',
+  ) => [
+    run(access![operation], owner),
+    run(access![operation], cosmetologist),
+    run(access![operation], null),
+  ];
+
+  it('both roles keep the synonyms, which search reads for anyone', () => {
+    for (const operation of ['create', 'update', 'delete'] as const)
+      expect(roles(SearchSynonyms, operation)).toEqual([true, true, false]);
+    expect(roles(SearchSynonyms, 'read')).toEqual([true, true, true]);
+  });
+
+  it('both roles read and clear the misses, which only the search page writes', () => {
+    for (const operation of ['read', 'delete'] as const)
+      expect(roles(SearchMisses, operation)).toEqual([true, true, false]);
+    for (const operation of ['create', 'update'] as const)
+      expect(roles(SearchMisses, operation)).toEqual([false, false, false]);
   });
 });
 

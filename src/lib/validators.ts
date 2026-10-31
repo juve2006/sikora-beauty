@@ -198,3 +198,17 @@ export const pageSlug = z
 // A link the owner types into a page: a path of this store, never another site — `//host` and
 // `/\host` are one to a browser.
 export const internalPath = z.string().regex(/^\/(?![/\\])[^\s\\]*$/);
+
+// What a shopper searches for, from the header's suggestions or the results page's `?q=` (the first,
+// if repeated): cut to a hundred characters; under two it is no query yet.
+export const searchQuery = z.preprocess(
+  first,
+  z
+    .string()
+    .transform((value) => value.trim().slice(0, 100))
+    .pipe(z.string().min(2)),
+);
+export const searchRequest = z.object({
+  query: searchQuery,
+  locale: z.enum(routing.locales),
+});
