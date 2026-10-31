@@ -112,8 +112,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
 - [x] `header-home-and-about` — navigation and the home page (after: brands and collections — links to every section)
   - Backend: home page blocks editable in the admin — the `pages` collection, not a global (the
     developer, 2026-10-30)
-  - Frontend: header (logo, search, favorites, cart, navigation, consultation, language switcher)
-    with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"; a link to the
+  - Frontend: header (logo, navigation, consultation, language switcher; search, favorites and the
+    cart join it with their own items, the developer, 2026-10-30) with a mobile menu, main menu, home page with blocks, "About Sikora Beauty"; a link to the
     admin for a signed-in owner or cosmetologist, checked in the browser (`/api/users/me`) so the
     pages stay cached (the developer, 2026-10-30)
 - [ ] production host — the store runs on its own server and domain (after: walking skeleton — moves the same application)

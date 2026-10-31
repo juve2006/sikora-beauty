@@ -33,6 +33,15 @@ describe('proxy', () => {
       expect((await get(path)).headers.get('x-middleware-next')).toBe('1');
     }
   });
+
+  it('serves a page whose slug only starts like /admin or /api in Ukrainian', async () => {
+    for (const path of ['/administratsiia', '/apiterapiia']) {
+      const response = await get(path);
+      expect(response.headers.get('x-middleware-rewrite'), path).toContain(
+        `/uk${path}`,
+      );
+    }
+  });
 });
 
 describe('the site password', () => {

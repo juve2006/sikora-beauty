@@ -23,8 +23,8 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
 its texts, delivery and payment, and related products; the cart button waits for the cart. The
-header's menu is read from the catalog — the zones with their categories, the skin concerns, the
-brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
+header's menu reads the zones with their categories and the skin concerns from the catalog, beside
+links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
 signed in to the admin; `/catalog/<zone>` and `/catalog/<category>` list published products,
 24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
 price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and
