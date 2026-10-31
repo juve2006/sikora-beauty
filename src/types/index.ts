@@ -75,6 +75,7 @@ export type CardProduct = Pick<
   | 'availability'
   | 'madeToOrderDays'
 > & {
+  id: number;
   slug: string;
   brand: string;
   photo?: Photo;

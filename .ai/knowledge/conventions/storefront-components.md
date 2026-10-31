@@ -35,9 +35,17 @@ MUST:     take colours, fonts and radii from the theme tokens in src/app/[locale
           in both locales
 MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; read Payload
           outside a server component, except through a server action in src/lib/actions/
-          (suggestProducts, adr-20261031-search-in-memory) or AdminLink's /api/users/me
+          (suggestProducts, adr-20261031-search-in-memory; favoriteProducts,
+          adr-20261031-favorites-in-the-browser) or AdminLink's /api/users/me
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
+
+- `rounded-full` is a shape, not a radius value: a circle or a pill (the heart over a card's photo,
+  the count on it) takes it; anything with corners takes the theme's steps.
+- A toggle button — one that says whether something is on, like the favorites heart — keeps one
+  name and tells its state with `aria-pressed`; a name that changed with it would be read twice
+  («Прибрати з обраного, натиснуто»). A button repeated in a list carries its item's name
+  («В обране: <product>»).
 
 - A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
   uses, in that page's route folder (`/canvas` does not count). Either is a kebab-case file holding

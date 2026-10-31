@@ -161,5 +161,17 @@
     "emptyHint": "Check the spelling or try a brand or an active ingredient. Not sure what to choose? Ask the cosmetologist.",
     "brands": "All brands",
     "close": "Close"
+  },
+  "Favorites": {
+    "toggle": "Add to favorites",
+    "toggleProduct": "Add {name} to favorites",
+    "title": "Favorites",
+    "linkCount": "{count, plural, one {Favorites, # product} other {Favorites, # products}}",
+    "loading": "Loading your favorites…",
+    "failed": "Couldn’t load your favorites. Check your connection and try again.",
+    "retry": "Try again",
+    "empty": "Products you mark with a heart will appear here.",
+    "brands": "Browse brands",
+    "count": "{count, plural, one {# product} other {# products}}"
   }
 }

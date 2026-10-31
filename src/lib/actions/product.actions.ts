@@ -116,6 +116,7 @@ export async function getListingProducts(where: Where, locale: Locale) {
       brand: termSlugs([product.brand]),
     },
     card: {
+      id: product.id,
       name: product.name,
       slug: product.slug ?? String(product.id),
       brand: brandName(product.brand) ?? '',

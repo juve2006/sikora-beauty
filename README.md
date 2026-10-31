@@ -35,14 +35,17 @@ and reaches the cosmetologist's Telegram group. «Пошук» in the header fin
 name, brand or active ingredient — in either language, in Cyrillic or Latin, with a typo or by a
 synonym («доктор шпіллер») — six as you type, up to 48 at `/search?q=`; a query that found
 nothing waits in the admin under «Пошук → Пошук без результатів», where synonyms are added under
-«Синоніми пошуку». `/canvas` shows every storefront component in every variant and
+«Синоніми пошуку». A heart on every product card and on a product page keeps the product in the
+shopper's favorites — in their browser, no account — counted on «Обране» in the header; `/favorites`
+shows them with today's prices, the newest first, and drops a product taken off the store.
+`/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 2 — favorites, cart and checkout.
+- Next: Phase 2 — cart and checkout.
 
 ## Stack
 

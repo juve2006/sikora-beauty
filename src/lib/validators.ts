@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-import { AVAILABILITIES, RESERVED_SLUGS, ROLES, SORTS } from '@/lib/constants';
+import {
+  AVAILABILITIES,
+  FAVORITES_LIMIT,
+  RESERVED_SLUGS,
+  ROLES,
+  SORTS,
+} from '@/lib/constants';
 import { routing } from '@/i18n/routing';
 import { parseHryvnias } from '@/lib/utils';
 
@@ -210,5 +216,11 @@ export const searchQuery = z.preprocess(
 );
 export const searchRequest = z.object({
   query: searchQuery,
+  locale: z.enum(routing.locales),
+});
+
+// The favorites page's question: the cards of the products a browser kept.
+export const favoritesRequest = z.object({
+  ids: z.array(z.number().int().positive()).max(FAVORITES_LIMIT),
   locale: z.enum(routing.locales),
 });

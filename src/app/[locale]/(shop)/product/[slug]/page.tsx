@@ -15,6 +15,7 @@ import AddToCart from './add-to-cart';
 import Availability from '@/components/shared/product/availability';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import DeliveryPayment from './delivery-payment';
+import FavoriteButton from '@/components/shared/product/favorite-button';
 import ProductCard from '@/components/shared/product/product-card';
 import ProductGallery from './product-gallery';
 import ProductPrice from '@/components/shared/product/product-price';
@@ -145,6 +146,12 @@ const ProductPage = async ({ params }: Props) => {
               />
             </div>
             <AddToCart />
+            <FavoriteButton
+              id={product.id}
+              name={product.name}
+              labelled
+              className="self-start"
+            />
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <p className="text-sm text-muted-foreground">
                 {consultation('productHint')}
