@@ -189,6 +189,14 @@ different queries.
 Informal synonyms: пошук без результатів, порожній пошук.
 Use in: source code, schema, documentation.
 
+## Favorites
+
+The products a shopper marked with a heart, kept in their browser as product ids, the newest first,
+at most `FAVORITES_LIMIT`; shown at `/favorites`, «Обране». One favorite is a product in them.
+
+Informal synonyms: обране, вибране, список бажань, wishlist.
+Use in: source code, documentation.
+
 ## Order
 
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment

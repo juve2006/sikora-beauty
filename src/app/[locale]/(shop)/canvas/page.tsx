@@ -31,7 +31,10 @@ import DeliveryPayment from '@/app/[locale]/(shop)/product/[slug]/delivery-payme
 import ProductCard from '@/components/shared/product/product-card';
 import ProductGallery from '@/app/[locale]/(shop)/product/[slug]/product-gallery';
 import ProductPrice from '@/components/shared/product/product-price';
+import FavoriteButton from '@/components/shared/product/favorite-button';
+import FavoritesView from '@/app/[locale]/(shop)/favorites/favorites-view';
 import AdminLink from '@/components/shared/header/admin-link';
+import FavoritesLink from '@/components/shared/header/favorites-link';
 import MainMenu from '@/components/shared/header/main-menu';
 import MobileMenu from '@/components/shared/header/mobile-menu';
 import ThemeToggle from '@/components/shared/header/theme-toggle';
@@ -143,7 +146,9 @@ const CanvasPage = async ({ params }: Props) => {
     updatedAt: '',
     createdAt: '',
   };
+  // No product has this id: a heart pressed here leaves the favorites when /favorites asks for it.
   const card = (overrides: Partial<CardProduct>): CardProduct => ({
+    id: 900001,
     slug: 'sample',
     name: t('sampleName'),
     brand: t('sampleBrand'),
@@ -316,6 +321,43 @@ const CanvasPage = async ({ params }: Props) => {
           <Specimen label="shown">
             <AdminLink shown />
           </Specimen>
+        </Section>
+
+        <Section title="FavoritesLink">
+          <Specimen label="0 / 3 / this browser's">
+            <FavoritesLink shown={0} />
+            <FavoritesLink shown={3} />
+            <FavoritesLink />
+          </Specimen>
+        </Section>
+
+        <Section title="FavoriteButton">
+          <div className="flex flex-col gap-5">
+            <Specimen label="card: not pressed / pressed / this browser's">
+              <FavoriteButton
+                id={900001}
+                name={t('sampleName')}
+                pressed={false}
+              />
+              <FavoriteButton id={900001} name={t('sampleName')} pressed />
+              <FavoriteButton id={900001} name={t('sampleName')} />
+            </Specimen>
+            <Specimen label="labelled (product page): not pressed / pressed / this browser's">
+              <FavoriteButton
+                id={900001}
+                name={t('sampleName')}
+                labelled
+                pressed={false}
+              />
+              <FavoriteButton
+                id={900001}
+                name={t('sampleName')}
+                labelled
+                pressed
+              />
+              <FavoriteButton id={900001} name={t('sampleName')} labelled />
+            </Specimen>
+          </div>
         </Section>
 
         <Section title="PageBlocks">
@@ -585,6 +627,34 @@ const CanvasPage = async ({ params }: Props) => {
 
         <Section title="SearchEmpty">
           <SearchEmpty query={t('sampleMiss')} />
+        </Section>
+
+        <Section title="FavoritesView">
+          <div className="flex flex-col gap-8">
+            <Specimen label="loading">
+              <FavoritesView status="loading" products={[]} />
+            </Specimen>
+            <Specimen label="failed">
+              <FavoritesView status="failed" products={[]} />
+            </Specimen>
+            <Specimen label="done (none)">
+              <div className="w-full">
+                <FavoritesView status="done" products={[]} />
+              </div>
+            </Specimen>
+            <Specimen label="done">
+              <div className="w-full">
+                <FavoritesView
+                  status="done"
+                  products={[
+                    card({}),
+                    card({ availability: 'out_of_stock', photo: photos[1] }),
+                    card({ photo: undefined }),
+                  ].map((product, id) => ({ id, card: product }))}
+                />
+              </div>
+            </Specimen>
+          </div>
         </Section>
 
         <Section title="DeliveryPayment">

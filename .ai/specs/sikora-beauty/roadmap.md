@@ -101,7 +101,7 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     шпіллер") for both locales, not `pg_trgm` (adr-20261031-search-in-memory, the developer,
     2026-10-31); a log of zero-result queries
   - Frontend: a header field with suggestions, a results page, an empty state
-- [ ] favorites — favorites (after: product page — the button sits on the product card)
+- [x] `favorites` — favorites (after: product page — the button sits on the product card)
   - Backend: —
   - Frontend: favorites in localStorage, a heart on the card, a favorites page, a header counter
 - [ ] cart and checkout — guest checkout (after: product page — "add to cart")

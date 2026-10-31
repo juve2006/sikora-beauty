@@ -28,9 +28,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     navigation into it renders `<html>` without the class the script set. Components take
     everything from the tokens (convention-storefront-components): shadcn's in
     `src/components/ui/`; the header's in `src/components/shared/header/` — `SiteHeader`
-    (`index.tsx`), `Logo`, `LanguageSwitcher`, `ThemeToggle`, `MainMenu`, `MobileMenu`, `AdminLink`;
-    a page's blocks in `src/components/shared/blocks/`; the product's in
-    `src/components/shared/product/` — price, availability, the card and its no-photo placeholder;
+    (`index.tsx`), `Logo`, `LanguageSwitcher`, `ThemeToggle`, `MainMenu`, `MobileMenu`, `AdminLink`,
+    `FavoritesLink`; a page's blocks in `src/components/shared/blocks/`; the product's in
+    `src/components/shared/product/` — price, availability, the card and its no-photo placeholder,
+    `FavoriteButton`;
     the catalog's in `src/components/shared/catalog/` — the filters, the sort, the list with its
     pages; the search's in `src/components/shared/search/` — `SearchDialog` and the suggestions it
     shows. A component only one page shows lives in that page's route folder: the gallery, the cart
@@ -40,8 +41,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     menu with `getMenu` (`category.actions.ts`) — the zones with their categories and the skin
     concerns, in the admin's order — beside fixed links to the brands, the collections and the
     about page. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
-    and the theme move into that sheet, so the header keeps one line at 360 px. «Пошук» opens
-    `SearchDialog` (Search, below). «Адмінка» is
+    and the theme move into that sheet, so the header keeps one line at 360 px. «Обране» is
+    `FavoritesLink` (Favorites, below). «Пошук» opens `SearchDialog` (Search, below). «Адмінка» is
     `AdminLink`, which asks `/api/users/me` from the browser and checks the answer with
     `adminSession`: the storefront's one call from the browser to Payload's own API, so no page
     reads the cookie and product pages stay cached. The layout reads Payload, so a page the build
@@ -160,6 +161,15 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   finds. Admin group «Пошук»: `search-synonyms` (groups of spellings, one per line; both roles
   keep them) and `search-misses` — the queries the results page found nothing for, written in
   `after()` by `recordSearchMiss` alone, at most `SEARCH_MISSES` different ones.
+- **Favorites** — the products a shopper marked with a heart, kept in their browser
+  (adr-20261031-favorites-in-the-browser). `src/lib/favorites.ts` keeps the ids in localStorage
+  behind `useSyncExternalStore`; the server and the first render see none, so no page reads a
+  cookie. `FavoriteButton` sits over each `ProductCard`'s photo — beside the card's link, not in
+  it — and under the cart button on a product page; `FavoritesLink` in `SiteHeader` shows the
+  count. `/favorites` (`(shop)/favorites/`, `noindex`, `force-dynamic`): `FavoritesList` asks the
+  server action `favoriteProducts` (`favorites.actions.ts`) for the cards through
+  `getListingProducts`, shows them through `FavoritesView`, and takes out of the favorites what
+  the server did not return.
 - **Notify** — `src/lib/telegram.ts`: plain-text messages to the owner's Telegram group
   (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`; without them nothing is sent); consultation requests
   now, orders later. Depends on nothing.
@@ -192,8 +202,8 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 
 - **Storefront** (`src/app/[locale]/`, `src/components/shared/`, `src/components/ui/`,
   `src/i18n`, `messages/`) — pages in `uk` at `/` and `en` at `/en` — the layout, its look,
-  `/canvas`, the header, the pages, the product page, the catalog's lists, the consultation dialog
-  and search are built (above). Knows domains through
+  `/canvas`, the header, the pages, the product page, the catalog's lists, the consultation dialog,
+  search and favorites are built (above). Knows domains through
   their actions, their pure helpers (`src/lib/listing.ts`, `src/lib/product-page.ts`) and their
   schemas (`src/lib/validators.ts`); never through a collection — `AdminLink`'s `/api/users/me`
   is the one exception (adr-20261030-header-menu-and-pages-from-payload).

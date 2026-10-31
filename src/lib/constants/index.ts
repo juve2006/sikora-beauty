@@ -18,6 +18,7 @@ export const RESERVED_SLUGS = [
   'catalog',
   'collection',
   'concern',
+  'favorites',
   'product',
   'search',
   'skin-type',
@@ -58,6 +59,9 @@ export const PAGE_SIZE = 24;
 export const SUGGESTIONS = 6;
 export const SEARCH_LIMIT = 48;
 export const SEARCH_MISSES = 1000;
+
+// The most products a browser keeps in favorites: the oldest goes when a new one comes.
+export const FAVORITES_LIMIT = 100;
 
 // The storefront's collections: a fixed list, each the product flag that puts a product in it.
 export const COLLECTIONS = {
