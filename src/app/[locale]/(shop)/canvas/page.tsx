@@ -716,6 +716,15 @@ const CanvasPage = async ({ params }: Props) => {
                 />
               </div>
             </Specimen>
+            <Specimen label="done: one line not loaded">
+              <div className="w-full max-w-2xl">
+                <CartView
+                  status="done"
+                  notLoaded={1}
+                  items={[{ line: { id: 1, qty: 1 }, card: card({}) }]}
+                />
+              </div>
+            </Specimen>
             <Specimen label="done: out of stock only">
               <div className="w-full max-w-2xl">
                 <CartView

@@ -2,7 +2,13 @@
 
 import { CircleCheck } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { startTransition, useActionState, useEffect, useRef } from 'react';
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+} from 'react';
 import type { ConsultationState } from '@/types';
 import { requestConsultation } from '@/lib/actions/consultation.actions';
 import { parseConsultationForm } from '@/lib/validators';
@@ -54,6 +60,8 @@ const ConsultationForm = ({
 }: Props) => {
   const t = useTranslations('Consultation');
   const locale = useLocale();
+  // The fields' ids: /canvas shows the form several times.
+  const id = useId();
   const form = useRef<HTMLFormElement>(null);
   const [state, submit, pending] = useActionState(
     sendConsultation,
@@ -63,8 +71,11 @@ const ConsultationForm = ({
   const errors = state.status === 'invalid' ? state.errors : {};
 
   useEffect(() => {
-    if (state.status === 'invalid')
+    // A state to start from is shown, not answered: /canvas would scroll to its invalid form.
+    if (state !== initialState && state.status === 'invalid')
       form.current?.querySelector<HTMLElement>('[aria-invalid=true]')?.focus();
+    // The focus is for a new answer only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   if (state.status === 'sent') {
@@ -86,10 +97,7 @@ const ConsultationForm = ({
     const key = errors[name]?.[0];
     return (
       key && (
-        <p
-          id={`consultation-${name}-error`}
-          className="text-sm text-destructive"
-        >
+        <p id={`${id}-${name}-error`} className="text-sm text-destructive">
           {t(`errors.${key}`)}
         </p>
       )
@@ -99,7 +107,7 @@ const ConsultationForm = ({
     errors[name]
       ? {
           'aria-invalid': true,
-          'aria-describedby': `consultation-${name}-error`,
+          'aria-describedby': `${id}-${name}-error`,
         }
       : {};
 
@@ -121,9 +129,9 @@ const ConsultationForm = ({
       )}
       {fields.map(({ name, ...input }) => (
         <div key={name} className="flex flex-col gap-2">
-          <Label htmlFor={`consultation-${name}`}>{t(name)}</Label>
+          <Label htmlFor={`${id}-${name}`}>{t(name)}</Label>
           <Input
-            id={`consultation-${name}`}
+            id={`${id}-${name}`}
             name={name}
             required
             maxLength={name === 'name' ? 100 : 20}
@@ -135,14 +143,14 @@ const ConsultationForm = ({
         </div>
       ))}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="consultation-message">
+        <Label htmlFor={`${id}-message`}>
           {t('message')}
           <span className="font-normal text-muted-foreground">
             {t('optional')}
           </span>
         </Label>
         <Textarea
-          id="consultation-message"
+          id={`${id}-message`}
           name="message"
           rows={3}
           maxLength={1000}

@@ -119,3 +119,61 @@ test('orders with the branch typed by hand when Nova Poshta is down', async ({
     warehouse_ref: null,
   });
 });
+
+// The fixes after the review of `cart-and-checkout` (task `cart-review-fixes`).
+test('a place chosen after an invalid press loses its error', async ({
+  page,
+}) => {
+  await addSerum(page, '', uk);
+  await page.getByRole('button', { name: uk.Checkout.submit }).click();
+  const settlement = page.getByLabel(uk.Checkout.settlement);
+  await expect(settlement).toHaveAccessibleDescription(
+    uk.Checkout.errors.choose,
+  );
+
+  await settlement.fill('Бров');
+  await page.getByRole('button', { name: /Бровари/ }).click();
+  await expect(settlement).toHaveAccessibleDescription('');
+  await expect(settlement).not.toHaveAttribute('aria-invalid');
+  const warehouse = page.getByLabel(uk.Checkout.warehouse);
+  await expect(warehouse).toHaveAccessibleDescription(
+    new RegExp(`${uk.Checkout.errors.choose}$`),
+  );
+  await page.getByRole('button', { name: /Відділення №1/ }).click();
+  await expect(warehouse).toHaveAccessibleDescription('');
+});
+
+test('a line another tab added is told when its card does not come, and comes on a retry', async ({
+  page,
+  context,
+}) => {
+  await addSerum(page, '', uk);
+  await page.getByLabel(uk.Checkout.firstName).fill('Олена');
+  // The cart's server action is a POST to the page: it fails until unrouted.
+  await page.route('**/cart', (route) =>
+    route.request().method() === 'POST' ? route.abort() : route.fallback(),
+  );
+  const other = await context.newPage();
+  await other.goto('/product/e2e-cream');
+  await other.getByRole('button', { name: uk.Product.addToCart }).click();
+  await other.close();
+
+  await expect(
+    page.getByRole('link', { name: new RegExp(`^${uk.Cart.title}, 2 `) }),
+  ).toBeVisible();
+  const notice = page
+    .getByRole('alert')
+    .filter({ has: page.getByRole('button', { name: uk.Cart.retry }) });
+  await expect(notice).toContainText('1');
+  await expect(page.getByLabel(uk.Checkout.firstName)).toHaveValue('Олена');
+
+  await page.unroute('**/cart');
+  await notice.getByRole('button', { name: uk.Cart.retry }).click();
+  await expect(
+    page.getByRole('button', {
+      name: uk.Cart.more.replace('{name}', 'Крем E2E'),
+    }),
+  ).toBeVisible();
+  await expect(notice).toHaveCount(0);
+  await expect(page.getByLabel(uk.Checkout.firstName)).toHaveValue('Олена');
+});

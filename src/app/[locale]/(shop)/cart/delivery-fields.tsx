@@ -46,8 +46,8 @@ const Search = ({
   sample?: { typed: string; answer: DeliveryAnswer };
 }) => {
   const t = useTranslations('Checkout');
-  const id = `checkout-${name}`;
-  const status = useId();
+  const id = useId();
+  const status = `${id}-status`;
   const [typed, setTyped] = useState(sample?.typed ?? '');
   // The last answer, and the query it answers.
   const [found, setFound] = useState<{
@@ -156,6 +156,8 @@ const DeliveryFields = ({
   sample?: { typed: string; answer: DeliveryAnswer };
 }) => {
   const t = useTranslations('Checkout');
+  // The manual fields' ids: /canvas shows the fields several times.
+  const id = useId();
   const [manual, setManual] = useState(sample?.answer.status === 'unavailable');
   const [settlement, setSettlement] = useState<DeliveryOption | null>(null);
   const [warehouse, setWarehouse] = useState<DeliveryOption | null>(null);
@@ -165,10 +167,11 @@ const DeliveryFields = ({
     (query: string) => findWarehouses(settlement?.ref ?? '', query),
     [settlement],
   );
-  // A search typed in but never chosen is told so, rather than «fill in this field».
+  // A search typed in but never chosen is told so, rather than «fill in this field»; a choice made
+  // since the press answers its error.
   const error = (name: keyof Errors, chosen: DeliveryOption | null) => {
     const key = errors[name]?.[0];
-    return key === 'required' && !manual && !chosen ? 'choose' : key;
+    return chosen ? undefined : key === 'required' ? 'choose' : key;
   };
 
   if (manual)
@@ -181,9 +184,9 @@ const DeliveryFields = ({
           const key = errors[name]?.[0];
           return (
             <div key={name} className="flex flex-col gap-2">
-              <Label htmlFor={`checkout-${name}`}>{t(name)}</Label>
+              <Label htmlFor={`${id}-${name}`}>{t(name)}</Label>
               <Input
-                id={`checkout-${name}`}
+                id={`${id}-${name}`}
                 name={name}
                 defaultValue={
                   name === 'settlement' ? (settlement?.label ?? '') : ''
@@ -191,11 +194,11 @@ const DeliveryFields = ({
                 maxLength={200}
                 autoComplete={name === 'settlement' ? 'address-level2' : 'off'}
                 aria-invalid={key ? true : undefined}
-                aria-describedby={key ? `checkout-${name}-error` : undefined}
+                aria-describedby={key ? `${id}-${name}-error` : undefined}
               />
               {key && (
                 <p
-                  id={`checkout-${name}-error`}
+                  id={`${id}-${name}-error`}
                   className="text-sm text-destructive"
                 >
                   {t(`errors.${key}`)}
