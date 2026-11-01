@@ -8,6 +8,8 @@ import { getPayload } from 'payload';
 
 import {
   brands,
+  finderQuestions,
+  finderSteps,
   pages,
   skinConcerns,
   skinConditions,
@@ -21,6 +23,8 @@ const payload = await getPayload({ config });
 // Revalidation throws outside a Next request (src/collections/revalidate.ts).
 const context = { disableRevalidate: true };
 let created = 0;
+// The ids of what exists, by collection and slug: the care finder's answers and steps point at them.
+const ids = new Map<string, number>();
 
 type Seeded =
   | 'brands'
@@ -44,7 +48,10 @@ async function ensure(
     depth: 0,
     context,
   });
-  if (docs[0]) return docs[0].id;
+  if (docs[0]) {
+    ids.set(`${collection}:${slug}`, docs[0].id);
+    return docs[0].id;
+  }
   const doc = await payload.create({
     collection,
     locale: 'uk',
@@ -60,6 +67,7 @@ async function ensure(
       context,
     });
   created++;
+  ids.set(`${collection}:${slug}`, doc.id);
   return doc.id;
 }
 
@@ -118,5 +126,64 @@ if (totalDocs === 0)
     });
     created++;
   }
+
+// The care finder's draft goes only into a questionnaire with neither questions nor steps, off:
+// what the cosmetologist wrote stays, and the store shows the questionnaire once it is turned on in
+// the admin. The English texts go onto the created rows by their ids, as the pages' blocks do.
+const finder = await payload.findGlobal({
+  slug: 'care-finder',
+  depth: 0,
+  context,
+});
+if (!finder.questions?.length && !finder.steps?.length) {
+  const terms = (collection: string, slugs: string[] = []) =>
+    slugs.flatMap((slug) => ids.get(`${collection}:${slug}`) ?? []);
+  const draft = await payload.updateGlobal({
+    slug: 'care-finder',
+    locale: 'uk',
+    depth: 0,
+    data: {
+      enabled: false,
+      questions: finderQuestions.map((question) => ({
+        question: question.uk,
+        hint: question.hint?.uk,
+        multiple: question.multiple,
+        answers: question.answers.map((answer) => ({
+          label: answer.uk,
+          skinTypes: terms('skin-types', answer.types),
+          skinConditions: terms('skin-conditions', answer.conditions),
+          skinConcerns: terms('skin-concerns', answer.concerns),
+        })),
+      })),
+      steps: finderSteps.map((step) => ({
+        title: step.uk,
+        categories: terms('categories', [step.category]),
+      })),
+    },
+    context,
+  });
+  await payload.updateGlobal({
+    slug: 'care-finder',
+    locale: 'en',
+    depth: 0,
+    data: {
+      questions: (draft.questions ?? []).map((question, q) => ({
+        ...question,
+        question: finderQuestions[q].en,
+        hint: finderQuestions[q].hint?.en,
+        answers: (question.answers ?? []).map((answer, a) => ({
+          ...answer,
+          label: finderQuestions[q].answers[a].en,
+        })),
+      })),
+      steps: (draft.steps ?? []).map((step, index) => ({
+        ...step,
+        title: finderSteps[index].en,
+      })),
+    },
+    context,
+  });
+  created++;
+}
 
 payload.logger.info(`seed:catalog: ${created} created`);

@@ -132,7 +132,8 @@ Use in: source code (`related`), schema, API, documentation.
 ## Care Finder
 
 The "pick my care" questionnaire that maps a shopper's answers to skin type, condition and
-concerns and returns a routine.
+concerns and returns a routine. Payload global `care-finder`, «Підбір догляду»; page
+`/care-finder`. An answer is its array row's id.
 
 Informal synonyms: підбір догляду, анкета, quiz.
 Use in: source code, schema, API, documentation.

@@ -109,8 +109,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('uk' | 'en') | ('uk' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'care-finder': CareFinder;
+  };
+  globalsSelect: {
+    'care-finder': CareFinderSelect<false> | CareFinderSelect<true>;
+  };
   locale: 'uk' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -408,6 +412,7 @@ export interface ConsultationRequest {
   phone: string;
   message?: string | null;
   product?: (number | null) | Product;
+  finderAnswers?: string | null;
   locale?: ('uk' | 'en') | null;
   status: 'new' | 'in_progress' | 'closed';
   updatedAt: string;
@@ -799,6 +804,7 @@ export interface ConsultationRequestsSelect<T extends boolean = true> {
   phone?: T;
   message?: T;
   product?: T;
+  finderAnswers?: T;
   locale?: T;
   status?: T;
   updatedAt?: T;
@@ -901,6 +907,77 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "care-finder".
+ */
+export interface CareFinder {
+  id: number;
+  /**
+   * Поки вимкнено, пункту «Підбір догляду» в меню немає, а сторінка анкети недоступна.
+   */
+  enabled?: boolean | null;
+  /**
+   * По одному на екран, у цьому порядку. Кожна відповідь означає типи, стани й потреби шкіри: рутина бере товари з ними.
+   */
+  questions: {
+    question: string;
+    hint?: string | null;
+    multiple?: boolean | null;
+    answers: {
+      label: string;
+      skinTypes?: (number | SkinType)[] | null;
+      skinConditions?: (number | SkinCondition)[] | null;
+      skinConcerns?: (number | SkinConcern)[] | null;
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  /**
+   * У цьому порядку. Крок показує до двох товарів у наявності з його категорій, найближчих до відповідей.
+   */
+  steps: {
+    title: string;
+    categories: (number | Category)[];
+    id?: string | null;
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "care-finder_select".
+ */
+export interface CareFinderSelect<T extends boolean = true> {
+  enabled?: T;
+  questions?:
+    | T
+    | {
+        question?: T;
+        hint?: T;
+        multiple?: T;
+        answers?:
+          | T
+          | {
+              label?: T;
+              skinTypes?: T;
+              skinConditions?: T;
+              skinConcerns?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  steps?:
+    | T
+    | {
+        title?: T;
+        categories?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

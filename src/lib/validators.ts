@@ -153,6 +153,24 @@ export const phone = z
   .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
   .transform((value) => `+38${value.slice(-10)}`);
 
+// The care finder's answers in `/care-finder?a=` (the first, if repeated) and in a consultation
+// request: Payload's ids of the answers' rows, comma-joined. Anything else is no answers.
+export const finderAnswers = z
+  .preprocess(
+    first,
+    z
+      .string()
+      .max(2000)
+      .transform((value) => value.split(','))
+      .pipe(
+        z
+          .array(z.string().regex(/^[a-f0-9]{24}$/))
+          .min(1)
+          .max(50),
+      ),
+  )
+  .catch([]);
+
 // A shopper's consultation request: the form checks it before sending, the server action again.
 // A message is a key of `Consultation.errors` in messages/*.json, translated by the form.
 export const consultationRequest = z.object({
@@ -166,6 +184,7 @@ export const consultationRequest = z.object({
     .optional(),
   // The hidden fields the shopper does not type: a broken one is dropped, never shown as an error.
   product: z.coerce.number().int().positive().optional().catch(undefined),
+  answers: finderAnswers,
   locale: z.enum(routing.locales).catch(routing.defaultLocale),
   token: z.string().max(2048).optional().catch(undefined),
 });
@@ -179,6 +198,7 @@ export const parseConsultationForm = (form: FormData) => {
     phone: field('phone'),
     message: field('message'),
     product: field('product'),
+    answers: field('answers'),
     locale: field('locale'),
     token: field('cf-turnstile-response'),
   });

@@ -20,6 +20,8 @@ import { Textarea } from '@/components/ui/textarea';
 
 type Props = {
   product?: { id: number; name: string };
+  // The care finder's chosen answers, by id: the request carries them.
+  answers?: string[];
   // Closes the dialog after «sent»; /canvas shows the form without one.
   onClose?: () => void;
   // /canvas only: a state to start from, and the form while it sends.
@@ -54,6 +56,7 @@ export const sendConsultation = async (
 // form after its action, and a failed request must keep what the shopper typed.
 const ConsultationForm = ({
   product,
+  answers,
   onClose,
   initialState = { status: 'idle' },
   sending = false,
@@ -127,6 +130,9 @@ const ConsultationForm = ({
           {t('about', { product: product.name })}
         </p>
       )}
+      {answers && (
+        <p className="text-sm text-muted-foreground">{t('withAnswers')}</p>
+      )}
       {fields.map(({ name, ...input }) => (
         <div key={name} className="flex flex-col gap-2">
           <Label htmlFor={`${id}-${name}`}>{t(name)}</Label>
@@ -160,6 +166,9 @@ const ConsultationForm = ({
       </div>
       <input type="hidden" name="locale" value={locale} />
       {product && <input type="hidden" name="product" value={product.id} />}
+      {answers && (
+        <input type="hidden" name="answers" value={answers.join(',')} />
+      )}
       <Turnstile attempt={state} />
       {state.status === 'failed' && (
         <p role="alert" className="text-sm text-destructive">

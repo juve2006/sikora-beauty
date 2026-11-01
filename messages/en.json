@@ -28,6 +28,7 @@
     "catalog": "Catalog",
     "concerns": "By skin concern",
     "brands": "Brands",
+    "finder": "Skincare finder",
     "collections": "Sets and new arrivals",
     "about": "About Sikora Beauty",
     "admin": "Admin"
@@ -120,7 +121,19 @@
     "sampleSettlement": "м. Бровари, Броварський р-н, Київська обл.",
     "sampleSettlement2": "с. Бровахи, Черкаський р-н, Черкаська обл.",
     "sampleLatin": "Brovary",
-    "sampleNowhere": "Бровариш"
+    "sampleNowhere": "Бровариш",
+    "sampleQuestion": "What is your skin type?",
+    "sampleHint": "Not sure? Choose “I don’t know”.",
+    "sampleUnknown": "I don’t know",
+    "sampleQuestion2": "Which of these sound familiar?",
+    "sampleTight": "Tightness after cleansing",
+    "sampleRedness": "Reddens easily, reacts to new products",
+    "sampleNone": "None of these",
+    "sampleQuestion3": "Do you use SPF every day?",
+    "sampleYes": "Yes",
+    "sampleNo": "No",
+    "sampleStep": "Cleansing",
+    "sampleStep3": "SPF"
   },
   "Consultation": {
     "open": "Get a consultation",
@@ -130,6 +143,7 @@
     "title": "Cosmetologist consultation",
     "description": "Leave your name and phone — the cosmetologist will contact you and help choose your care.",
     "about": "About: {product}",
+    "withAnswers": "Your questionnaire answers go with the request.",
     "name": "Name",
     "phone": "Phone",
     "phonePlaceholder": "067 123 45 67",
@@ -244,5 +258,22 @@
     "placed": "Order No. {number} received",
     "placedNoNumber": "Order received",
     "placedText": "A manager will call you soon to confirm the order and delivery."
+  },
+  "Finder": {
+    "title": "Skincare finder",
+    "description": "A few questions about your skin, and a routine of products in stock.",
+    "progress": "Question {step} of {total}",
+    "multiple": "Choose any that apply",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Show my routine",
+    "finishing": "Putting your routine together…",
+    "routine": "Your routine",
+    "profile": "Matched to your answers:",
+    "again": "Start over",
+    "emptyStep": "The cosmetologist will choose this step with you in a consultation.",
+    "disclaimer": "This is a match to your answers, not a diagnosis. A cosmetologist can advise you more precisely.",
+    "stale": "The questionnaire has changed, so these answers no longer make a routine. Please take it again.",
+    "start": "Take the questionnaire"
   }
 }

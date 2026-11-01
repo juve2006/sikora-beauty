@@ -76,9 +76,12 @@ const Section = ({
 // language and the theme move here from the header, which keeps one line at 360 px.
 const MobileMenu = ({
   menu,
+  finder = false,
   className,
 }: {
   menu: Menu;
+  // The care finder is on: MainMenu's item, here too.
+  finder?: boolean;
   className?: string;
 }) => {
   const t = useTranslations('Nav');
@@ -134,6 +137,11 @@ const MobileMenu = ({
             <MenuLink href="/brands" className="font-medium">
               {t('brands')}
             </MenuLink>
+            {finder && (
+              <MenuLink href="/care-finder" className="font-medium">
+                {t('finder')}
+              </MenuLink>
+            )}
             <Section title={t('collections')}>
               {collections.map((slug) => (
                 <MenuLink key={slug} href={`/collection/${slug}`}>

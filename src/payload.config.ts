@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 
 import { collections } from './collections';
 import { Users } from '@/collections/users';
+import { CareFinder } from '@/globals/care-finder';
 import { parseEnv } from '@/lib/env';
 
 const env = parseEnv(process.env);
@@ -31,6 +32,7 @@ export default buildConfig({
     },
   },
   collections,
+  globals: [CareFinder],
   i18n: {
     supportedLanguages: { uk },
     fallbackLanguage: 'uk',

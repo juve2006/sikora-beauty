@@ -72,6 +72,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   removed it: Payload generates `DROP CONSTRAINT` for the `payload_locked_documents_rels` keys
   after the cascade, and the rollback fails on «constraint does not exist». Those lines are
   deleted. (tasks `consultation-request`, `search`; checked by: review)
+- A Payload array whose `minRows` must hold is `required` too: Payload checks the row count only
+  of a required array, so an empty one passes `minRows` and saves. (task `care-finder`; checked by:
+  review)
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
@@ -99,14 +102,15 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   layout reads the menu from Payload while the page renders, and a page's own `connection()` does
   not stop the layout. A page the build would prerender exports
   `dynamic = 'force-dynamic'` (the home page, `/brands`, `/canvas`, `/search`, `/favorites`,
-  `/cart`, `/cart/thanks` — reading
+  `/cart`, `/cart/thanks`, `/care-finder` — reading
   `searchParams` stops the page, not the layout); a product page and a page by slug return `[]`
   from `generateStaticParams`, so they render on the first visit and stay cached until a save
   revalidates them; a list of the catalog is a `[slug]` route without `generateStaticParams`, so
   the build has none to render. A miss only logs `cannot connect to Postgres` and the build still
   passes, so read the build's log, not its exit code. (tasks `design-direction`, `product-page`,
   `catalog-listing`, `header-home-and-about`, `search`, `favorites`, `cart-and-checkout`,
-  adr-20261030-header-menu-and-pages-from-payload; checked by: the CI `build` job's log, review)
+  `care-finder`, adr-20261030-header-menu-and-pages-from-payload; checked by: the CI `build` job's
+  log, review)
 - A page's slug never names a section of the store: `RESERVED_SLUGS` (`src/lib/constants`) lists
   every folder under `(shop)/` and the paths the proxy skips, and the page's slug field refuses
   them. A new section joins the list in the same change, or a page saved earlier under its name

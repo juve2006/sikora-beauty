@@ -54,6 +54,13 @@ export const ConsultationRequests: CollectionConfig = {
       access: sent,
     },
     {
+      // The care finder's answers as they read when the shopper sent them, one question per line.
+      name: 'finderAnswers',
+      type: 'textarea',
+      label: 'Відповіді анкети',
+      access: sent,
+    },
+    {
       name: 'locale',
       type: 'select',
       label: 'Мова',

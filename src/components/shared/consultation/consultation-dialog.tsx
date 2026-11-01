@@ -13,12 +13,15 @@ import {
 } from '@/components/ui/dialog';
 
 // «Отримати консультацію»: the button it is given opens the form. From a product page the request
-// carries the product. Closed, the form unmounts, so it opens empty again.
+// carries the product, from a routine the care finder's answers. Closed, the form unmounts, so it
+// opens empty again.
 const ConsultationDialog = ({
   product,
+  answers,
   children,
 }: {
   product?: { id: number; name: string };
+  answers?: string[];
   children: ReactNode;
 }) => {
   const t = useTranslations('Consultation');
@@ -35,7 +38,11 @@ const ConsultationDialog = ({
           <DialogTitle className="text-lg">{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
-        <ConsultationForm product={product} onClose={() => setOpen(false)} />
+        <ConsultationForm
+          product={product}
+          answers={answers}
+          onClose={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -15,6 +15,7 @@ export const RESERVED_SLUGS = [
   'brand',
   'brands',
   'canvas',
+  'care-finder',
   'cart',
   'catalog',
   'collection',
@@ -54,6 +55,8 @@ export const VOLUME_UNIT_LABELS: Record<(typeof VOLUME_UNITS)[number], string> =
 export const FACET_KEYS = ['type', 'condition', 'concern', 'brand'] as const;
 export const SORTS = ['price-asc', 'price-desc', 'new'] as const;
 export const PAGE_SIZE = 24;
+// A routine's step shows at most this many products: a routine, not a list.
+export const ROUTINE_STEP_PRODUCTS = 2;
 
 // Search: the header's suggestions, the most the results page shows (no pages), and the most
 // different queries «Пошук без результатів» keeps — anyone can send one.

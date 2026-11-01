@@ -147,11 +147,12 @@ Goal: a shopper who does not know what to buy gets a routine. Done when: a 5–7
 questionnaire on a phone gives a routine (cleanse → … → SPF) from products in stock; the
 cosmetologist edits the questions and rules in the admin.
 
-- [ ] care finder — the "pick my care" questionnaire (after: catalog listing — the same vocabularies; consultation request — passes the answers on; content drafts — without content it recommends the same three products)
+- [x] `care-finder` — the "pick my care" questionnaire (after: catalog listing — the same vocabularies; consultation request — passes the answers on; content drafts — without content it recommends the same three products)
   - Backend: questions and rules in the admin; answers → skin type, condition, needs → a routine
     by step from products in stock; Vitest for the rules
-  - Frontend: a step-by-step modal questionnaire, the routine as a result, "get a consultation"
-    with the answers attached to the request
+  - Frontend: a step-by-step questionnaire on its own page, `/care-finder` (a page, not a modal:
+    adr-20261101-care-finder-answers-to-terms), the routine as a result, "get a consultation" with
+    the answers attached to the request
 
 ## Phase 4 — Online payment and waybills from the admin
 
@@ -185,7 +186,7 @@ been dropped on purpose.
 2. admin-roles; design-direction; catalog-model
 3. product-page; catalog-listing; catalog-import; search; consultation-request
 4. brands-and-collections; content-drafts; favorites; cart-and-checkout; production host
-5. header, home and about; care finder; backups and restore
+5. header, home and about; care-finder; backups and restore
 6. launch readiness; mono payment; np waybill
 
 <!--
