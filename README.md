@@ -113,8 +113,8 @@ The code is laid out and written as in nextjs-store
 ## Checks and deploy
 
 Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
-`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout in
-Playwright), `i18n` (same keys in both message files),
+`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout and the
+care finder in Playwright), `i18n` (same keys in both message files),
 `knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull
