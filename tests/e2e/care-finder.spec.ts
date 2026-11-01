@@ -94,3 +94,29 @@ for (const [locale, m, prefix] of [
     });
   });
 }
+
+// The switch that keeps the draft off the store until the cosmetologist turns it on. Flipped in the
+// database, past the admin's revalidation: the home page and /care-finder are rendered per request.
+test('a finder switched off is not there', async ({ page }) => {
+  await database.query('update care_finder set enabled = false');
+  try {
+    for (const path of [
+      '/care-finder',
+      `/care-finder?a=${'0'.repeat(24)}`,
+      '/en/care-finder',
+    ])
+      expect((await page.goto(path))!.status()).toBe(404);
+
+    await page.goto('/');
+    if (page.viewportSize()!.width < 1024)
+      await page.getByRole('button', { name: uk.Nav.menu }).click();
+    await expect(
+      page.getByRole('link', { name: uk.Nav.brands }).first(),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: uk.Nav.finder })).toHaveCount(
+      0,
+    );
+  } finally {
+    await database.query('update care_finder set enabled = true');
+  }
+});
