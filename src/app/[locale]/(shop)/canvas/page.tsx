@@ -33,7 +33,12 @@ import ProductGallery from '@/app/[locale]/(shop)/product/[slug]/product-gallery
 import ProductPrice from '@/components/shared/product/product-price';
 import FavoriteButton from '@/components/shared/product/favorite-button';
 import FavoritesView from '@/app/[locale]/(shop)/favorites/favorites-view';
+import CartView from '@/app/[locale]/(shop)/cart/cart-view';
+import CheckoutForm from '@/app/[locale]/(shop)/cart/checkout-form';
+import DeliveryFields from '@/app/[locale]/(shop)/cart/delivery-fields';
+import OrderPlaced from '@/app/[locale]/(shop)/cart/thanks/order-placed';
 import AdminLink from '@/components/shared/header/admin-link';
+import CartLink from '@/components/shared/header/cart-link';
 import FavoritesLink from '@/components/shared/header/favorites-link';
 import MainMenu from '@/components/shared/header/main-menu';
 import MobileMenu from '@/components/shared/header/mobile-menu';
@@ -331,6 +336,14 @@ const CanvasPage = async ({ params }: Props) => {
           </Specimen>
         </Section>
 
+        <Section title="CartLink">
+          <Specimen label="0 / 3 / this browser's">
+            <CartLink shown={0} />
+            <CartLink shown={3} />
+            <CartLink />
+          </Specimen>
+        </Section>
+
         <Section title="FavoriteButton">
           <div className="flex flex-col gap-5">
             <Specimen label="card: not pressed / pressed / this browser's">
@@ -514,7 +527,11 @@ const CanvasPage = async ({ params }: Props) => {
         </Section>
 
         <Section title="AddToCart">
-          <AddToCart />
+          <Specimen label="in the cart / out of stock / this browser's">
+            <AddToCart id={900001} availability="in_stock" inCart />
+            <AddToCart id={900001} availability="out_of_stock" />
+            <AddToCart id={900001} availability="in_stock" />
+          </Specimen>
         </Section>
 
         <Section title="ConsultationDialog">
@@ -652,6 +669,201 @@ const CanvasPage = async ({ params }: Props) => {
                     card({ photo: undefined }),
                   ].map((product, id) => ({ id, card: product }))}
                 />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="CartView">
+          <div className="flex flex-col gap-8">
+            <Specimen label="loading">
+              <CartView status="loading" items={[]} />
+            </Specimen>
+            <Specimen label="failed">
+              <CartView status="failed" items={[]} />
+            </Specimen>
+            <Specimen label="done (none, one removed)">
+              <div className="w-full">
+                <CartView status="done" items={[]} removed={1} />
+              </div>
+            </Specimen>
+            <Specimen label="done: in stock ×2, made to order, out of stock, no photo">
+              <div className="w-full max-w-2xl">
+                <CartView
+                  status="done"
+                  items={[
+                    { line: { id: 1, qty: 2 }, card: card({}) },
+                    {
+                      line: { id: 2, qty: 1 },
+                      card: card({
+                        availability: 'made_to_order',
+                        madeToOrderDays: 3,
+                        photo: photos[1],
+                      }),
+                    },
+                    {
+                      line: { id: 3, qty: 1 },
+                      card: card({
+                        availability: 'out_of_stock',
+                        photo: photos[2],
+                      }),
+                    },
+                    {
+                      line: { id: 4, qty: 10 },
+                      card: card({ photo: undefined, volume: null }),
+                    },
+                  ]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="done: out of stock only">
+              <div className="w-full max-w-2xl">
+                <CartView
+                  status="done"
+                  items={[
+                    {
+                      line: { id: 3, qty: 1 },
+                      card: card({ availability: 'out_of_stock' }),
+                    },
+                  ]}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="DeliveryFields">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="found">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  sample={{
+                    typed: t('sampleTyped'),
+                    answer: {
+                      status: 'found',
+                      options: [
+                        { ref: 's1', label: t('sampleSettlement') },
+                        { ref: 's2', label: t('sampleSettlement2') },
+                      ],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="nothing found">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  sample={{
+                    typed: t('sampleNowhere'),
+                    answer: { status: 'found', options: [] },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="latin">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  sample={{
+                    typed: t('sampleLatin'),
+                    answer: { status: 'latin' },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="not chosen (invalid)">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  errors={{
+                    settlement: ['required'],
+                    warehouse: ['required'],
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="unavailable: typed by hand">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  sample={{ typed: '', answer: { status: 'unavailable' } }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="unavailable, invalid">
+              <div className="w-full max-w-sm">
+                <DeliveryFields
+                  errors={{ settlement: ['required'], warehouse: ['long'] }}
+                  sample={{ typed: '', answer: { status: 'unavailable' } }}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="CheckoutForm">
+          <div className="grid gap-10 lg:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full">
+                <CheckoutForm lines={[{ id: 1, qty: 2 }]} total={249100} />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  initialState={{
+                    status: 'invalid',
+                    errors: {
+                      firstName: ['required'],
+                      lastName: ['long'],
+                      phone: ['phoneInvalid'],
+                      settlement: ['required'],
+                      warehouse: ['required'],
+                      payment: ['paymentRequired'],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  sending
+                />
+              </div>
+            </Specimen>
+            <Specimen label="changed">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  initialState={{ status: 'changed' }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  initialState={{ status: 'failed' }}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="OrderPlaced">
+          <div className="flex flex-col gap-8">
+            <Specimen label="with a number">
+              <div>
+                <OrderPlaced number={1042} />
+              </div>
+            </Specimen>
+            <Specimen label="without">
+              <div>
+                <OrderPlaced />
               </div>
             </Specimen>
           </div>

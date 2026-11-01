@@ -11,11 +11,19 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - Money is stored and computed as integer kopiyky, never as a float. (spec `sikora-beauty`;
   checked by: Vitest on price calculation, review)
 - The server reprices every order from the database; a price sent by the browser is never
-  trusted. (spec `sikora-beauty`; checked by: Vitest on checkout)
+  trusted; the total the browser showed is only compared, and a different one answers `changed`.
+  (spec `sikora-beauty`, adr-20261101-cart-and-checkout; checked by: Vitest in
+  `tests/orders.test.ts`, the e2e test's order read back from the database)
 - An order keeps a snapshot of product names and prices at checkout. (adr-20261028-own-orders-collection;
-  checked by: Vitest)
+  checked by: Vitest in `tests/orders.test.ts`)
 - An order's status only moves forward; a repeated or late event leaves a reached status as it
-  is. (adr-20261028-own-orders-collection; checked by: Vitest on status transitions)
+  is. (adr-20261028-own-orders-collection; checked by: `canMoveStatus` in the `beforeChange` hook
+  on `orders`, Vitest in `tests/orders.test.ts`)
+- An order is created only by `placeOrder`, after the form's Zod schema, Turnstile and repricing:
+  no role creates one through REST or GraphQL, and no role changes what the shopper sent or the
+  snapshot — only the status and the manager's note. Only an admin role reads an order; only the
+  owner deletes one. (adr-20261101-cart-and-checkout; checked by: Vitest in `tests/access.test.ts`
+  and `tests/orders.test.ts`)
 - A monobank webhook has no effect before its signature is verified. (adr-20261028-monobank-and-cash-on-delivery;
   checked by: Vitest with a valid and a forged signature)
 - Online card payment is offered only when every order line is in stock.
@@ -90,13 +98,14 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - `next build` runs in CI without a database, so no page under `(shop)/` is prerendered: its
   layout reads the menu from Payload while the page renders, and a page's own `connection()` does
   not stop the layout. A page the build would prerender exports
-  `dynamic = 'force-dynamic'` (the home page, `/brands`, `/canvas`, `/search`, `/favorites` — reading
+  `dynamic = 'force-dynamic'` (the home page, `/brands`, `/canvas`, `/search`, `/favorites`,
+  `/cart`, `/cart/thanks` — reading
   `searchParams` stops the page, not the layout); a product page and a page by slug return `[]`
   from `generateStaticParams`, so they render on the first visit and stay cached until a save
   revalidates them; a list of the catalog is a `[slug]` route without `generateStaticParams`, so
   the build has none to render. A miss only logs `cannot connect to Postgres` and the build still
   passes, so read the build's log, not its exit code. (tasks `design-direction`, `product-page`,
-  `catalog-listing`, `header-home-and-about`, `search`, `favorites`,
+  `catalog-listing`, `header-home-and-about`, `search`, `favorites`, `cart-and-checkout`,
   adr-20261030-header-menu-and-pages-from-payload; checked by: the CI `build` job's log, review)
 - A page's slug never names a section of the store: `RESERVED_SLUGS` (`src/lib/constants`) lists
   every folder under `(shop)/` and the paths the proxy skips, and the page's slug field refuses
@@ -111,9 +120,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`). (spec
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
-- A shopper's personal data — name, phone, what they wrote — never reaches a log: a failed query
-  is logged without its params or the database's detail, which carry the row. (task
-  `consultation-request`; checked by: Vitest in `tests/consultation.test.ts`, review)
+- A shopper's personal data — name, phone, address, what they wrote — never reaches a log: a
+  failed query is logged without its params or the database's detail, which carry the row. (tasks `consultation-request`, `cart-and-checkout`; checked by: Vitest in
+  `tests/consultation.test.ts` and `tests/orders.test.ts`, review)
 - Secrets never enter the repository; they live in the host's environment (Vercel during
   development, Coolify in production), in GitHub Actions secrets when a workflow deploys, and in a
   password manager. (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)

@@ -2,6 +2,7 @@ import { Brands } from './brands';
 import { Categories } from './categories';
 import { ConsultationRequests } from './consultation-requests';
 import { Media } from './media';
+import { Orders } from './orders';
 import { Pages } from './pages';
 import { SearchMisses } from './search-misses';
 import { SearchSynonyms } from './search-synonyms';
@@ -23,5 +24,6 @@ export const collections = [
   SearchSynonyms,
   SearchMisses,
   ConsultationRequests,
+  Orders,
   Users,
 ];

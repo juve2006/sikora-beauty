@@ -197,13 +197,32 @@ at most `FAVORITES_LIMIT`; shown at `/favorites`, «Обране». One favorite
 Informal synonyms: обране, вибране, список бажань, wishlist.
 Use in: source code, documentation.
 
+## Cart
+
+The products a shopper is about to order, kept in their browser as product ids with a quantity,
+the newest first, at most `CART_LINES` lines and `CART_QUANTITY_MAX` of one product; shown and
+ordered at `/cart`, «Кошик». One line of it is a cart line, `{id, qty}`.
+
+Informal synonyms: кошик, корзина, basket.
+Use in: source code, documentation.
+
 ## Order
 
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment
-method and a forward-only status.
+method and a forward-only status. Collection `orders`, «Замовлення»; its number is its id; status
+`new`, `confirmed`, `shipped`, `completed` or `cancelled` — «Нове», «Підтверджене», «Відправлене»,
+«Виконане», «Скасоване»; payment `cod` or `link` — «Післяплата», «Посилання на оплату».
 
 Informal synonyms: замовлення.
 Use in: source code, schema, API, documentation.
+
+## Order Line
+
+A product in an order as it was at checkout: its name, brand, volume, price, quantity and
+availability, with a link to the product. Field `lines` of `orders`, «Товари».
+
+Informal synonyms: рядок замовлення, позиція, товар у замовленні.
+Use in: source code, schema, documentation.
 
 ## Manager Confirmation
 

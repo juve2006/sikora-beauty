@@ -18,7 +18,7 @@ import {
 import { slugField } from './slug-field';
 
 // Admin labels only: the storefront translates the values through messages/*.json.
-const availabilityLabels = {
+export const availabilityLabels = {
   in_stock: 'В наявності',
   made_to_order: 'Під замовлення',
   out_of_stock: 'Немає в наявності',

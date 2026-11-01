@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import SearchDialog from '@/components/shared/search/search-dialog';
 import AdminLink from './admin-link';
+import CartLink from './cart-link';
 import FavoritesLink from './favorites-link';
 import LanguageSwitcher from './language-switcher';
 import Logo from './logo';
@@ -14,9 +15,10 @@ import type { Config } from '@/payload-types';
 import { Button } from '@/components/ui/button';
 
 // Every storefront page's header, from (shop)/layout.tsx. Its menu is read from Payload, so a page
-// under it is never prerendered at build (RULES.md). The cart joins it with its own roadmap item.
+// under it is never prerendered at build (RULES.md).
 // On a desktop the menu has a row of its own: its five items and the buttons do not fit the page's
-// width in one.
+// width in one. On a phone the buttons are icons 32 px square, below the 36 px the others keep: four
+// of them beside the logo fit one line at 360 px only so (task `cart-and-checkout`).
 const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
   const menu = await getMenu(locale);
   const consultation = await getTranslations('Consultation');
@@ -28,7 +30,7 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
         menu={menu}
         className="order-last -ml-2.5 basis-full max-lg:hidden"
       />
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-1 max-sm:*:size-8">
         <AdminLink className="max-lg:hidden" />
         <FavoritesLink />
         <SearchDialog />
@@ -39,6 +41,7 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
             <span className="max-sm:sr-only">{consultation('openShort')}</span>
           </Button>
         </ConsultationDialog>
+        <CartLink />
         <div className="flex items-center gap-1 max-sm:hidden">
           <LanguageSwitcher />
           <ThemeToggle />

@@ -8,18 +8,22 @@ domains:
   - catalog
 paths:
   - src/lib/favorites.ts
-  - src/lib/actions/favorites.actions.ts
   - "src/app/*/(shop)/favorites/**"
   - src/components/shared/product/favorite-button.tsx
   - src/components/shared/header/favorites-link.tsx
+  - src/lib/actions/product-cards.actions.ts
 summary: Favorites are product ids, newest first, in the shopper's localStorage behind a useSyncExternalStore store; /favorites gets their cards from a server action and drops what is no longer published; the cart follows the pattern
-reviewed_at: 2026-10-31
+reviewed_at: 2026-11-01
 ---
 # Favorites are product ids in the shopper's localStorage, and the server sends only their cards
 
 Refines adr-20261030-header-menu-and-pages-from-payload and adr-20261031-search-in-memory:
 `favoriteProducts` is a third read of Payload the browser calls, through a server action, as the
 search ADR's `suggestProducts` is.
+
+Since adr-20261101-cart-and-checkout the action is `productCards` (`product-cards.actions.ts`),
+which the cart calls too, and the store's code favorites and the cart share is `browserStore`
+(`src/lib/browser-store.ts`); the decision below is unchanged.
 
 ## Context
 

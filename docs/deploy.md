@@ -28,7 +28,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `BLOB_READ_WRITE_TOKEN` | Blob store token | Vercel env, Production, Preview and Development (set by Vercel when the store is connected); the build fails without it |
 | `SITE_PASSWORD` | the site password, 12+ characters, shared with the owner and the cosmetologist | Vercel env, Production only, Sensitive; the Production build fails without it |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | the bot that posts consultation requests, and the group it posts to | Vercel env, Production only, the token Sensitive; without them a request is only saved |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile widget keys for the consultation form | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile widget keys for the consultation form and the checkout | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them |
+| `NOVA_POSHTA_API_KEY` | the developer's Nova Poshta API key (business cabinet → Settings → Security) | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
 
 ## Build it from nothing
 
@@ -84,6 +85,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
   browser asks for it. A Preview URL and a deployment URL show Vercel's login page instead.
 - With it: `/` is Ukrainian, `/en` English, `/admin` the Ukrainian Payload login.
 - A request sent from «Консультація» shows in `/admin` → Запити and in the Telegram group.
+- An order placed at `/cart` shows in `/admin` → Замовлення with its number from `/cart/thanks`.
 - To change the password: a new `SITE_PASSWORD` in Vercel, then redeploy Production.
 - Before an Instant Rollback or Promote to a Production deployment older than the site password
   (built before `adr-20261029-site-password`), switch Deployment Protection to All Deployments:

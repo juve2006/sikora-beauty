@@ -1,8 +1,8 @@
 import { CreditCard, Truck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-// General terms until the owner settles them (spec `sikora-beauty`, open question 5): launch step 1
-// takes cash on delivery or a payment link the manager sends.
+// The checkout's terms (task `cart-and-checkout`): Nova Poshta at its rates, paid on delivery; the
+// goods paid on delivery or by a link the manager sends.
 const DeliveryPayment = () => {
   const t = useTranslations('Product');
   return (

@@ -145,7 +145,7 @@ const ProductPage = async ({ params }: Props) => {
                 madeToOrderDays={product.madeToOrderDays}
               />
             </div>
-            <AddToCart />
+            <AddToCart id={product.id} availability={product.availability} />
             <FavoriteButton
               id={product.id}
               name={product.name}

@@ -78,6 +78,7 @@ export interface Config {
     'search-synonyms': SearchSynonym;
     'search-misses': SearchMiss;
     'consultation-requests': ConsultationRequest;
+    orders: Order;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -97,6 +98,7 @@ export interface Config {
     'search-synonyms': SearchSynonymsSelect<false> | SearchSynonymsSelect<true>;
     'search-misses': SearchMissesSelect<false> | SearchMissesSelect<true>;
     'consultation-requests': ConsultationRequestsSelect<false> | ConsultationRequestsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -413,6 +415,39 @@ export interface ConsultationRequest {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  lines: {
+    name: string;
+    brand?: string | null;
+    volume?: string | null;
+    price: number;
+    quantity: number;
+    availability?: ('in_stock' | 'made_to_order' | 'out_of_stock') | null;
+    madeToOrderDays?: number | null;
+    product?: (number | null) | Product;
+    id?: string | null;
+  }[];
+  total: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  settlement: string;
+  warehouse: string;
+  settlementRef?: string | null;
+  warehouseRef?: string | null;
+  payment: 'cod' | 'link';
+  comment?: string | null;
+  locale?: ('uk' | 'en') | null;
+  status: 'new' | 'confirmed' | 'shipped' | 'completed' | 'cancelled';
+  managerNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -505,6 +540,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'consultation-requests';
         value: number | ConsultationRequest;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null)
     | ({
         relationTo: 'users';
@@ -762,6 +801,40 @@ export interface ConsultationRequestsSelect<T extends boolean = true> {
   product?: T;
   locale?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  lines?:
+    | T
+    | {
+        name?: T;
+        brand?: T;
+        volume?: T;
+        price?: T;
+        quantity?: T;
+        availability?: T;
+        madeToOrderDays?: T;
+        product?: T;
+        id?: T;
+      };
+  total?: T;
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  settlement?: T;
+  warehouse?: T;
+  settlementRef?: T;
+  warehouseRef?: T;
+  payment?: T;
+  comment?: T;
+  locale?: T;
+  status?: T;
+  managerNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
