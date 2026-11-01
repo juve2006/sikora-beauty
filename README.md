@@ -22,7 +22,7 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
-its texts, delivery and payment, and related products; the cart button waits for the cart. The
+its texts, delivery and payment, related products and «Додати в кошик». The
 header's menu reads the zones with their categories and the skin concerns from the catalog, beside
 links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
 signed in to the admin; `/catalog/<zone>` and `/catalog/<category>` list published products,
@@ -38,6 +38,13 @@ nothing waits in the admin under «Пошук → Пошук без резуль
 «Синоніми пошуку». A heart on every product card and on a product page keeps the product in the
 shopper's favorites — in their browser, no account — counted on «Обране» in the header; `/favorites`
 shows them with today's prices, the newest first, and drops a product taken off the store.
+The cart is kept the same way, counted on the bag in the header; `/cart` shows it with today's
+prices and takes a guest's order under it: name, phone, a Nova Poshta settlement and branch found
+as they type (typed by hand when Nova Poshta does not answer), cash on delivery or a payment link
+from the manager. The server prices the order again — a price changed meanwhile asks the shopper to
+check the cart — and keeps its lines as they were sold; it waits in the admin under «Продажі →
+Замовлення», where the manager moves its status forward and keeps a note, and `/cart/thanks` shows
+its number. Orders do not reach Telegram yet.
 `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
@@ -45,7 +52,7 @@ Preview is visible only to the developer. Nothing is sold yet.
 
 - Plan: [`.ai/specs/sikora-beauty/`](.ai/specs/sikora-beauty/) — spec, stack and the
   [roadmap](.ai/specs/sikora-beauty/roadmap.md) by phase.
-- Next: Phase 2 — cart and checkout.
+- Next: Phase 2 — production host.
 
 ## Stack
 
@@ -78,6 +85,14 @@ consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CH
 checked by Cloudflare Turnstile with `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`;
 without the first pair a request is only saved, without the second it is not checked. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
+The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
+otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.
+
+`npm run test:e2e` runs the checkout in Playwright (360 px and desktop, both languages) on a
+production build — `npm run build` first — against a throwaway database: its migrations,
+`npm run seed:catalog`, then `NODE_ENV=production npm run payload -- run tests/e2e/seed.ts`, with
+`DATABASE_URL` pointing at it. A stub stands in for Nova Poshta. The first time,
+`npx playwright install chromium`.
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
 storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components
@@ -91,7 +106,8 @@ The code is laid out and written as in nextjs-store
 ## Checks and deploy
 
 Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
-`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `i18n` (same keys in both message files),
+`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout in
+Playwright), `i18n` (same keys in both message files),
 `knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull

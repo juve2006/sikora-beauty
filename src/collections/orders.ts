@@ -1,0 +1,261 @@
+import {
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  ValidationError,
+} from 'payload';
+
+import { availabilityLabels } from './products';
+import { hasRole, isOwner, nobody } from '@/lib/access';
+import { AVAILABILITIES, ORDER_STATUSES, PAYMENTS } from '@/lib/constants';
+import { canMoveStatus } from '@/lib/orders';
+
+const statusLabels = {
+  new: 'Нове',
+  confirmed: 'Підтверджене',
+  shipped: 'Відправлене',
+  completed: 'Виконане',
+  cancelled: 'Скасоване',
+};
+
+const paymentLabels = {
+  cod: 'Післяплата',
+  link: 'Посилання на оплату',
+};
+
+// Money in the admin is hryvnias, stored as integer kopiyky (RULES.md), as a product's price is.
+const money = {
+  components: {
+    Field: '/components/admin/price-field',
+    Cell: '/components/admin/price-cell',
+  },
+};
+
+// What the shopper sent and what the order cost stay as they were at checkout, in the admin and
+// through the API alike (RULES.md: a snapshot of names and prices); the manager changes the status
+// and their note. A field nobody may update the admin shows read-only.
+const sent = { update: nobody };
+
+// An order's status only moves forward (RULES.md); a mistaken step is told in the note.
+export const keepStatusForward: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
+  if (
+    operation === 'update' &&
+    data.status &&
+    originalDoc?.status &&
+    !canMoveStatus(originalDoc.status, data.status)
+  ) {
+    throw new ValidationError(
+      {
+        errors: [
+          {
+            label: 'Статус',
+            message: 'Статус не повертається назад',
+            path: 'status',
+          },
+        ],
+      },
+      req.t,
+    );
+  }
+  return data;
+};
+
+// A shopper's order, waiting for the manager's confirmation (adr-20261028-two-step-launch). Their
+// name, phone and NP warehouse are personal data: only an admin role reads them, nobody creates an
+// order through the API — `placeOrder` does, after Zod, Turnstile and repricing — and only the
+// owner deletes one.
+export const Orders: CollectionConfig = {
+  slug: 'orders',
+  labels: { singular: 'Замовлення', plural: 'Замовлення' },
+  admin: {
+    group: 'Продажі',
+    defaultColumns: [
+      'id',
+      'createdAt',
+      'firstName',
+      'lastName',
+      'phone',
+      'total',
+      'payment',
+      'status',
+    ],
+  },
+  defaultSort: '-createdAt',
+  access: { read: hasRole, create: nobody, update: hasRole, delete: isOwner },
+  hooks: { beforeChange: [keepStatusForward] },
+  fields: [
+    {
+      name: 'lines',
+      type: 'array',
+      label: 'Товари',
+      labels: { singular: 'Товар', plural: 'Товари' },
+      required: true,
+      minRows: 1,
+      access: sent,
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'name', type: 'text', label: 'Назва', required: true },
+            { name: 'brand', type: 'text', label: 'Бренд' },
+            { name: 'volume', type: 'text', label: "Об'єм" },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'price',
+              type: 'number',
+              label: 'Ціна, грн',
+              required: true,
+              admin: money,
+            },
+            {
+              name: 'quantity',
+              type: 'number',
+              label: 'Кількість',
+              required: true,
+            },
+            {
+              name: 'availability',
+              type: 'select',
+              label: 'Наявність',
+              options: AVAILABILITIES.map((value) => ({
+                value,
+                label: availabilityLabels[value],
+              })),
+            },
+            {
+              name: 'madeToOrderDays',
+              type: 'number',
+              label: 'Днів до відправки',
+            },
+          ],
+        },
+        {
+          name: 'product',
+          type: 'relationship',
+          relationTo: 'products',
+          label: 'Товар у каталозі',
+        },
+      ],
+    },
+    {
+      name: 'total',
+      type: 'number',
+      label: 'Сума, грн',
+      required: true,
+      access: sent,
+      admin: money,
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'firstName',
+          type: 'text',
+          label: "Ім'я",
+          required: true,
+          access: sent,
+        },
+        {
+          name: 'lastName',
+          type: 'text',
+          label: 'Прізвище',
+          required: true,
+          access: sent,
+        },
+        {
+          name: 'phone',
+          type: 'text',
+          label: 'Телефон',
+          required: true,
+          access: sent,
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'settlement',
+          type: 'text',
+          label: 'Місто',
+          required: true,
+          access: sent,
+        },
+        {
+          name: 'warehouse',
+          type: 'text',
+          label: 'Відділення або поштомат',
+          required: true,
+          access: sent,
+        },
+      ],
+    },
+    // Nova Poshta's refs when the shopper chose from its search; empty when it did not work and
+    // they typed the address — the manager checks it on the call.
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'settlementRef',
+          type: 'text',
+          label: 'Ref міста (НП)',
+          access: sent,
+        },
+        {
+          name: 'warehouseRef',
+          type: 'text',
+          label: 'Ref відділення (НП)',
+          access: sent,
+        },
+      ],
+    },
+    {
+      name: 'payment',
+      type: 'select',
+      label: 'Оплата',
+      required: true,
+      options: PAYMENTS.map((value) => ({
+        value,
+        label: paymentLabels[value],
+      })),
+      access: sent,
+    },
+    { name: 'comment', type: 'textarea', label: 'Коментар', access: sent },
+    {
+      name: 'locale',
+      type: 'select',
+      label: 'Мова',
+      options: [
+        { value: 'uk', label: 'Українська' },
+        { value: 'en', label: 'Англійська' },
+      ],
+      access: sent,
+    },
+    {
+      name: 'status',
+      type: 'select',
+      label: 'Статус',
+      required: true,
+      defaultValue: 'new',
+      options: ORDER_STATUSES.map((value) => ({
+        value,
+        label: statusLabels[value],
+      })),
+      admin: { position: 'sidebar', isClearable: false },
+    },
+    {
+      name: 'managerNote',
+      type: 'textarea',
+      label: 'Нотатка менеджера',
+      admin: { position: 'sidebar' },
+    },
+  ],
+};

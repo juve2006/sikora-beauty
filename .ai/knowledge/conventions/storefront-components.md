@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-10-31
+reviewed_at: 2026-11-01
 ---
 # Storefront components take their look from the theme tokens
 
@@ -35,8 +35,9 @@ MUST:     take colours, fonts and radii from the theme tokens in src/app/[locale
           in both locales
 MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; read Payload
           outside a server component, except through a server action in src/lib/actions/
-          (suggestProducts, adr-20261031-search-in-memory; favoriteProducts,
-          adr-20261031-favorites-in-the-browser) or AdminLink's /api/users/me
+          (suggestProducts, adr-20261031-search-in-memory; productCards,
+          adr-20261031-favorites-in-the-browser; placeOrder, findSettlements, findWarehouses,
+          adr-20261101-cart-and-checkout) or AdminLink's /api/users/me
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
 
@@ -76,9 +77,10 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 
 `Button` in `src/components/ui/button.tsx` takes `bg-primary text-primary-foreground` and
 `rounded-lg` from the tokens, keeps only the variants and sizes the storefront uses (its smallest
-is 36 px, for a thumb on a 360 px phone), and `LanguageSwitcher` composes it with `asChild` around
-a plain `<a>` — another language is a full page load (ARCHITECTURE) — instead of styling a link
-of its own.
+is 36 px, for a thumb on a 360 px phone; only the header's buttons go to 32 px below `sm`, so four
+of them keep one line at 360 px — adr-20261101-cart-and-checkout), and `LanguageSwitcher`
+composes it with `asChild` around a plain `<a>` — another language is a full page load
+(ARCHITECTURE) — instead of styling a link of its own.
 
 ## Rationale
 

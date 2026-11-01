@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import FavoritesView, { type FavoritesStatus } from './favorites-view';
-import { favoriteProducts } from '@/lib/actions/favorites.actions';
+import { productCards } from '@/lib/actions/product-cards.actions';
 import { keepFavorites, useFavorites } from '@/lib/favorites';
 import type { CardProduct } from '@/types';
 
@@ -32,7 +32,7 @@ const FavoritesList = () => {
   useEffect(() => {
     if (!missing) return;
     let current = true;
-    favoriteProducts(ids, locale).then(
+    productCards(ids, locale).then(
       (products) => {
         if (!current) return;
         setLoaded({ asked: ids, products });

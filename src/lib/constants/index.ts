@@ -15,6 +15,7 @@ export const RESERVED_SLUGS = [
   'brand',
   'brands',
   'canvas',
+  'cart',
   'catalog',
   'collection',
   'concern',
@@ -62,6 +63,25 @@ export const SEARCH_MISSES = 1000;
 
 // The most products a browser keeps in favorites: the oldest goes when a new one comes.
 export const FAVORITES_LIMIT = 100;
+
+// A cart: the most lines a browser keeps, and the most of one product a line orders.
+export const CART_LINES = 50;
+export const CART_QUANTITY_MAX = 10;
+
+// An order's way through, only forward (RULES.md): the manager confirms it, sends it, it is
+// received — or it is cancelled before that.
+export const ORDER_STATUSES = [
+  'new',
+  'confirmed',
+  'shipped',
+  'completed',
+  'cancelled',
+] as const;
+// Launch step 1: cash on delivery, or a monobank link the manager sends after confirming.
+export const PAYMENTS = ['cod', 'link'] as const;
+
+// Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.
+export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';
 
 // The storefront's collections: a fixed list, each the product flag that puts a product in it.
 export const COLLECTIONS = {

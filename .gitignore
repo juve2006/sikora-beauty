@@ -52,3 +52,7 @@ next-env.d.ts
 
 # Playwright MCP screenshots and logs; emptied when the task that made them is closed
 /.playwright-mcp/
+
+# Playwright test results and traces (npm run test:e2e)
+/test-results/
+/playwright-report/

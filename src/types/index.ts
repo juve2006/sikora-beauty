@@ -3,6 +3,8 @@ import type { z } from 'zod';
 import type {
   AVAILABILITIES,
   FACET_KEYS,
+  ORDER_STATUSES,
+  PAYMENTS,
   SORTS,
   VOLUME_UNITS,
 } from '@/lib/constants';
@@ -10,6 +12,7 @@ import type { getMenu } from '@/lib/actions/category.actions';
 import type { listing } from '@/lib/listing';
 import type {
   aiDraft,
+  cartLine,
   consultationRequest,
   cosmetikaProduct,
   listingParams,
@@ -31,7 +34,31 @@ export type ConsultationState =
       errors: Partial<Record<'name' | 'phone' | 'message', string[]>>;
     };
 
+// A cart's line in the browser, and what the checkout form shows after a submit: the error keys of
+// each field the shopper typed, or that the cart changed under the order, or the order's number.
+export type CartLine = z.infer<typeof cartLine>;
+export type OrderField =
+  | 'firstName'
+  | 'lastName'
+  | 'phone'
+  | 'settlement'
+  | 'warehouse'
+  | 'payment'
+  | 'comment';
+export type OrderState =
+  | { status: 'idle' | 'failed' | 'changed' }
+  | { status: 'invalid'; errors: Partial<Record<OrderField, string[]>> }
+  | { status: 'placed'; number: number };
+// A settlement or an NP warehouse found for what the shopper typed; `latin` when they typed Latin
+// letters, which Nova Poshta refuses; `unavailable` when it did not answer.
+export type DeliveryOption = { ref: string; label: string };
+export type DeliveryAnswer =
+  | { status: 'found'; options: DeliveryOption[] }
+  | { status: 'latin' | 'unavailable' };
+
 export type Availability = (typeof AVAILABILITIES)[number];
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+export type Payment = (typeof PAYMENTS)[number];
 export type VolumeUnit = (typeof VOLUME_UNITS)[number];
 export type FacetKey = (typeof FACET_KEYS)[number];
 export type Sort = (typeof SORTS)[number];

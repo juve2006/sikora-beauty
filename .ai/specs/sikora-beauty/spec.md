@@ -308,6 +308,15 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   cosmetologist (`consultation-request`, adr-20261030-consultation-requests) — rejected: a field
   for the way to be contacted, the button on the product page only or in the header only, a promise
   of an answer «протягом робочого дня».
+- Delivery terms at checkout (developer, 2026-11-01; part of open question 5) — the shopper pays
+  Nova Poshta at its rates on delivery, with no free-delivery threshold until the owner names one;
+  the address comes from Nova Poshta's search, with the store's API key once there is one — it
+  will be the developer's own — and without it until then (`cart-and-checkout`,
+  adr-20261101-cart-and-checkout) — rejected: a free-delivery threshold now (no sum named), «the
+  manager tells the delivery cost» (the shopper orders without knowing the terms).
+- Orders and Telegram (developer, 2026-11-01) — orders reach the Telegram group in one later task
+  that connects Telegram to every entity at once, not in `cart-and-checkout`; until then the
+  manager sees them in the admin.
 - Design — made within the project: 2–3 prototypes for the owner to choose from, a text logo —
   rejected: an outside designer (none available).
 - Cache — price and availability refresh through on-demand revalidation from a Payload hook on
@@ -346,8 +355,9 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
 4. The sole proprietorship (tax group, bank), monobank acquiring or another, the Checkbox
    register; the accountant — how cash-on-delivery payments get fiscal receipts — decides
    `cart and checkout` and `mono payment`.
-5. Nova Poshta: business account and API key, who pays for delivery, free delivery above a
-   threshold — decides `cart and checkout` and `np waybill`.
+5. Nova Poshta: business account and API key, free delivery above a threshold — decides
+   `np waybill`. Who pays for delivery is answered — see Decisions, "Delivery terms at checkout"
+   (2026-11-01).
 6. Answered — see Decisions, "Consultation requests" (2026-10-30).
 7. The questionnaire's questions and matching rules — written by the cosmetologist — decides
    `care finder`.

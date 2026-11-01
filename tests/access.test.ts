@@ -5,6 +5,7 @@ import { Brands } from '@/collections/brands';
 import { Categories } from '@/collections/categories';
 import { ConsultationRequests } from '@/collections/consultation-requests';
 import { Media } from '@/collections/media';
+import { Orders } from '@/collections/orders';
 import { Pages } from '@/collections/pages';
 import { SearchMisses } from '@/collections/search-misses';
 import { SearchSynonyms } from '@/collections/search-synonyms';
@@ -157,6 +158,57 @@ describe('consultation requests', () => {
       ]);
     },
   );
+
+  it('only the owner deletes one', () => {
+    expect(roles('delete')).toEqual([true, false, false]);
+  });
+});
+
+// Shoppers' orders (AC-12 of the task `cart-and-checkout`).
+describe('orders', () => {
+  const { access } = Orders;
+  const roles = (operation: 'read' | 'create' | 'update' | 'delete') => [
+    run(access![operation], owner),
+    run(access![operation], cosmetologist),
+    run(access![operation], null),
+  ];
+
+  it('only a role reads and changes them', () => {
+    expect(roles('read')).toEqual([true, true, false]);
+    expect(roles('update')).toEqual([true, true, false]);
+  });
+
+  it('nobody creates one through the API: the server action does', () => {
+    expect(roles('create')).toEqual([false, false, false]);
+  });
+
+  it.each([
+    'lines',
+    'total',
+    'firstName',
+    'lastName',
+    'phone',
+    'settlement',
+    'warehouse',
+    'settlementRef',
+    'warehouseRef',
+    'payment',
+    'comment',
+    'locale',
+  ])('nobody changes the %s of the order, only its status and note', (name) => {
+    const { update } = fieldAccess(Orders.fields, name) ?? {};
+    expect([run(update, owner), run(update, cosmetologist)]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('the status and the note have no access of their own: a role changes them', () => {
+    for (const name of ['status', 'managerNote'])
+      expect(
+        (field(Orders.fields, name) as { access?: unknown }).access,
+      ).toBeUndefined();
+  });
 
   it('only the owner deletes one', () => {
     expect(roles('delete')).toEqual([true, false, false]);

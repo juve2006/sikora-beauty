@@ -2,7 +2,10 @@ import { z } from 'zod';
 
 import {
   AVAILABILITIES,
+  CART_LINES,
+  CART_QUANTITY_MAX,
   FAVORITES_LIMIT,
+  PAYMENTS,
   RESERVED_SLUGS,
   ROLES,
   SORTS,
@@ -142,17 +145,19 @@ export const priceRow = z.object({
     .transform((value) => (value === '' ? null : parseHryvnias(value))),
 });
 
+// A Ukrainian number however it is typed — 067 123-45-67, 380671234567, +38 (067)… — kept as
+// +380671234567, so it can be dialled from Telegram or the admin with one tap.
+export const phone = z
+  .string()
+  .transform((value) => value.replace(/[\s().-]/g, ''))
+  .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
+  .transform((value) => `+38${value.slice(-10)}`);
+
 // A shopper's consultation request: the form checks it before sending, the server action again.
 // A message is a key of `Consultation.errors` in messages/*.json, translated by the form.
 export const consultationRequest = z.object({
   name: z.string().trim().min(1, 'nameRequired').max(100, 'nameLong'),
-  // A Ukrainian number however it is typed — 067 123-45-67, 380671234567, +38 (067)… — kept as
-  // +380671234567, so it can be dialled from Telegram with one tap.
-  phone: z
-    .string()
-    .transform((value) => value.replace(/[\s().-]/g, ''))
-    .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
-    .transform((value) => `+38${value.slice(-10)}`),
+  phone,
   message: z
     .string()
     .trim()
@@ -219,8 +224,156 @@ export const searchRequest = z.object({
   locale: z.enum(routing.locales),
 });
 
-// The favorites page's question: the cards of the products a browser kept.
-export const favoritesRequest = z.object({
+// The favorites' and the cart's question: the cards of the products a browser kept.
+export const cardsRequest = z.object({
   ids: z.array(z.number().int().positive()).max(FAVORITES_LIMIT),
   locale: z.enum(routing.locales),
 });
+
+// One line of a cart: a product and how many of it, as an order sends it.
+export const cartLine = z.object({
+  id: z.number().int().positive(),
+  qty: z.number().int().min(1).max(CART_QUANTITY_MAX),
+});
+// A line as the browser kept it: more than the most is the most.
+export const keptCartLine = cartLine.extend({
+  qty: z
+    .number()
+    .int()
+    .min(1)
+    .transform((qty) => Math.min(qty, CART_QUANTITY_MAX)),
+});
+
+const text = (max: number) =>
+  z.string().trim().min(1, 'required').max(max, 'long');
+const json = (value: unknown) => {
+  try {
+    return JSON.parse(String(value));
+  } catch {
+    return undefined;
+  }
+};
+// An NP reference as the API writes it; a hidden field left empty is none.
+const npRef = z.preprocess((value) => value || undefined, z.guid().optional());
+
+// A shopper's order: the checkout form checks it before sending, `placeOrder` again. A message is a
+// key of `Checkout.errors` in messages/*.json, translated by the form. Nothing here is a price: the
+// server reads them (RULES.md); `total` is only the sum the shopper was shown, to be compared.
+export const orderRequest = z.object({
+  firstName: text(50),
+  lastName: text(50),
+  phone,
+  // The settlement and the NP warehouse: chosen from Nova Poshta's search, with their refs, or
+  // typed by hand while the search does not work.
+  settlement: text(200),
+  warehouse: text(200),
+  payment: z.enum(PAYMENTS, 'paymentRequired'),
+  comment: z
+    .string()
+    .trim()
+    .max(500, 'long')
+    .transform((value) => value || undefined)
+    .optional(),
+  // The hidden fields the shopper does not type: a broken one fails the order, never a field.
+  lines: z.preprocess(
+    json,
+    z
+      .array(cartLine)
+      .min(1)
+      .max(CART_LINES)
+      .refine(
+        (lines) => new Set(lines.map(({ id }) => id)).size === lines.length,
+      ),
+  ),
+  total: z.coerce.number().pipe(kopiyky),
+  settlementRef: npRef,
+  warehouseRef: npRef,
+  locale: z.enum(routing.locales).catch(routing.defaultLocale),
+  token: z.string().max(2048).optional().catch(undefined),
+});
+
+// The checkout form's fields by name, Turnstile's `cf-turnstile-response` among them: the order, or
+// the error keys of each field the shopper typed — none when only a hidden field is broken.
+export const parseOrderForm = (form: FormData) => {
+  const field = (name: string) => form.get(name) ?? undefined;
+  const result = orderRequest.safeParse({
+    firstName: field('firstName'),
+    lastName: field('lastName'),
+    phone: field('phone'),
+    settlement: field('settlement'),
+    warehouse: field('warehouse'),
+    payment: field('payment'),
+    comment: field('comment'),
+    lines: field('lines'),
+    total: field('total'),
+    settlementRef: field('settlementRef'),
+    warehouseRef: field('warehouseRef'),
+    locale: field('locale'),
+    token: field('cf-turnstile-response'),
+  });
+  if (result.success) return { data: result.data };
+  const {
+    firstName,
+    lastName,
+    phone,
+    settlement,
+    warehouse,
+    payment,
+    comment,
+  } = z.flattenError(result.error).fieldErrors;
+  const errors = {
+    firstName,
+    lastName,
+    phone,
+    settlement,
+    warehouse,
+    payment,
+    comment,
+  };
+  return {
+    errors: Object.fromEntries(
+      Object.entries(errors).filter(([, keys]) => keys),
+    ) as Partial<typeof errors>,
+  };
+};
+
+// What a shopper types to find their settlement, and then their NP warehouse in it — an empty
+// query lists the first warehouses.
+export const settlementQuery = z.string().trim().min(2).max(50);
+export const warehouseQuery = z.object({
+  ref: z.guid(),
+  query: z.string().trim().max(50),
+});
+
+// Nova Poshta's answer to any method: HTTP 200 even when it failed; `success` says which. `info`
+// is left out: an array in one answer, an object in another.
+export const npAnswer = z.object({
+  success: z.boolean(),
+  data: z.array(z.unknown()),
+  errors: z.array(z.string()).catch([]),
+});
+// `searchSettlements`: one result, whose `Addresses` are the matches; `Warehouses` is how many
+// NP warehouses the settlement has.
+export const npSettlements = z
+  .array(
+    z.object({
+      Addresses: z.array(
+        z.object({
+          Ref: z.guid(),
+          Present: z.string(),
+          Warehouses: z.coerce.number(),
+        }),
+      ),
+    }),
+  )
+  .max(1);
+// `getWarehouses`: an NP warehouse — a branch or a parcel locker — and whether a parcel can be
+// sent to it: `DenyToSelect` is "1" when not.
+export const npWarehouses = z.array(
+  z.object({
+    Ref: z.guid(),
+    Description: z.string(),
+    WarehouseStatus: z.string(),
+    DenyToSelect: z.coerce.string(),
+  }),
+);

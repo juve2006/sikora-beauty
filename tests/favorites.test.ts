@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { favoriteProducts } from '@/lib/actions/favorites.actions';
+import { productCards } from '@/lib/actions/product-cards.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
 import { FAVORITES_LIMIT } from '@/lib/constants';
 import { parseFavorites, toggled } from '@/lib/favorites';
-import { favoritesRequest } from '@/lib/validators';
+import { cardsRequest } from '@/lib/validators';
 import type { CardProduct } from '@/types';
 
 vi.mock('@/lib/actions/product.actions', () => ({
@@ -46,12 +46,12 @@ describe('toggled', () => {
   });
 });
 
-describe('favoritesRequest', () => {
+describe('cardsRequest', () => {
   it('takes up to the limit of whole positive ids and a locale', () => {
-    expect(
-      favoritesRequest.safeParse({ ids: [1, 2], locale: 'en' }).success,
-    ).toBe(true);
-    expect(favoritesRequest.safeParse({ ids: [], locale: 'uk' }).success).toBe(
+    expect(cardsRequest.safeParse({ ids: [1, 2], locale: 'en' }).success).toBe(
+      true,
+    );
+    expect(cardsRequest.safeParse({ ids: [], locale: 'uk' }).success).toBe(
       true,
     );
     for (const ids of [
@@ -61,16 +61,14 @@ describe('favoritesRequest', () => {
       ['1'],
       Array.from({ length: FAVORITES_LIMIT + 1 }, (_, i) => i + 1),
     ])
-      expect(favoritesRequest.safeParse({ ids, locale: 'uk' }).success).toBe(
-        false,
-      );
-    expect(favoritesRequest.safeParse({ ids: [1], locale: 'de' }).success).toBe(
+      expect(cardsRequest.safeParse({ ids, locale: 'uk' }).success).toBe(false);
+    expect(cardsRequest.safeParse({ ids: [1], locale: 'de' }).success).toBe(
       false,
     );
   });
 });
 
-describe('favoriteProducts', () => {
+describe('productCards', () => {
   const found = (id: number) => ({ id, card: { id } as CardProduct });
 
   it('answers in the order the browser kept, without what the store no longer has', async () => {
@@ -78,19 +76,16 @@ describe('favoriteProducts', () => {
       found(1),
       found(3),
     ] as never);
-    expect(await favoriteProducts([3, 2, 1], 'uk')).toEqual([
-      found(3),
-      found(1),
-    ]);
+    expect(await productCards([3, 2, 1], 'uk')).toEqual([found(3), found(1)]);
   });
 
   // An empty answer takes the asked ids out of the favorites: a request it cannot read fails
   // instead, and the page offers to try again.
   it('fails on a request it cannot read rather than answer with none', async () => {
     vi.mocked(getListingProducts).mockClear();
-    await expect(favoriteProducts([1.5], 'uk')).rejects.toThrow();
-    await expect(favoriteProducts([1], 'de')).rejects.toThrow();
-    expect(await favoriteProducts([], 'uk')).toEqual([]);
+    await expect(productCards([1.5], 'uk')).rejects.toThrow();
+    await expect(productCards([1], 'de')).rejects.toThrow();
+    expect(await productCards([], 'uk')).toEqual([]);
     expect(getListingProducts).not.toHaveBeenCalled();
   });
 });

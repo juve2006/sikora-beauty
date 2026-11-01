@@ -17,6 +17,10 @@ const schema = z
     // Cloudflare Turnstile on the consultation form; without them the form has no check.
     TURNSTILE_SECRET_KEY: z.string().optional(),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
+    // Nova Poshta's search at the checkout; without the key it asks with an empty one, and when
+    // that is refused the shopper types the address. The URL is for the e2e tests' stub only.
+    NOVA_POSHTA_API_KEY: z.string().optional(),
+    NOVA_POSHTA_API_URL: z.url().optional(),
   })
   // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
   // away; on Vercel that must fail the build instead. Locally the disk is fine.
