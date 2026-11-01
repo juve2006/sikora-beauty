@@ -219,3 +219,95 @@ export const synonyms = [
   ['гіалуронова кислота', 'гіалуронка', 'hyaluronic acid'],
   ['ніацинамід', 'niacinamide', 'вітамін B3', 'vitamin B3'],
 ];
+
+// The care finder's first draft, off until the cosmetologist has rewritten it (task `care-finder`):
+// cosmetic wording only, no medical claims. An answer names the vocabulary's slugs it means; one
+// that names none means nothing. A step takes its category's products.
+type FinderAnswerSeed = {
+  uk: string;
+  en: string;
+  types?: string[];
+  conditions?: string[];
+  concerns?: string[];
+};
+type FinderQuestionSeed = {
+  uk: string;
+  en: string;
+  hint?: { uk: string; en: string };
+  multiple: boolean;
+  answers: FinderAnswerSeed[];
+};
+
+const none = { uk: 'Нічого з цього', en: 'None of these' };
+
+export const finderQuestions: FinderQuestionSeed[] = [
+  {
+    uk: 'Який у вас тип шкіри?',
+    en: 'What is your skin type?',
+    hint: {
+      uk: 'Якщо не впевнені, оберіть «Не знаю».',
+      en: 'Not sure? Choose “I don’t know”.',
+    },
+    multiple: false,
+    answers: [
+      ...skinTypes.map(({ slug, uk, en }) => ({ uk, en, types: [slug] })),
+      { uk: 'Не знаю', en: 'I don’t know' },
+    ],
+  },
+  {
+    uk: 'Що з цього вам знайомо?',
+    en: 'Which of these sound familiar?',
+    multiple: true,
+    answers: [
+      {
+        uk: 'Стягнутість після вмивання',
+        en: 'Tightness after cleansing',
+        conditions: ['dehydrated'],
+      },
+      {
+        uk: 'Легко червоніє, реагує на нові засоби',
+        en: 'Reddens easily, reacts to new products',
+        conditions: ['sensitive', 'redness-prone'],
+      },
+      {
+        uk: 'Час від часу висипання',
+        en: 'Breakouts now and then',
+        conditions: ['breakout-prone'],
+      },
+      {
+        uk: 'Печіння, лущення',
+        en: 'Stinging, flaking',
+        conditions: ['impaired-barrier'],
+      },
+      none,
+    ],
+  },
+  {
+    uk: 'Що хочете покращити насамперед?',
+    en: 'What would you like to improve first?',
+    multiple: true,
+    answers: skinConcerns.map(({ slug, uk, en }) => ({
+      uk,
+      en,
+      concerns: [slug],
+    })),
+  },
+  {
+    uk: 'Скільки вам років?',
+    en: 'How old are you?',
+    multiple: false,
+    answers: [
+      { uk: 'До 25', en: 'Under 25' },
+      { uk: '25–34', en: '25–34' },
+      { uk: '35 і більше', en: '35 or older', concerns: ['early-ageing'] },
+    ],
+  },
+];
+
+export const finderSteps = [
+  { category: 'face-cleansing', uk: 'Очищення', en: 'Cleansing' },
+  { category: 'face-toning', uk: 'Тонізація', en: 'Toning' },
+  { category: 'face-serums', uk: 'Сироватка', en: 'Serum' },
+  { category: 'face-creams', uk: 'Крем', en: 'Cream' },
+  { category: 'face-spf', uk: 'SPF', en: 'SPF' },
+];

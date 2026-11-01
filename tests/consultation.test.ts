@@ -8,7 +8,7 @@ vi.mock('server-only', () => ({}));
 vi.mock('@payload-config', () => ({ default: {} }));
 
 // The action's Payload, and the work it leaves for after the answer.
-const payload = { find: vi.fn(), create: vi.fn() };
+const payload = { find: vi.fn(), findGlobal: vi.fn(), create: vi.fn() };
 vi.mock('payload', async (original) => ({
   ...(await original<typeof import('payload')>()),
   getPayload: async () => payload,
@@ -81,11 +81,17 @@ describe('the consultation request schema', () => {
           phone: '0671234567',
           message: '   ',
           product: 'abc',
+          answers: 'q1,<b>',
           locale: 'de',
           'cf-turnstile-response': 'x'.repeat(2049),
         }),
       ).data,
-    ).toEqual({ name: 'Олена', phone: '+380671234567', locale: 'uk' });
+    ).toEqual({
+      name: 'Олена',
+      phone: '+380671234567',
+      answers: [],
+      locale: 'uk',
+    });
   });
 });
 
@@ -219,6 +225,41 @@ describe('requestConsultation', () => {
     payload.find.mockResolvedValueOnce({ docs: [] });
     await requestConsultation(idle, form(filled));
     expect(payload.create.mock.calls[0][0].data.product).toBeUndefined();
+  });
+
+  it('keeps the care finder’s answers as the questionnaire reads them in Ukrainian', async () => {
+    const id = (n: number) => n.toString(16).padStart(24, '0');
+    payload.findGlobal.mockResolvedValueOnce({
+      enabled: true,
+      questions: [
+        {
+          id: id(100),
+          question: 'Тип шкіри?',
+          answers: [
+            { id: id(1), label: 'Суха' },
+            { id: id(2), label: 'Жирна' },
+          ],
+        },
+      ],
+      steps: [],
+    });
+    await requestConsultation(
+      idle,
+      form({ ...filled, answers: `${id(1)},${id(9)}` }),
+    );
+    expect(payload.findGlobal).toHaveBeenCalledWith(
+      expect.objectContaining({ slug: 'care-finder', locale: 'uk' }),
+    );
+    expect(payload.create.mock.calls[0][0].data).toMatchObject({
+      finderAnswers: 'Тип шкіри? — Суха',
+    });
+    expect(payload.create.mock.calls[0][0].data).not.toHaveProperty('answers');
+  });
+
+  it('reads no questionnaire for a request without answers', async () => {
+    await requestConsultation(idle, form(filled));
+    expect(payload.findGlobal).not.toHaveBeenCalled();
+    expect(payload.create.mock.calls[0][0].data.finderAnswers).toBeUndefined();
   });
 
   it('answers «sent» when Telegram fails: the request waits in the admin', async () => {

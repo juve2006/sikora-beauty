@@ -36,11 +36,13 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     pages; the search's in `src/components/shared/search/` — `SearchDialog` and the suggestions it
     shows. A component only one page shows lives in that page's route folder: the gallery, the cart
     button and delivery and payment in the product page's, the category chips in
-    `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s.
+    `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s,
+    the questions and the routine in `/care-finder`'s.
   - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. `SiteHeader` reads the
     menu with `getMenu` (`category.actions.ts`) — the zones with their categories and the skin
     concerns, in the admin's order — beside fixed links to the brands, the collections and the
-    about page. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
+    about page, and with `isFinderOn` (`finder.actions.ts`) whether to link the care finder (Care
+    finder, below): the catalog's menu does not know the finder. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
     and the theme move into that sheet and the buttons left in the header are 32 px, so it keeps
     one line at 360 px. «Обране» is `FavoritesLink` (Favorites, below), «Кошик» `CartLink` (Cart
     and orders, below). «Пошук» opens `SearchDialog` (Search, below). «Адмінка» is
@@ -86,7 +88,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   Ukrainian only; its own components are in `src/components/admin/`, on Payload's UI. Payload
   collections, one per file in `src/collections/` and listed in its `index.ts`: `users` (Payload
   auth), the catalog's, `consultation-requests`, `pages`, `search-synonyms`, `search-misses` and
-  `orders`.
+  `orders`. Payload globals, one per file in `src/globals/` and listed in `payload.config`'s
+  `globals`: `care-finder`.
   Every user is an owner or a cosmetologist; `src/lib/access.ts` holds who
   may do what, and every collection takes its access from there (adr-20261029-admin-roles).
 - **Catalog** — the admin group «Каталог». The storefront reads it through
@@ -138,8 +141,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     their host in `remotePatterns`.
   - A change the storefront can see calls `revalidatePath('/', 'layout')`; a draft save does not,
     and scripts pass `context.disableRevalidate` (outside a Next request it throws).
-  - `npm run seed:catalog` creates the missing zones, categories, vocabularies and brands by slug
-    and never overwrites what the cosmetologist changed.
+  - `npm run seed:catalog` creates the missing zones, categories, vocabularies and brands by slug,
+    and the care finder's draft, off, while it has neither questions nor steps; it never overwrites
+    what the cosmetologist changed.
   - The owner's «Імпорт» page (`/admin/import`, a Payload admin view) brings our brands' products
     from cosmetika.com.ua as drafts, five per request, and applies a CSV of prices whole or not at
     all; its endpoints sit on `products` (`import-endpoints.ts`) and refuse anyone but the owner
@@ -152,6 +156,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   check the same `consultationRequest`; then Turnstile (`src/lib/turnstile.ts`), then the
   `consultation-requests` collection (admin group «Запити»), which no role creates through the
   API and whose sent fields no role changes — only the status. Telegram is told in `after()`.
+  From a routine the dialog passes the care finder's answer ids; `requestConsultation` reads the
+  questionnaire in Ukrainian and stores `finderAnswers`, a line «Питання — відповідь» each, so the
+  cosmetologist reads them as they were sent (adr-20261101-care-finder-answers-to-terms). Telegram
+  does not carry them yet.
 - **Search** — products by name, brand or active ingredient, in either language and either
   script (adr-20261031-search-in-memory). «Пошук» in `SiteHeader` opens `SearchDialog`
   (`src/components/shared/search/`): from two letters, up to six products through the server
@@ -186,6 +194,17 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   sent are read-only, the status moves forward only (`canMoveStatus`) and the manager's note is
   free. Telegram is not told yet. Playwright (`tests/e2e/`, the CI job `e2e`) orders through the
   real pages against a Nova Poshta stub.
+- **Care finder** — questions that lead to a routine (adr-20261101-care-finder-answers-to-terms).
+  The Payload global `care-finder` (`src/globals/care-finder.ts`, «Каталог → Підбір догляду», both
+  roles) holds `enabled`, the questions with the skin terms each answer means, and the routine's
+  steps with their categories; off, the menu has no item and `/care-finder` is 404.
+  `finder.actions.ts` (`server-only`) reads it — `getFinder`, `isFinderOn` — and `getRoutine` takes
+  the steps' published in-stock products through `getListingProducts` and ranks them with
+  `routine` (`src/lib/finder.ts`, pure, with `profile` and `answersText`). `/care-finder`
+  (`(shop)/care-finder/`, `force-dynamic`): `FinderQuestions`, one question a screen in the
+  browser, pushes the answer ids to `?a=`; the page then renders `Routine` (`noindex`), whose
+  «Отримати консультацію» carries them (Consultation, above). Answers are validated by
+  `finderAnswers` (`validators.ts`).
 - **Delivery** — Nova Poshta's settlement and warehouse search for the checkout
   (adr-20261101-cart-and-checkout). `DeliveryFields` in `/cart`'s folder calls the server actions
   `findSettlements` and `findWarehouses` (`delivery.actions.ts`, an answer cached 12 hours), which
@@ -224,7 +243,7 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 - **Storefront** (`src/app/[locale]/`, `src/components/shared/`, `src/components/ui/`,
   `src/i18n`, `messages/`) — pages in `uk` at `/` and `en` at `/en` — the layout, its look,
   `/canvas`, the header, the pages, the product page, the catalog's lists, the consultation dialog,
-  search, favorites and the cart are built (above). Knows domains through
+  search, favorites, the cart and the care finder are built (above). Knows domains through
   their actions, their pure helpers (`src/lib/listing.ts`, `src/lib/product-page.ts`) and their
   schemas (`src/lib/validators.ts`); never through a collection — `AdminLink`'s `/api/users/me`
   is the one exception (adr-20261030-header-menu-and-pages-from-payload).
@@ -245,8 +264,10 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
   (adr-20261028-monobank-and-cash-on-delivery). Depends on orders.
 - **Delivery** (`src/lib/novaposhta.ts`, `delivery.actions.ts`) — the search of settlements and NP
   warehouses is built (above); waybills and tracking are not. Depends on orders.
-- **Care finder** (`src/lib/finder.ts`) — questions, rules, routines. Depends on catalog and
-  consultation.
+- **Care finder** (`src/globals/care-finder.ts`, `src/lib/finder.ts`, `finder.actions.ts`) —
+  questions, what answers mean, routines; built (above). Depends on catalog. Consultation depends
+  on it: a request reads the questionnaire for its answers' text — the developer's decision after
+  the task `care-finder`'s architecture review, against this line's earlier direction.
 
 ### Boundaries and dependency direction
 

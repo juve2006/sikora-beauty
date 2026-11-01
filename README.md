@@ -45,6 +45,12 @@ from the manager. The server prices the order again — a price changed meanwhil
 check the cart — and keeps its lines as they were sold; it waits in the admin under «Продажі →
 Замовлення», where the manager moves its status forward and keeps a note, and `/cart/thanks` shows
 its number. Orders do not reach Telegram yet.
+«Підбір догляду» (`/care-finder`) asks the shopper about their skin, one question a screen, and
+builds a routine — cleansing, toning, serum, cream, SPF — of up to two products in stock a step,
+the closest to the answers; «Отримати консультацію» under it sends the answers with the request.
+The questions, what each answer means (skin types, conditions, concerns) and the steps (their
+categories) are kept in the admin under «Каталог → Підбір догляду», where it stays off — no menu
+item, no page — until «Показувати на сайті» is ticked.
 `/canvas` shows every storefront component in every variant and
 state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
@@ -77,8 +83,9 @@ Locally Payload creates the tables itself (`push`). A change to a collection als
 migration for the deployed database: `npm run payload -- migrate:create <name>`.
 
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
-skin vocabularies, brands, the home and about pages, and the first search synonyms while there are
-none; it never changes what exists. Uploaded photos go to `./media`
+skin vocabularies, brands, the home and about pages, the first search synonyms while there are
+none, and a draft of the care finder's questions and steps, off, while it has none; it never
+changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
 `ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. A
 consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, and is
@@ -88,7 +95,7 @@ Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.en
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.
 
-`npm run test:e2e` runs the checkout in Playwright (360 px and desktop, both languages) on a
+`npm run test:e2e` runs the checkout and the care finder in Playwright (360 px and desktop, both languages) on a
 production build — `npm run build` first — against a throwaway database: its migrations,
 `npm run seed:catalog`, then `NODE_ENV=production npm run payload -- run tests/e2e/seed.ts`, with
 `DATABASE_URL` pointing at it. A stub stands in for Nova Poshta. The first time,

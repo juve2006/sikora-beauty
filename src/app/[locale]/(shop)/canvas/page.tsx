@@ -7,7 +7,12 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import type { ReactNode } from 'react';
-import type { Listing as ListingResult, CardProduct, Menu } from '@/types';
+import type {
+  Listing as ListingResult,
+  CardProduct,
+  FinderQuestion,
+  Menu,
+} from '@/types';
 import type { Media } from '@/payload-types';
 import { routing } from '@/i18n/routing';
 import { listingParams } from '@/lib/validators';
@@ -37,6 +42,8 @@ import CartView from '@/app/[locale]/(shop)/cart/cart-view';
 import CheckoutForm from '@/app/[locale]/(shop)/cart/checkout-form';
 import DeliveryFields from '@/app/[locale]/(shop)/cart/delivery-fields';
 import OrderPlaced from '@/app/[locale]/(shop)/cart/thanks/order-placed';
+import FinderQuestions from '@/app/[locale]/(shop)/care-finder/finder-questions';
+import Routine from '@/app/[locale]/(shop)/care-finder/routine';
 import AdminLink from '@/components/shared/header/admin-link';
 import CartLink from '@/components/shared/header/cart-link';
 import FavoritesLink from '@/components/shared/header/favorites-link';
@@ -173,6 +180,53 @@ const CanvasPage = async ({ params }: Props) => {
     zones: [{ ...zone, categories }],
     concerns: [{ slug: 'dehydration', title: t('sampleConcern') }],
   };
+  // The care finder's questionnaire as its admin writes it; a routine shows terms by their titles.
+  const answer = (id: string, label: string) => ({
+    id,
+    label,
+    terms: { type: [], condition: [], concern: [] },
+  });
+  const questions: FinderQuestion[] = [
+    {
+      id: 'q1',
+      question: t('sampleQuestion'),
+      hint: t('sampleHint'),
+      multiple: false,
+      answers: [
+        answer('a1', t('sampleSkin')),
+        answer('a2', t('sampleOily')),
+        answer('a3', t('sampleUnknown')),
+      ],
+    },
+    {
+      id: 'q2',
+      question: t('sampleQuestion2'),
+      multiple: true,
+      answers: [
+        answer('a4', t('sampleTight')),
+        answer('a5', t('sampleRedness')),
+        answer('a6', t('sampleNone')),
+      ],
+    },
+    {
+      id: 'q3',
+      question: t('sampleQuestion3'),
+      multiple: false,
+      answers: [answer('a7', t('sampleYes')), answer('a8', t('sampleNo'))],
+    },
+  ];
+  const skin = {
+    type: [{ slug: 'dry', title: t('sampleSkin') }],
+    condition: [],
+    concern: [{ slug: 'dehydration', title: t('sampleConcern') }],
+  };
+  const noSkin = { type: [], condition: [], concern: [] };
+  const step = (id: string, title: string, products: CardProduct[]) => ({
+    id,
+    title,
+    categories: [],
+    products: products.map((product) => ({ card: product })),
+  });
   const noFilters = listingParams.parse({});
   const filtered = listingParams.parse({ type: 'dry', concern: 'dehydration' });
   // Counts as a list shows them; a chosen value with nothing left stays, at 0.
@@ -314,12 +368,12 @@ const CanvasPage = async ({ params }: Props) => {
 
         <Section title="MainMenu">
           <div className="flex min-h-80 items-start">
-            <MainMenu menu={menu} />
+            <MainMenu menu={menu} finder />
           </div>
         </Section>
 
         <Section title="MobileMenu">
-          <MobileMenu menu={menu} />
+          <MobileMenu menu={menu} finder />
         </Section>
 
         <Section title="AdminLink">
@@ -557,6 +611,11 @@ const CanvasPage = async ({ params }: Props) => {
                 <ConsultationForm product={sampleProduct} />
               </div>
             </Specimen>
+            <Specimen label="idle (care finder answers)">
+              <div className="w-full max-w-sm">
+                <ConsultationForm answers={['a1', 'a4']} />
+              </div>
+            </Specimen>
             <Specimen label="invalid">
               <div className="w-full max-w-sm">
                 <ConsultationForm
@@ -580,6 +639,63 @@ const CanvasPage = async ({ params }: Props) => {
             <Specimen label="sent">
               <div className="w-full max-w-sm">
                 <ConsultationForm initialState={{ status: 'sent' }} />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="FinderQuestions">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="single, first">
+              <div className="w-full">
+                <FinderQuestions questions={questions} />
+              </div>
+            </Specimen>
+            <Specimen label="multiple">
+              <div className="w-full">
+                <FinderQuestions questions={questions} start={1} />
+              </div>
+            </Specimen>
+            <Specimen label="last">
+              <div className="w-full">
+                <FinderQuestions questions={questions} start={2} />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="Routine">
+          <div className="flex flex-col gap-8">
+            <Specimen label="full">
+              <div className="w-full">
+                <Routine
+                  answers={['a1', 'a4']}
+                  terms={skin}
+                  steps={[
+                    step('s1', t('sampleStep'), [
+                      card({ id: 900011 }),
+                      card({ id: 900012, photo: photos[1] }),
+                    ]),
+                    step('s2', t('sampleCategory'), [card({ id: 900013 })]),
+                  ]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="an empty step, no terms">
+              <div className="w-full">
+                <Routine
+                  answers={['a3', 'a6']}
+                  terms={noSkin}
+                  steps={[
+                    step('s1', t('sampleStep'), [card({ id: 900014 })]),
+                    step('s3', t('sampleStep3'), []),
+                  ]}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="stale">
+              <div className="w-full">
+                <Routine answers={[]} terms={noSkin} steps={null} />
               </div>
             </Specimen>
           </div>

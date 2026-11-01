@@ -63,6 +63,29 @@ export type VolumeUnit = (typeof VOLUME_UNITS)[number];
 export type FacetKey = (typeof FACET_KEYS)[number];
 export type Sort = (typeof SORTS)[number];
 
+// The care finder as the storefront reads it: each answer with the skin terms it means, by the
+// catalog's facet key, and the routine's steps with their categories' ids.
+export type SkinKey = Exclude<FacetKey, 'brand'>;
+export type SkinTerm = { slug: string; title: string };
+export type FinderAnswer = {
+  id: string;
+  label: string;
+  terms: Record<SkinKey, SkinTerm[]>;
+};
+export type FinderQuestion = {
+  id: string;
+  question: string;
+  hint?: string;
+  multiple: boolean;
+  answers: FinderAnswer[];
+};
+export type FinderStep = { id: string; title: string; categories: number[] };
+export type Finder = {
+  enabled: boolean;
+  questions: FinderQuestion[];
+  steps: FinderStep[];
+};
+
 // A catalog list's view of a product and of its filters.
 export type ListingProduct = {
   id: number;

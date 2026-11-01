@@ -6,6 +6,7 @@ import * as migration_20261030_111524_consultation_requests from './20261030_111
 import * as migration_20261030_124715_pages from './20261030_124715_pages';
 import * as migration_20261031_141921_search from './20261031_141921_search';
 import * as migration_20261101_053730_orders from './20261101_053730_orders';
+import * as migration_20261101_111214_care_finder from './20261101_111214_care_finder';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261101_053730_orders.up,
     down: migration_20261101_053730_orders.down,
-    name: '20261101_053730_orders'
+    name: '20261101_053730_orders',
+  },
+  {
+    up: migration_20261101_111214_care_finder.up,
+    down: migration_20261101_111214_care_finder.down,
+    name: '20261101_111214_care_finder'
   },
 ];

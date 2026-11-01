@@ -7,7 +7,11 @@ import { telegramAnswer } from '@/lib/validators';
 // `parse_mode`, so whatever a shopper types cannot break the markup.
 
 export const consultationMessage = (
-  request: ConsultationRequest & { id: number; productName?: string },
+  // ponytail: the care finder's answers stay out until the task that connects Telegram.
+  request: Omit<ConsultationRequest, 'answers'> & {
+    id: number;
+    productName?: string;
+  },
   siteUrl: URL,
 ) =>
   [

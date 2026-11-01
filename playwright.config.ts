@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// The checkout end to end (tests/e2e): `npm run build`, then `npm run test:e2e`, with DATABASE_URL
+// The checkout and the care finder end to end (tests/e2e): `npm run build`, then `npm run test:e2e`, with DATABASE_URL
 // and PAYLOAD_SECRET of a throwaway database that has its migrations, `seed:catalog` and
 // tests/e2e/seed.ts — CI's `e2e` job does all of it. The orders it places stay there.
 export default defineConfig({

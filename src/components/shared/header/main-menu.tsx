@@ -29,8 +29,18 @@ const MenuLink = ({
 );
 
 // The main menu from lg up: the catalog's zones with their categories, the skin concerns and the
-// collections open as panels; brands and the about page are links. Below lg it is MobileMenu.
-const MainMenu = ({ menu, className }: { menu: Menu; className?: string }) => {
+// collections open as panels; brands, the care finder when it is on, and the about page are links.
+// Below lg it is MobileMenu.
+const MainMenu = ({
+  menu,
+  finder = false,
+  className,
+}: {
+  menu: Menu;
+  // The care finder is on: its item stands between the brands and the collections.
+  finder?: boolean;
+  className?: string;
+}) => {
   const t = useTranslations('Nav');
   const catalog = useTranslations('Catalog');
   return (
@@ -84,6 +94,16 @@ const MainMenu = ({ menu, className }: { menu: Menu; className?: string }) => {
             {t('brands')}
           </MenuLink>
         </NavigationMenuItem>
+        {finder && (
+          <NavigationMenuItem>
+            <MenuLink
+              href="/care-finder"
+              className={navigationMenuTriggerStyle()}
+            >
+              {t('finder')}
+            </MenuLink>
+          </NavigationMenuItem>
+        )}
         <NavigationMenuItem>
           <NavigationMenuTrigger>{t('collections')}</NavigationMenuTrigger>
           <NavigationMenuContent>

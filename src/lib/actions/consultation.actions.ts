@@ -5,7 +5,9 @@ import { after } from 'next/server';
 import { getPayload } from 'payload';
 
 import type { ConsultationState } from '@/types';
+import { getFinder } from '@/lib/actions/finder.actions';
 import { SITE_URL } from '@/lib/constants';
+import { answersText } from '@/lib/finder';
 import { consultationMessage, sendTelegram } from '@/lib/telegram';
 import { verifyTurnstile } from '@/lib/turnstile';
 import { parseConsultationForm } from '@/lib/validators';
@@ -20,7 +22,7 @@ export async function requestConsultation(
 ): Promise<ConsultationState> {
   const parsed = parseConsultationForm(form);
   if (!parsed.data) return { status: 'invalid', errors: parsed.errors };
-  const { token, ...request } = parsed.data;
+  const { token, answers, ...request } = parsed.data;
   if (!(await verifyTurnstile(token))) return { status: 'failed' };
 
   try {
@@ -39,9 +41,20 @@ export async function requestConsultation(
           })
         ).docs
       : [];
+    // The care finder's answers as the questionnaire reads them now, in Ukrainian for the
+    // cosmetologist; ids it no longer has are dropped.
+    const finderAnswers =
+      answers.length > 0
+        ? answersText((await getFinder('uk')).questions, answers)
+        : '';
     const { id } = await payload.create({
       collection: 'consultation-requests',
-      data: { ...request, product: product?.id, status: 'new' },
+      data: {
+        ...request,
+        product: product?.id,
+        finderAnswers: finderAnswers || undefined,
+        status: 'new',
+      },
     });
     after(() =>
       sendTelegram(

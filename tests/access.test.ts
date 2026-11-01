@@ -17,6 +17,7 @@ import {
 import { keepOnRestore, Products } from '@/collections/products';
 import { collections } from '@/collections';
 import { Users } from '@/collections/users';
+import { CareFinder } from '@/globals/care-finder';
 
 const owner = { id: 1, role: 'owner' };
 const cosmetologist = { id: 2, role: 'cosmetologist' };
@@ -148,7 +149,7 @@ describe('consultation requests', () => {
     expect(roles('create')).toEqual([false, false, false]);
   });
 
-  it.each(['name', 'phone', 'message', 'product', 'locale'])(
+  it.each(['name', 'phone', 'message', 'product', 'finderAnswers', 'locale'])(
     'nobody changes the %s the shopper sent, only the status',
     (name) => {
       const { update } = fieldAccess(ConsultationRequests.fields, name) ?? {};
@@ -237,6 +238,18 @@ describe('search', () => {
       expect(roles(SearchMisses, operation)).toEqual([true, true, false]);
     for (const operation of ['create', 'update'] as const)
       expect(roles(SearchMisses, operation)).toEqual([false, false, false]);
+  });
+});
+
+describe('the care finder', () => {
+  it('both roles keep it, which the storefront reads for anyone', () => {
+    const { read, update } = CareFinder.access!;
+    expect([owner, cosmetologist, null].map((user) => run(read, user))).toEqual(
+      [true, true, true],
+    );
+    expect(
+      [owner, cosmetologist, null].map((user) => run(update, user)),
+    ).toEqual([true, true, false]);
   });
 });
 
