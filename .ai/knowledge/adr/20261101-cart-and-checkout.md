@@ -49,7 +49,9 @@ developer's decisions at its gate of 2026-11-01.
 - **One page.** `/cart` (`force-dynamic`, `noindex`) shows the lines with today's cards from
   `productCards`, takes out what the server no longer has and says how many, keeps an
   out-of-stock line marked and not ordered, and puts the checkout form under the total. «Loading»
-  and «failed» are for the first answer only: a later refetch keeps what was typed.
+  and «failed» take the page only while no line is shown: a later refetch keeps what was typed,
+  and a line it fails to bring is told above the lines with a retry, not shown and not ordered
+  (task `cart-review-fixes`).
 - **The shown total is a check.** The form sends the lines it orders and the total it showed.
   `placeOrder` (`order.actions.ts`) checks `orderRequest` and Turnstile, reads the products from
   the database (published only, in `uk`), and `priceOrder` (`src/lib/orders.ts`) builds the

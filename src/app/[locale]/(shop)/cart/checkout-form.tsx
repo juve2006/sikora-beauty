@@ -5,6 +5,7 @@ import {
   startTransition,
   useActionState,
   useEffect,
+  useId,
   useRef,
   type ReactNode,
 } from 'react';
@@ -76,12 +77,16 @@ const CheckoutForm = ({
   const p = useTranslations('Product');
   const locale = useLocale();
   const router = useRouter();
+  // The fields' ids: /canvas shows the form several times.
+  const id = useId();
   const form = useRef<HTMLFormElement>(null);
   const [state, submit, pending] = useActionState(sendOrder, initialState);
   const busy = pending || sending || state.status === 'placed';
   const errors = state.status === 'invalid' ? state.errors : {};
 
   useEffect(() => {
+    // A state to start from is shown, not answered: /canvas would scroll to its invalid form.
+    if (state === initialState) return;
     if (state.status === 'invalid')
       form.current?.querySelector<HTMLElement>('[aria-invalid=true]')?.focus();
     if (state.status === 'changed') onChanged?.();
@@ -101,7 +106,7 @@ const CheckoutForm = ({
     const key = errors[name]?.[0];
     return (
       key && (
-        <p id={`checkout-${name}-error`} className="text-sm text-destructive">
+        <p id={`${id}-${name}-error`} className="text-sm text-destructive">
           {t(`errors.${key}`)}
         </p>
       )
@@ -109,12 +114,12 @@ const CheckoutForm = ({
   };
   const invalid = (name: OrderField) =>
     errors[name]
-      ? { 'aria-invalid': true, 'aria-describedby': `checkout-${name}-error` }
+      ? { 'aria-invalid': true, 'aria-describedby': `${id}-${name}-error` }
       : {};
 
   return (
-    <section aria-labelledby="checkout-title" className="mt-10">
-      <h2 id="checkout-title" className="text-xl font-semibold tracking-tight">
+    <section aria-labelledby={`${id}-title`} className="mt-10">
+      <h2 id={`${id}-title`} className="text-xl font-semibold tracking-tight">
         {t('title')}
       </h2>
       <form
@@ -131,9 +136,9 @@ const CheckoutForm = ({
           <div className="grid gap-4 sm:grid-cols-2">
             {contacts.map(({ name, ...input }) => (
               <div key={name} className="flex flex-col gap-2">
-                <Label htmlFor={`checkout-${name}`}>{t(name)}</Label>
+                <Label htmlFor={`${id}-${name}`}>{t(name)}</Label>
                 <Input
-                  id={`checkout-${name}`}
+                  id={`${id}-${name}`}
                   name={name}
                   required
                   {...input}
@@ -147,9 +152,9 @@ const CheckoutForm = ({
             {t('recipientHint')}
           </p>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="checkout-phone">{t('phone')}</Label>
+            <Label htmlFor={`${id}-phone`}>{t('phone')}</Label>
             <Input
-              id="checkout-phone"
+              id={`${id}-phone`}
               name="phone"
               type="tel"
               inputMode="tel"
@@ -177,9 +182,7 @@ const CheckoutForm = ({
 
         <fieldset
           className="flex flex-col gap-3"
-          aria-describedby={
-            errors.payment ? 'checkout-payment-error' : undefined
-          }
+          aria-describedby={errors.payment ? `${id}-payment-error` : undefined}
         >
           <legend className="mb-3 font-medium">{t('payment')}</legend>
           {PAYMENTS.map((payment) => (
@@ -192,12 +195,12 @@ const CheckoutForm = ({
                 name="payment"
                 value={payment}
                 className="mt-1 size-4 shrink-0 accent-primary"
-                aria-describedby={`checkout-${payment}-hint`}
+                aria-describedby={`${id}-${payment}-hint`}
               />
               <span className="flex flex-col gap-0.5">
                 <span className="font-medium">{t(payment)}</span>
                 <span
-                  id={`checkout-${payment}-hint`}
+                  id={`${id}-${payment}-hint`}
                   className="text-sm text-muted-foreground"
                 >
                   {t(`${payment}Hint`)}
@@ -209,14 +212,14 @@ const CheckoutForm = ({
         </fieldset>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="checkout-comment">
+          <Label htmlFor={`${id}-comment`}>
             {t('comment')}
             <span className="font-normal text-muted-foreground">
               {t('optional')}
             </span>
           </Label>
           <Textarea
-            id="checkout-comment"
+            id={`${id}-comment`}
             name="comment"
             rows={3}
             maxLength={500}

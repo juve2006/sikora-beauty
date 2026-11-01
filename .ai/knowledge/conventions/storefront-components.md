@@ -48,6 +48,12 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
   («Прибрати з обраного, натиснуто»). A button repeated in a list carries its item's name
   («В обране: <product>»).
 
+- `/canvas` shows a component several times, so the ids a component gives its elements come from
+  `useId`, never from a literal: a repeated id sends a label's click and `aria-describedby` to
+  another specimen. A state a component is given to start from (`initialState`, for `/canvas`) is
+  shown, not answered: what a form does on an action's answer — focus its first invalid field,
+  leave the page — runs only for a state the action returned, or `/canvas` scrolls to that
+  specimen (task `cart-review-fixes`).
 - A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
   uses, in that page's route folder (`/canvas` does not count). Either is a kebab-case file holding
   one component, `const Name = (…) => {…};` and `export default Name;`

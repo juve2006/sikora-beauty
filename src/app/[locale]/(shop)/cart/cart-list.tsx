@@ -12,9 +12,10 @@ const nothing = () => () => {};
 
 // The cart with its products as the server has them today, and the checkout under it. Like the
 // favorites, it asks once for every line it has no card for and takes out of the cart what the
-// server no longer has. «Loading» and «failed» are for the first answer only: after it, a line
-// another tab adds and the cart the order found changed are asked for behind the shown lines, so
-// the form keeps what was typed.
+// server no longer has. «Loading» and «failed» take the page only while no line is shown: after
+// the first answer, a line another tab adds and the cart the order found changed are asked for
+// behind the shown lines, so the form keeps what was typed, and a line that does not come is told
+// above them with a retry.
 const CartList = () => {
   const locale = useLocale();
   const lines = useCart();
@@ -60,17 +61,22 @@ const CartList = () => {
     };
   }, [missing, stale, key, locale, attempt]);
 
-  const first = missing && !loaded;
+  const items = lines.flatMap((line) => {
+    const found = loaded?.products.find(({ id }) => id === line.id);
+    return found ? [{ line, card: found.card }] : [];
+  });
   const status: CartStatus =
-    !hydrated || (first && !failed) ? 'loading' : first ? 'failed' : 'done';
+    !hydrated || (missing && !loaded && !failed)
+      ? 'loading'
+      : missing && failed && items.length === 0
+        ? 'failed'
+        : 'done';
   return (
     <CartView
       status={status}
-      items={lines.flatMap((line) => {
-        const found = loaded?.products.find(({ id }) => id === line.id);
-        return found ? [{ line, card: found.card }] : [];
-      })}
+      items={items}
       removed={removed}
+      notLoaded={failed ? lines.length - items.length : 0}
       onRetry={() => {
         setFailed(false);
         setAttempt(attempt + 1);

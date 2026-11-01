@@ -190,6 +190,7 @@
     "empty": "Your cart is empty. Add products from their pages.",
     "brands": "Browse brands",
     "removed": "{count, plural, one {Removed # product that is no longer in the store.} other {Removed # products that are no longer in the store.}}",
+    "notLoaded": "{count, plural, one {Couldn’t load # product from your cart, so it won’t be in the order.} other {Couldn’t load # products from your cart, so they won’t be in the order.}} Check your connection and try again.",
     "count": "{count, plural, one {# item} other {# items}}",
     "less": "Fewer: {name}",
     "more": "More: {name}",

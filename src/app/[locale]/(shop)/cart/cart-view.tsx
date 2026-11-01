@@ -16,6 +16,8 @@ type Props = {
   items: { line: Line; card: CardProduct }[];
   // How many lines left because the store no longer has their products.
   removed?: number;
+  // How many lines a later answer failed to bring: not shown, and not in the order.
+  notLoaded?: number;
   onRetry?: () => void;
   onQuantity?: (id: number, qty: number) => void;
   onRemove?: (id: number) => void;
@@ -30,27 +32,28 @@ const CartView = ({
   status,
   items,
   removed = 0,
+  notLoaded = 0,
   onRetry,
   onQuantity,
   onRemove,
   checkout,
 }: Props) => {
   const t = useTranslations('Cart');
+  const failed = (message: string) => (
+    <div role="alert" className="mt-6 flex flex-col items-start gap-3">
+      <p className="max-w-prose">{message}</p>
+      <Button variant="outline" size="sm" onClick={onRetry}>
+        {t('retry')}
+      </Button>
+    </div>
+  );
   if (status === 'loading')
     return (
       <p role="status" className="mt-6 text-muted-foreground">
         {t('loading')}
       </p>
     );
-  if (status === 'failed')
-    return (
-      <div role="alert" className="mt-6 flex flex-col items-start gap-3">
-        <p>{t('failed')}</p>
-        <Button variant="outline" size="sm" onClick={onRetry}>
-          {t('retry')}
-        </Button>
-      </div>
-    );
+  if (status === 'failed') return failed(t('failed'));
 
   const orderable = items.filter(
     ({ card }) => card.availability !== 'out_of_stock',
@@ -67,6 +70,7 @@ const CartView = ({
           {t('removed', { count: removed })}
         </p>
       )}
+      {notLoaded > 0 && failed(t('notLoaded', { count: notLoaded }))}
       {items.length === 0 ? (
         <div className="mt-8 flex flex-col items-start gap-3 rounded-lg border border-dashed p-6">
           <ShoppingBag className="size-5 text-muted-foreground" aria-hidden />
