@@ -59,7 +59,7 @@ export async function requestConsultation(
     after(() =>
       sendTelegram(
         consultationMessage(
-          { ...request, id, productName: product?.name },
+          { ...request, id, productName: product?.name, finderAnswers },
           SITE_URL,
         ),
       ).catch((error) => console.error('Telegram:', error)),

@@ -71,6 +71,9 @@ export const FAVORITES_LIMIT = 100;
 export const CART_LINES = 50;
 export const CART_QUANTITY_MAX = 10;
 
+// The longest text Telegram takes: it refuses a longer one, and the whole message with it.
+export const TELEGRAM_TEXT_LIMIT = 4096;
+
 // An order's way through, only forward (RULES.md): the manager confirms it, sends it, it is
 // received — or it is cancelled before that.
 export const ORDER_STATUSES = [

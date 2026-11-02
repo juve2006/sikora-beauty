@@ -1,33 +1,87 @@
 import 'server-only';
 
+import type { Order } from '@/payload-types';
 import type { ConsultationRequest } from '@/types';
+import { TELEGRAM_TEXT_LIMIT } from '@/lib/constants';
+import { formatHryvnias } from '@/lib/utils';
 import { telegramAnswer } from '@/lib/validators';
 
-// Messages to the owner's Telegram group: consultation requests now, orders later. Plain text, no
+// Messages to the owner's Telegram group: consultation requests and orders. Plain text, no
 // `parse_mode`, so whatever a shopper types cannot break the markup.
 
+// The lines a message has, then its link to the admin. A text too long loses the end of its lines,
+// never the link: a message puts what the manager needs for the call first.
+const withLink = (
+  lines: (string | false | null | undefined)[],
+  path: string,
+  siteUrl: URL,
+) => {
+  const link = new URL(path, siteUrl).href;
+  const text = lines.filter(Boolean).join('\n');
+  const room = TELEGRAM_TEXT_LIMIT - link.length - 2;
+  return `${text.length > room ? `${text.slice(0, room)}…` : text}\n${link}`;
+};
+
 export const consultationMessage = (
-  // ponytail: the care finder's answers stay out until the task that connects Telegram.
   request: Omit<ConsultationRequest, 'answers'> & {
     id: number;
     productName?: string;
+    finderAnswers?: string;
   },
   siteUrl: URL,
 ) =>
-  [
-    'Новий запит на консультацію',
-    `Ім'я: ${request.name}`,
-    `Телефон: ${request.phone}`,
-    request.productName && `Товар: ${request.productName}`,
-    request.locale === 'en' && 'Мова: англійська',
-    request.message && `Що турбує: ${request.message}`,
-    new URL(`/admin/collections/consultation-requests/${request.id}`, siteUrl)
-      .href,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  withLink(
+    [
+      'Новий запит на консультацію',
+      `Ім'я: ${request.name}`,
+      `Телефон: ${request.phone}`,
+      request.productName && `Товар: ${request.productName}`,
+      request.locale === 'en' && 'Мова: англійська',
+      request.message && `Що турбує: ${request.message}`,
+      request.finderAnswers && `Відповіді анкети:\n${request.finderAnswers}`,
+    ],
+    `/admin/collections/consultation-requests/${request.id}`,
+    siteUrl,
+  );
 
-// Without the bot's token and the group's id nothing is sent: the request waits in the admin.
+const paymentLabels = { cod: 'післяплата', link: 'посилання на оплату' };
+
+const orderLine = ({
+  name,
+  brand,
+  volume,
+  quantity,
+  price,
+  availability,
+  madeToOrderDays,
+}: Order['lines'][number]) => {
+  const product = [name, brand, volume].filter(Boolean).join(', ');
+  const days = madeToOrderDays ? `, ${madeToOrderDays} дн.` : '';
+  const waits =
+    availability === 'made_to_order' ? ` (під замовлення${days})` : '';
+  return `- ${product} × ${quantity} — ${formatHryvnias(price * quantity)} грн${waits}`;
+};
+
+// An order as it was saved. An address without Nova Poshta's refs was typed by hand, and the
+// manager checks it on the call.
+export const orderMessage = (order: Order, siteUrl: URL) =>
+  withLink(
+    [
+      `Нове замовлення №${order.id} — ${formatHryvnias(order.total)} грн`,
+      `Ім'я: ${order.firstName} ${order.lastName}`,
+      `Телефон: ${order.phone}`,
+      `Доставка: ${order.settlement}, ${order.warehouse}${order.settlementRef && order.warehouseRef ? '' : ' (введено вручну, перевірити)'}`,
+      `Оплата: ${paymentLabels[order.payment]}`,
+      order.locale === 'en' && 'Мова: англійська',
+      order.comment && `Коментар: ${order.comment}`,
+      'Товари:',
+      ...order.lines.map(orderLine),
+    ],
+    `/admin/collections/orders/${order.id}`,
+    siteUrl,
+  );
+
+// Without the bot's token and the group's id nothing is sent: what was sent waits in the admin.
 export async function sendTelegram(text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;

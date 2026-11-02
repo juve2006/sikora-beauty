@@ -44,10 +44,12 @@ as they type (typed by hand when Nova Poshta does not answer), cash on delivery 
 from the manager. The server prices the order again — a price changed meanwhile asks the shopper to
 check the cart — and keeps its lines as they were sold; it waits in the admin under «Продажі →
 Замовлення», where the manager moves its status forward and keeps a note, and `/cart/thanks` shows
-its number. Orders do not reach Telegram yet.
+its number. The order reaches the same Telegram group as a request, a message with the contacts,
+the address and the lines, and a link to it in the admin.
 «Підбір догляду» (`/care-finder`) asks the shopper about their skin, one question a screen, and
 builds a routine — cleansing, toning, serum, cream, SPF — of up to two products in stock a step,
-the closest to the answers; «Отримати консультацію» under it sends the answers with the request.
+the closest to the answers; «Отримати консультацію» under it sends the answers with the request, and
+they reach the Telegram group with it.
 The questions, what each answer means (skin types, conditions, concerns) and the steps (their
 categories) are kept in the admin under «Каталог → Підбір догляду», where it stays off — no menu
 item, no page — until «Показувати на сайті» is ticked.
@@ -87,10 +89,11 @@ skin vocabularies, brands, the home and about pages, the first search synonyms w
 none, and a draft of the care finder's questions and steps, off, while it has none; it never
 changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs
-`ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. A
-consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, and is
-checked by Cloudflare Turnstile with `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`;
-without the first pair a request is only saved, without the second it is not checked. A public
+`ANTHROPIC_API_KEY` (console.anthropic.com); without it the button says AI is not set up. An
+order or a consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`
+(`docs/deploy.md`, step 8), and is checked by Cloudflare Turnstile with
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`; without the first pair it is only
+saved, without the second it is not checked. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.
