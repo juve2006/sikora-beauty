@@ -158,8 +158,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   API and whose sent fields no role changes — only the status. Telegram is told in `after()`.
   From a routine the dialog passes the care finder's answer ids; `requestConsultation` reads the
   questionnaire in Ukrainian and stores `finderAnswers`, a line «Питання — відповідь» each, so the
-  cosmetologist reads them as they were sent (adr-20261101-care-finder-answers-to-terms). Telegram
-  does not carry them yet.
+  cosmetologist reads them as they were sent (adr-20261101-care-finder-answers-to-terms), and
+  Telegram carries them (adr-20261102-orders-and-answers-in-telegram).
 - **Search** — products by name, brand or active ingredient, in either language and either
   script (adr-20261031-search-in-memory). «Пошук» in `SiteHeader` opens `SearchDialog`
   (`src/components/shared/search/`): from two letters, up to six products through the server
@@ -192,8 +192,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   created. `/cart/thanks?order=N` shows the number from the URL only. The `orders` collection
   (admin group «Продажі»): no role creates one through the API, the snapshot and what the shopper
   sent are read-only, the status moves forward only (`canMoveStatus`) and the manager's note is
-  free. Telegram is not told yet. Playwright (`tests/e2e/`, the CI job `e2e`) orders through the
-  real pages against a Nova Poshta stub.
+  free. Telegram is told in `after()`, from the saved order
+  (adr-20261102-orders-and-answers-in-telegram). Playwright (`tests/e2e/`, the CI job `e2e`) orders
+  through the real pages against a Nova Poshta stub.
 - **Care finder** — questions that lead to a routine (adr-20261101-care-finder-answers-to-terms).
   The Payload global `care-finder` (`src/globals/care-finder.ts`, «Каталог → Підбір догляду», both
   roles) holds `enabled`, the questions with the skin terms each answer means, and the routine's
@@ -211,8 +212,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   call `src/lib/novaposhta.ts` (`server-only`). `NOVA_POSHTA_API_KEY` is optional; any failure
   turns the two fields into plain text ones. Waybills and tracking are not built.
 - **Notify** — `src/lib/telegram.ts`: plain-text messages to the owner's Telegram group
-  (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`; without them nothing is sent); consultation requests
-  now, orders later. Depends on nothing.
+  (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`; without them nothing is sent): consultation requests
+  and orders, each kept within Telegram's limit with its link to the admin
+  (adr-20261102-orders-and-answers-in-telegram). It knows the types of what it tells and how money
+  is written, and no domain's code.
 - **Configuration** — `src/payload.config.ts` reads the environment through `src/lib/env.ts` (Zod;
   an error names variables, never values). Content localization `uk`/`en`, `uk` default and
   fallback.
@@ -288,7 +291,7 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 2. **Order (launch step 1).** Cart in localStorage → checkout server action → Zod → reprice from
    the database → an `orders` record with a snapshot → Telegram to the owner → manager
    confirmation → cash on delivery or a payment link (adr-20261028-two-step-launch). Built up to
-   the record; Telegram comes with the task that connects it to every entity.
+   Telegram; the confirmation and the link are the manager's, by hand.
 3. **Card payment (launch step 2).** Order fully in stock → a monobank invoice → redirect →
    signed webhook → verify → idempotent forward-only status change → Checkbox issues the fiscal
    receipt on monobank's side; a cron reconciles invoices without a webhook.

@@ -316,7 +316,10 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
   manager tells the delivery cost» (the shopper orders without knowing the terms).
 - Orders and Telegram (developer, 2026-11-01) — orders reach the Telegram group in one later task
   that connects Telegram to every entity at once, not in `cart-and-checkout`; until then the
-  manager sees them in the admin.
+  manager sees them in the admin. Done in `telegram-notifications` (developer, 2026-11-02): the
+  order's whole message, address included, and a request's care finder answers in full
+  (adr-20261102-orders-and-answers-in-telegram) — rejected: a message without the address, or only
+  a number, a total and a link; only a mark that a request has answers.
 - Design — made within the project: 2–3 prototypes for the owner to choose from, a text logo —
   rejected: an outside designer (none available).
 - Cache — price and availability refresh through on-demand revalidation from a Payload hook on

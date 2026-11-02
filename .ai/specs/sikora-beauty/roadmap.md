@@ -107,8 +107,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
 - [x] `cart-and-checkout` — guest checkout (after: product page — "add to cart")
   - Backend: `orders` with a price snapshot and statuses; a server action with a Zod schema that
     reprices on the server; Nova Poshta settlements and warehouses; a Telegram notification —
-    moved to the later task that connects Telegram to every entity at once (the developer,
-    2026-11-01)
+    moved to `telegram-notifications`, the task that connects Telegram to every entity at once
+    (the developer, 2026-11-01)
   - Frontend: cart, a checkout form with Nova Poshta autocomplete, a choice of "cash on delivery /
     payment link from the manager", a thank-you page; an `e2e` CI job — Playwright at 360 px and
     desktop, in both locales: catalog → cart → order
@@ -136,7 +136,9 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
     value; open the store to shoppers on the production host: the site password removed
     (`src/proxy.ts`, `src/env.ts`)
-  - Frontend: offer, privacy, delivery and payment, returns pages in both languages; consent banner
+  - Frontend: offer, privacy (it names Telegram, where orders and requests go:
+    adr-20261102-orders-and-answers-in-telegram), delivery and payment, returns pages in both
+    languages; consent banner
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
 - [ ] fog: Merchant Center and Shopping — whether a new store passes moderation is unknown

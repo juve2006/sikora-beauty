@@ -124,6 +124,31 @@ describe('the Telegram message', () => {
     );
   });
 
+  it('carries the care finder’s answers before the link', () => {
+    expect(
+      consultationMessage(
+        {
+          id: 42,
+          name: 'Олена',
+          phone: '+380671234567',
+          locale: 'uk',
+          finderAnswers: 'Тип шкіри? — Суха\nЩо знайомо? — Стягнутість',
+        },
+        site,
+      ),
+    ).toBe(
+      [
+        'Новий запит на консультацію',
+        "Ім'я: Олена",
+        'Телефон: +380671234567',
+        'Відповіді анкети:',
+        'Тип шкіри? — Суха',
+        'Що знайомо? — Стягнутість',
+        'https://shop.example/admin/collections/consultation-requests/42',
+      ].join('\n'),
+    );
+  });
+
   it('leaves out what the request does not have', () => {
     expect(
       consultationMessage(
@@ -254,6 +279,10 @@ describe('requestConsultation', () => {
       finderAnswers: 'Тип шкіри? — Суха',
     });
     expect(payload.create.mock.calls[0][0].data).not.toHaveProperty('answers');
+    await Promise.all(later);
+    expect(JSON.parse(fetch.mock.calls[0][1].body).text).toContain(
+      'Відповіді анкети:\nТип шкіри? — Суха\n',
+    );
   });
 
   it('reads no questionnaire for a request without answers', async () => {

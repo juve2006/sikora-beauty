@@ -11,7 +11,8 @@ const schema = z
     SITE_PASSWORD: z.string().min(12).optional(),
     // «Заповнити з AI»; without it, or empty as in .env.example, the button says so.
     ANTHROPIC_API_KEY: z.string().optional(),
-    // Consultation requests in the owner's Telegram group; without them the request is only stored.
+    // Orders and consultation requests in the owner's Telegram group; without them they are only
+    // stored.
     TELEGRAM_BOT_TOKEN: z.string().optional(),
     TELEGRAM_CHAT_ID: z.string().optional(),
     // Cloudflare Turnstile on the consultation form; without them the form has no check.

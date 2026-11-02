@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { Order } from '@/payload-types';
 import { keepStatusForward } from '@/collections/orders';
 import { placeOrder } from '@/lib/actions/order.actions';
-import { ORDER_STATUSES } from '@/lib/constants';
+import { ORDER_STATUSES, TELEGRAM_TEXT_LIMIT } from '@/lib/constants';
 import { canMoveStatus, priceOrder } from '@/lib/orders';
+import { orderMessage } from '@/lib/telegram';
 import { parseOrderForm } from '@/lib/validators';
 
 vi.mock('server-only', () => ({}));
@@ -15,6 +17,13 @@ vi.mock('payload', async (original) => ({
   ...(await original<typeof import('payload')>()),
   getPayload: async () => payload,
 }));
+// The work it leaves for after the answer, kept until a test says the answer has gone.
+const later: (() => Promise<unknown>)[] = [];
+vi.mock('next/server', async (original) => ({
+  ...(await original<typeof import('next/server')>()),
+  after: (task: () => Promise<unknown>) => later.push(task),
+}));
+const afterTheAnswer = () => Promise.all(later.splice(0).map((task) => task()));
 
 const cream = {
   id: 1,
@@ -236,6 +245,109 @@ describe('the order schema', () => {
   });
 });
 
+describe('the Telegram message', () => {
+  const site = new URL('https://shop.example');
+  const order: Order = {
+    id: 17,
+    total: 339000,
+    firstName: 'Олена <b>',
+    lastName: 'Коваль',
+    phone: '+380671234567',
+    settlement: 'Бровари',
+    warehouse: 'Відділення №1',
+    settlementRef: 'settlement-ref',
+    warehouseRef: 'warehouse-ref',
+    payment: 'cod',
+    comment: 'Після 18:00',
+    locale: 'uk',
+    status: 'new',
+    updatedAt: '',
+    createdAt: '',
+    lines: [
+      {
+        name: 'Крем',
+        brand: 'Dr.Spiller',
+        volume: '50 мл',
+        price: 124550,
+        quantity: 2,
+        availability: 'in_stock',
+      },
+      {
+        name: 'Сироватка',
+        brand: 'Dr.Spiller',
+        price: 89900,
+        quantity: 1,
+        availability: 'made_to_order',
+        madeToOrderDays: 7,
+      },
+    ],
+  };
+
+  it('carries the order and a link to it in the admin, as plain text', () => {
+    expect(orderMessage(order, site)).toBe(
+      [
+        'Нове замовлення №17 — 3390 грн',
+        "Ім'я: Олена <b> Коваль",
+        'Телефон: +380671234567',
+        'Доставка: Бровари, Відділення №1',
+        'Оплата: післяплата',
+        'Коментар: Після 18:00',
+        'Товари:',
+        '- Крем, Dr.Spiller, 50 мл × 2 — 2491 грн',
+        '- Сироватка, Dr.Spiller × 1 — 899 грн (під замовлення, 7 дн.)',
+        'https://shop.example/admin/collections/orders/17',
+      ].join('\n'),
+    );
+  });
+
+  it('leaves out what the order does not have', () => {
+    const lines = orderMessage(
+      { ...order, comment: null, lines: [order.lines[0]] },
+      site,
+    ).split('\n');
+    expect(lines).toHaveLength(8);
+    expect(lines.join('\n')).not.toContain('Коментар');
+  });
+
+  it('says when the address was typed by hand, a shopper’s language and the kopiyky', () => {
+    const message = orderMessage(
+      {
+        ...order,
+        total: 124550,
+        settlementRef: null,
+        locale: 'en',
+        payment: 'link',
+        lines: [
+          { ...order.lines[0], quantity: 1 },
+          { ...order.lines[1], madeToOrderDays: null },
+        ],
+      },
+      site,
+    );
+    expect(message).toContain('— 1245,50 грн\n');
+    expect(message).toContain(
+      'Доставка: Бровари, Відділення №1 (введено вручну, перевірити)',
+    );
+    expect(message).toContain('Оплата: посилання на оплату');
+    expect(message).toContain('Мова: англійська');
+    expect(message).toContain('× 1 — 1245,50 грн\n');
+    expect(message).toContain('× 1 — 899 грн (під замовлення)\n');
+  });
+
+  it('cuts a long order to what Telegram takes, and keeps the contacts and the link', () => {
+    const long = { ...order.lines[0], name: 'Я'.repeat(200) };
+    const message = orderMessage(
+      { ...order, lines: Array.from({ length: 50 }, () => long) },
+      site,
+    );
+    expect(message).toHaveLength(TELEGRAM_TEXT_LIMIT);
+    expect(message).toContain('Телефон: +380671234567');
+    expect(message).toContain(
+      '…\nhttps://shop.example/admin/collections/orders/17',
+    );
+  });
+});
+
 describe('placeOrder', () => {
   const fetch = vi.fn();
   const products = [
@@ -246,7 +358,11 @@ describe('placeOrder', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetch);
     payload.find.mockResolvedValue({ docs: products });
-    payload.create.mockResolvedValue({ id: 17 });
+    payload.create.mockImplementation(async ({ data }) => ({
+      id: 17,
+      ...data,
+    }));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -288,8 +404,75 @@ describe('placeOrder', () => {
         ],
       },
     });
-    // Telegram is connected later, for every request at once (task `cart-and-checkout`).
+    // Without the bot's token and the group's id nothing is sent.
+    await afterTheAnswer();
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  describe('with the Telegram group set up', () => {
+    const answer = (body: object) => ({ status: 200, json: async () => body });
+
+    beforeEach(() => {
+      vi.stubEnv('TELEGRAM_BOT_TOKEN', 'bot-token');
+      vi.stubEnv('TELEGRAM_CHAT_ID', '-100123');
+    });
+
+    it('tells the group once, after the answer, what was saved', async () => {
+      fetch.mockResolvedValueOnce(answer({ ok: true }));
+      await placeOrder(idle, form(filled));
+      expect(fetch).not.toHaveBeenCalled();
+      await afterTheAnswer();
+      expect(fetch).toHaveBeenCalledTimes(1);
+      const [url, init] = fetch.mock.calls[0];
+      expect(url).toBe('https://api.telegram.org/botbot-token/sendMessage');
+      const body = JSON.parse(init.body);
+      expect(body).toMatchObject({
+        chat_id: '-100123',
+        text: expect.stringContaining(
+          "Нове замовлення №17 — 3390 грн\nІм'я: Олена Коваль\nТелефон: +380671234567",
+        ),
+      });
+      // Plain text: a shopper's `<b>` would make Telegram refuse a message with markup.
+      expect(body).not.toHaveProperty('parse_mode');
+    });
+
+    it('answers «placed» when Telegram fails, and logs only what it said', async () => {
+      fetch.mockResolvedValueOnce(
+        answer({ ok: false, description: 'chat not found' }),
+      );
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      expect(await placeOrder(idle, form(filled))).toEqual({
+        status: 'placed',
+        number: 17,
+      });
+      await afterTheAnswer();
+      expect(error.mock.calls).toEqual([
+        ['Telegram:', new Error('Telegram: chat not found')],
+      ]);
+    });
+
+    it('answers «placed» when Telegram does not answer', async () => {
+      fetch.mockRejectedValueOnce(new Error('fetch failed'));
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      expect(await placeOrder(idle, form(filled))).toEqual({
+        status: 'placed',
+        number: 17,
+      });
+      await afterTheAnswer();
+      expect(error.mock.calls).toEqual([
+        ['Telegram:', new Error('fetch failed')],
+      ]);
+    });
+
+    it('tells the group nothing about an order that was not saved', async () => {
+      payload.create.mockRejectedValueOnce(new Error('Failed query'));
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      expect(await placeOrder(idle, form(filled))).toEqual({
+        status: 'failed',
+      });
+      await afterTheAnswer();
+      expect(fetch).not.toHaveBeenCalled();
+    });
   });
 
   it('orders nothing when the shopper was shown another sum', async () => {
