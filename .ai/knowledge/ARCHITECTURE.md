@@ -39,7 +39,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     button and delivery and payment in the product page's, the category chips in
     `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s,
     the questions and the routine in `/care-finder`'s.
-  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. `SiteHeader` reads the
+  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. It stays on the screen
+    as a page scrolls, whole (`sticky`, the developer's wish, after sisters.co.ua), under the
+    dialogs' z-50. So `scroll-pt` on `<html>` holds its height, to keep what the keyboard focuses
+    out from under it, and the catalog's panel scrolls itself in a low window. `SiteHeader` reads the
     menu with `getMenu` (`category.actions.ts`) — the zones with their categories and the skin
     concerns, in the admin's order — beside fixed links to the brands, the collections and the
     about page, and with `isFinderOn` (`finder.actions.ts`) whether to link the care finder (Care
