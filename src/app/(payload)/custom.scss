@@ -1,0 +1,92 @@
+// Payload's admin is all greys: its buttons take the store's colour instead. The admin never gets the
+// storefront's tokens, so `--primary` and `--primary-foreground` of each theme are repeated here.
+// Payload's styles sit in a layer, so these win as they are; a disabled button stays Payload's grey.
+:root {
+  --store-primary: #17605c;
+  --store-on-primary: #f4fbfa;
+  --store-tint: color-mix(in srgb, var(--store-primary) 14%, transparent);
+  --store-tint-strong: color-mix(in srgb, var(--store-primary) 24%, transparent);
+}
+
+html[data-theme='dark'] {
+  --store-primary: #62bbb1;
+  --store-on-primary: #0b1d1c;
+}
+
+.btn--style-primary:not(.btn--disabled) {
+  --bg-color: var(--store-primary);
+  --color: var(--store-on-primary);
+  --hover-bg: color-mix(in srgb, var(--store-primary) 85%, var(--theme-text));
+  --hover-color: var(--store-on-primary);
+}
+
+.btn--style-secondary:not(.btn--disabled) {
+  --color: var(--store-primary);
+  --btn-border: 1px solid var(--store-primary);
+  --hover-color: var(--store-primary);
+  --hover-btn-border: 1px solid var(--store-primary);
+  --hover-bg: var(--store-tint);
+}
+
+.btn--style-pill:not(.btn--disabled) {
+  --bg-color: var(--store-tint);
+  --color: var(--store-primary);
+  --hover-bg: var(--store-tint-strong);
+  --hover-color: var(--store-primary);
+}
+
+// What a selection of a list can do: text alone in grey, in Payload's own.
+.list-selection__actions {
+  flex-wrap: wrap;
+}
+
+.list-selection__button {
+  padding: 4px 10px;
+  border: 1px solid var(--store-primary);
+  border-radius: var(--style-radius-s);
+  color: var(--store-primary);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--store-tint);
+  }
+
+  &[aria-label='Видалити'] {
+    border-color: var(--theme-error-600);
+    color: var(--theme-error-600);
+  }
+}
+
+.products-hint {
+  margin-bottom: var(--base);
+  color: var(--theme-elevation-600);
+
+  summary {
+    color: var(--store-primary);
+    cursor: pointer;
+  }
+
+  ul {
+    margin: calc(var(--base) / 2) 0 0;
+  }
+}
+
+// Payload's nav stands open for a frame before it knows the window. On a phone it is as wide as the
+// window, which squeezes the page beside it, and the text over a list runs hundreds of pixels tall.
+// A relationship cell can keep that first position after the page settles, and a row it took for
+// below the window stays `<без Бренд>`. Off screen beside an open nav, the page can keep its width.
+@media (max-width: 768px) {
+  .template-default--nav-open .template-default__wrap {
+    min-width: 100vw;
+  }
+}
+
+// Every dialog that asks «are you sure», as the developer asked of the bulk publish's.
+.confirmation-modal__wrapper {
+  align-items: center;
+  text-align: center;
+}
+
+.confirmation-modal__controls {
+  justify-content: center;
+}

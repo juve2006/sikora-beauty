@@ -114,14 +114,25 @@ export const Products: CollectionConfig = {
   admin: {
     group: 'Каталог',
     useAsTitle: 'name',
+    description:
+      'Товар з’являється на сайті, коли заповнено «Наявність» (її ставить власник), стоїть «Перевірено» і він опублікований. ' +
+      'Кілька одразу: виберіть галочками → «Редагувати» → поля «Наявність» і «Перевірка текстів» → «Опублікувати зміни».',
     defaultColumns: [
       'name',
       'brand',
+      'categories',
       'price',
       'availability',
       'review',
       '_status',
     ],
+    components: {
+      beforeListTable: [
+        '/components/admin/publish-count',
+        '/components/admin/products-hint',
+      ],
+      edit: { beforeDocumentControls: ['/components/admin/published-at'] },
+    },
   },
   // A product reaches the storefront only once published (RULES.md). The storefront reads with
   // `overrideAccess: false`: the Local API's default skips this rule and would return drafts.
@@ -228,6 +239,9 @@ export const Products: CollectionConfig = {
           name: 'volumeUnit',
           type: 'select',
           label: 'Одиниця',
+          // Pieces, unless someone or the name of an imported product says otherwise. With no volume
+          // it shows nowhere: the storefront prints a unit only beside a number.
+          defaultValue: 'pcs',
           options: VOLUME_UNITS.map((value) => ({
             value,
             label: VOLUME_UNIT_LABELS[value],
