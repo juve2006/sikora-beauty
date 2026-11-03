@@ -58,7 +58,7 @@ knowledge.require_frontmatter: true   # `jig knowledge check` fails on missing f
 # pull request: `jig verify` then checks what changed since git.base_branch
 # and leaves the full set to CI. It still runs everything when CI is set or
 # with --full.
-# verify.full_run: local
+verify.full_run: ci
 
 # verify.busy_ttl: how long a running `jig verify` holds this clone. A second
 # run — here or in any worktree of it — waits for the first instead of
