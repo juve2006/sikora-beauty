@@ -144,6 +144,9 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
 - [ ] fog: Merchant Center and Shopping — whether a new store passes moderation is unknown
+- [ ] `customer-accounts-findings` — the six findings customer-accounts left open are decided one
+  by one, at the end of this phase by the developer's decision of 2026-11-03: F17, F21, F28, F33,
+  F35, F36 (after: customer-accounts — they are its findings)
 
 ## Phase 3 — Care finder
 

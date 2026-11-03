@@ -3,6 +3,7 @@ import { default as default_84030c336e9b418458d43748d6cbdb29 } from '../../../co
 import { default as default_74c0d38c611d0190c74d6fb01d6a76e9 } from '../../../components/admin/price-field'
 import { default as default_a496e2ee4600cd5feaae085de5966a19 } from '../../../components/admin/ai-draft'
 import { default as default_423b6a5a41ed4c8f43afbcc9bf12cc95 } from '../../../components/admin/claims-warning'
+import { default as default_b3c411850dc4c0fc55051de440706322 } from '../../../components/admin/site-link'
 import { default as default_44d245ccfacc609a1c76324491246dd3 } from '../../../components/admin/import-nav-link'
 import { default as default_55be252b65b9903d7b09ec23283207a0 } from '../../../components/admin/import-view'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -15,6 +16,7 @@ export const importMap = {
   "/components/admin/price-field#default": default_74c0d38c611d0190c74d6fb01d6a76e9,
   "/components/admin/ai-draft#default": default_a496e2ee4600cd5feaae085de5966a19,
   "/components/admin/claims-warning#default": default_423b6a5a41ed4c8f43afbcc9bf12cc95,
+  "/components/admin/site-link#default": default_b3c411850dc4c0fc55051de440706322,
   "/components/admin/import-nav-link#default": default_44d245ccfacc609a1c76324491246dd3,
   "/components/admin/import-view#default": default_55be252b65b9903d7b09ec23283207a0,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,

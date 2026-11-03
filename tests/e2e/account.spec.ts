@@ -1066,6 +1066,9 @@ test('the owner signs in through the same form and lands in the admin', async ({
   await expect(
     page.getByRole('link', { name: 'Покупці', exact: true }),
   ).toBeAttached();
+  const toStore = page.getByRole('link', { name: 'На сайт', exact: true });
+  await expect(toStore).toBeVisible();
+  await expect(toStore).toHaveAttribute('href', '/');
 
   // Staff have nothing at /account; the store's header shows the admin.
   await page.goto('/account');
