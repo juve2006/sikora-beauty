@@ -72,7 +72,9 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 - Raw colours live in three places. `src/app/[locale]/icon.svg`: a favicon cannot read CSS
   variables, so it repeats the light theme's `--primary` and `--primary-foreground`, and changes
   with them. The Ukrainian flag in `PhoneField` and Google's mark in `OtherWays`: their colours are
-  theirs, not the theme's, and stay the same in both themes.
+  theirs, not the theme's, and stay the same in both themes. Outside the storefront,
+  `src/components/admin/back-to-top.css` repeats `--primary` of both themes, as the admin never gets
+  the tokens, and changes with them too.
 - On `/canvas` the names of components, variants and sizes are code identifiers and are not
   translated; every other string comes from the `Canvas` messages. Its sample photos are drawn
   SVGs in `public/samples/`, not files from the catalog: `/canvas` needs no database content.

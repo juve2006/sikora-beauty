@@ -25,6 +25,7 @@
     "label": "Main menu",
     "menu": "Menu",
     "close": "Close menu",
+    "backToTop": "Back to top",
     "catalog": "Catalog",
     "concerns": "By skin concern",
     "brands": "Brands",
@@ -144,7 +145,8 @@
     "sampleFirstName": "Olena",
     "sampleLastName": "Koval",
     "sampleHours": "Mon–Fri 10:00–19:00\nSat–Sun 11:00–18:00",
-    "sampleAddress": "A store address that may be long and wrap"
+    "sampleAddress": "A store address that may be long and wrap",
+    "backToTopNote": "It sits in the bottom right corner once a page is scrolled down, as this one is."
   },
   "Consultation": {
     "open": "Get a consultation",

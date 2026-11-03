@@ -6,6 +6,7 @@ import { default as default_423b6a5a41ed4c8f43afbcc9bf12cc95 } from '../../../co
 import { default as default_b3c411850dc4c0fc55051de440706322 } from '../../../components/admin/site-link'
 import { default as default_f78e6709de9f35591696c9b8278fc333 } from '../../../components/admin/canvas-link'
 import { default as default_44d245ccfacc609a1c76324491246dd3 } from '../../../components/admin/import-nav-link'
+import { default as default_65424a12e6c1333326f14ca1c781275b } from '../../../components/admin/back-to-top'
 import { default as default_55be252b65b9903d7b09ec23283207a0 } from '../../../components/admin/import-view'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
@@ -20,6 +21,7 @@ export const importMap = {
   "/components/admin/site-link#default": default_b3c411850dc4c0fc55051de440706322,
   "/components/admin/canvas-link#default": default_f78e6709de9f35591696c9b8278fc333,
   "/components/admin/import-nav-link#default": default_44d245ccfacc609a1c76324491246dd3,
+  "/components/admin/back-to-top#default": default_65424a12e6c1333326f14ca1c781275b,
   "/components/admin/import-view#default": default_55be252b65b9903d7b09ec23283207a0,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e

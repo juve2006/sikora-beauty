@@ -25,6 +25,7 @@ export default buildConfig({
     },
     // The owner's «Імпорт» page: products from cosmetika.com.ua and prices in CSV.
     components: {
+      providers: ['/components/admin/back-to-top'],
       views: {
         import: {
           Component: '/components/admin/import-view',

@@ -1,0 +1,32 @@
+/* The admin never gets the storefront's tokens, so the arrow repeats `--primary` of each theme. */
+.back-to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 50%;
+  background: var(--theme-elevation-0);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  color: #17605c;
+  cursor: pointer;
+}
+
+.back-to-top:hover {
+  background: var(--theme-elevation-50);
+}
+
+.back-to-top:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
+html[data-theme='dark'] .back-to-top {
+  color: #62bbb1;
+}
