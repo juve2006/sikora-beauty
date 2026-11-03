@@ -51,6 +51,13 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `adminSession`: the storefront's one call from the browser to Payload's own API, so no page
     reads the cookie and product pages stay cached. The layout reads Payload, so a page the build
     would prerender is `force-dynamic` (RULES.md, adr-20261030-header-menu-and-pages-from-payload).
+  - Footer: `SiteFooter` (`src/components/shared/footer/`, from the same layout) takes the header's
+    `getMenu` and `isFinderOn`, and `getContacts` (`contacts.actions.ts`) reads the global `contacts`,
+    «Сторінки → Контакти», which both roles keep. What is left empty is not shown, and with nothing
+    filled in the column goes, so the store never needs a contact it does not have. Links to the
+    privacy, delivery and returns pages join once those pages exist. The block is in the primary
+    colour and renames `--foreground`, `--muted-foreground` and `--ring` for what is inside, so `Logo`
+    and a focus ring read on it without a variant of their own.
   - Pages: the collection `pages`, admin group «Сторінки» — a title, a slug and blocks: `hero`,
     `products`, `tiles`, `consultation`, `text` (`src/collections/page-blocks.ts`). The slug `home`
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug
@@ -90,7 +97,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   collections, one per file in `src/collections/` and listed in its `index.ts`: `users` (Payload
   auth), `customers` (Accounts, below), the catalog's, `consultation-requests`, `pages`, `search-synonyms`, `search-misses` and
   `orders`. Payload globals, one per file in `src/globals/` and listed in `payload.config`'s
-  `globals`: `care-finder`.
+  `globals`: `care-finder`, `contacts`.
   Every row of `users` is an owner or a cosmetologist; a shopper is a row of `customers`, and no
   rule takes them for staff. `src/lib/access.ts` holds who may do what, and every collection takes
   its access from there (adr-20261029-admin-roles, adr-20261103-customer-accounts).

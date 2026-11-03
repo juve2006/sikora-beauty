@@ -25,7 +25,9 @@ product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price,
 its texts, delivery and payment, related products and «Додати в кошик». The
 header's menu reads the zones with their categories and the skin concerns from the catalog, beside
 links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
-signed in to the admin; `/catalog/<zone>` and `/catalog/<category>` list published products,
+signed in to the admin; the footer repeats the catalog's links beside a shopper's, with the contacts
+the owner fills in at «Сторінки → Контакти», showing only what is filled in;
+`/catalog/<zone>` and `/catalog/<category>` list published products,
 24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
 price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and
 `/concern/<slug>`, the same list for that term. «Консультація» in the header and «Запитати

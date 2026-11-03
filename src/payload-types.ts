@@ -114,9 +114,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('uk' | 'en') | ('uk' | 'en')[];
   globals: {
     'care-finder': CareFinder;
+    contacts: Contact;
   };
   globalsSelect: {
     'care-finder': CareFinderSelect<false> | CareFinderSelect<true>;
+    contacts: ContactsSelect<false> | ContactsSelect<true>;
   };
   locale: 'uk' | 'en';
   widgets: {
@@ -1047,6 +1049,23 @@ export interface CareFinder {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts".
+ */
+export interface Contact {
+  id: number;
+  /**
+   * На сайті показується так, як написано тут.
+   */
+  phone?: string | null;
+  email?: string | null;
+  instagram?: string | null;
+  hours?: string | null;
+  address?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "care-finder_select".
  */
 export interface CareFinderSelect<T extends boolean = true> {
@@ -1075,6 +1094,20 @@ export interface CareFinderSelect<T extends boolean = true> {
         categories?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts_select".
+ */
+export interface ContactsSelect<T extends boolean = true> {
+  phone?: T;
+  email?: T;
+  instagram?: T;
+  hours?: T;
+  address?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

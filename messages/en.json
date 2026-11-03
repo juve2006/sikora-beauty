@@ -34,6 +34,12 @@
     "admin": "Admin",
     "account": "Account"
   },
+  "Footer": {
+    "shoppers": "For shoppers",
+    "contacts": "Contacts",
+    "instagram": "Instagram",
+    "copyright": "© {year} Sikora Beauty. All rights reserved."
+  },
   "Product": {
     "price": "UAH {amount}",
     "volume": "{volume, number} {unit, select, ml {ml} g {g} pcs {pcs} other {}}",

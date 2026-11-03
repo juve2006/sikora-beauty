@@ -31,7 +31,7 @@ for (const [locale, m, prefix] of [
     await page.goto(`${prefix}/`);
     if (page.viewportSize()!.width < 1024)
       await page.getByRole('button', { name: m.Nav.menu }).click();
-    await page.getByRole('link', { name: m.Nav.finder }).click();
+    await page.getByRole('link', { name: m.Nav.finder }).first().click();
     await expect(page).toHaveURL(/\/care-finder$/);
 
     const question = (text: { uk: string; en: string }) =>

@@ -34,6 +34,12 @@
     "admin": "Адмінка",
     "account": "Кабінет"
   },
+  "Footer": {
+    "shoppers": "Покупцям",
+    "contacts": "Контакти",
+    "instagram": "Instagram",
+    "copyright": "© {year} Sikora Beauty. Усі права захищено."
+  },
   "Product": {
     "price": "{amount} грн",
     "volume": "{volume, number} {unit, select, ml {мл} g {г} pcs {шт} other {}}",

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { collections } from './collections';
 import { Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
+import { Contacts } from '@/globals/contacts';
 import { closeOwnCollections } from '@/lib/access';
 import { keepPasswordChanges } from '@/lib/auth-writes';
 import { emailAdapter } from '@/lib/email';
@@ -37,7 +38,7 @@ export default buildConfig({
   },
   collections,
   email: emailAdapter(env),
-  globals: [CareFinder],
+  globals: [CareFinder, Contacts],
   i18n: {
     supportedLanguages: { uk },
     fallbackLanguage: 'uk',

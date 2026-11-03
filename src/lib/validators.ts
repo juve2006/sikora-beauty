@@ -154,6 +154,12 @@ export const phone = z
   .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
   .transform((value) => `+38${value.slice(-10)}`);
 
+// The store's Instagram in the footer's link: its own https address and nothing else.
+export const instagramUrl = z.url({
+  protocol: /^https$/,
+  hostname: /^(www\.)?instagram\.com$/,
+});
+
 // The same in an account's forms: the sign-in dialog's field has +380 before it, so a number may come
 // without its 0.
 export const accountPhone = z
