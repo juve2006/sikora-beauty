@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const smtp = [
+  'SMTP_HOST',
+  'SMTP_PORT',
+  'SMTP_USER',
+  'SMTP_PASSWORD',
+  'SMTP_FROM',
+] as const;
+
 const schema = z
   .object({
     DATABASE_URL: z.url(),
@@ -22,6 +30,12 @@ const schema = z
     // that is refused the shopper types the address. The URL is for the e2e tests' stub only.
     NOVA_POSHTA_API_KEY: z.string().optional(),
     NOVA_POSHTA_API_URL: z.url().optional(),
+    // The letters a shopper's account needs; without them nothing is sent (src/lib/email.ts).
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASSWORD: z.string().optional(),
+    SMTP_FROM: z.string().optional(),
   })
   // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
   // away; on Vercel that must fail the build instead. Locally the disk is fine.
@@ -42,6 +56,16 @@ const schema = z
   .refine((env) => !env.TELEGRAM_BOT_TOKEN === !env.TELEGRAM_CHAT_ID, {
     path: ['TELEGRAM_BOT_TOKEN'],
   })
+  // All or nothing, and all on Production: an account there that gets no letter can never sign in.
+  .refine(
+    (env) => {
+      const set = smtp.filter((name) => env[name]).length;
+      return (
+        set === smtp.length || (set === 0 && env.VERCEL_ENV !== 'production')
+      );
+    },
+    { path: ['SMTP_HOST'] },
+  )
   // Behind the site password nobody but the owner and the cosmetologist reaches the form; once
   // `launch readiness` removes it, Production does not build without Turnstile.
   .refine(

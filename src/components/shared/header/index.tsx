@@ -2,6 +2,7 @@ import { MessageCircle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import SearchDialog from '@/components/shared/search/search-dialog';
+import AccountLink from './account-link';
 import AdminLink from './admin-link';
 import CartLink from './cart-link';
 import FavoritesLink from './favorites-link';
@@ -45,6 +46,7 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
           </Button>
         </ConsultationDialog>
         <CartLink />
+        <AccountLink />
         <div className="flex items-center gap-1 max-sm:hidden">
           <LanguageSwitcher />
           <ThemeToggle />

@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 import { collections } from './collections';
 import { Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
+import { closeOwnCollections } from '@/lib/access';
+import { keepPasswordChanges } from '@/lib/auth-writes';
+import { emailAdapter } from '@/lib/email';
 import { parseEnv } from '@/lib/env';
 
 const env = parseEnv(process.env);
@@ -32,6 +35,7 @@ export default buildConfig({
     },
   },
   collections,
+  email: emailAdapter(env),
   globals: [CareFinder],
   i18n: {
     supportedLanguages: { uk },
@@ -59,9 +63,14 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: postgresAdapter({
-    pool: {
-      connectionString: env.DATABASE_URL,
-    },
-  }),
-});
+  db: keepPasswordChanges(
+    postgresAdapter({
+      pool: {
+        connectionString: env.DATABASE_URL,
+        // `pg` waits for a client for ever. Payload's forgot-password holds one and asks for another,
+        // so as many at once as the pool has clients would stop the store until a restart.
+        connectionTimeoutMillis: 10_000,
+      },
+    }),
+  ),
+}).then(closeOwnCollections);

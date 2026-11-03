@@ -152,6 +152,9 @@ const MobileMenu = ({
             <MenuLink href="/about" className="font-medium">
               {t('about')}
             </MenuLink>
+            <MenuLink href="/account" className="font-medium">
+              {t('account')}
+            </MenuLink>
           </ul>
           <AdminLink className="mt-2 w-full justify-start" />
         </nav>

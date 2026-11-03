@@ -1,6 +1,7 @@
 import { Brands } from './brands';
 import { Categories } from './categories';
 import { ConsultationRequests } from './consultation-requests';
+import { Customers } from './customers';
 import { Media } from './media';
 import { Orders } from './orders';
 import { Pages } from './pages';
@@ -25,5 +26,6 @@ export const collections = [
   SearchMisses,
   ConsultationRequests,
   Orders,
+  Customers,
   Users,
 ];

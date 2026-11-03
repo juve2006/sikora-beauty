@@ -1,5 +1,6 @@
-// The end-to-end products: one in stock, one made to order, one out of stock, published; the
-// serum is for dry skin. And the care finder, on, with `seed:catalog`'s draft. Run on a throwaway
+// The end-to-end products: one in stock, one made to order, one out of stock, published, and a
+// draft; the serum is for dry skin. The care finder, on, with `seed:catalog`'s draft. The owner,
+// who signs in through the store's own form. Run on a throwaway
 // database after its migrations and `seed:catalog`, which brings the brands, the categories, the
 // skin terms and that draft: `NODE_ENV=production payload run tests/e2e/seed.ts`. Never on a real
 // one.
@@ -26,6 +27,13 @@ const products = [
     name: 'Тонік E2E',
     price: 45000,
     availability: 'out_of_stock',
+  },
+  {
+    slug: 'e2e-draft',
+    name: 'Чернетка E2E',
+    price: 10000,
+    availability: 'in_stock',
+    _status: 'draft',
   },
 ] as const;
 
@@ -64,6 +72,7 @@ for (const product of products) {
       volume: 30,
       volumeUnit: 'ml',
       _status: 'published',
+      ...product,
     },
     context,
   });
@@ -73,4 +82,15 @@ await payload.updateGlobal({
   data: { enabled: true },
   context,
 });
+const { totalDocs: users } = await payload.count({ collection: 'users' });
+if (users === 0)
+  await payload.create({
+    collection: 'users',
+    data: {
+      email: 'owner@example.com',
+      password: 'e2e-owner-password',
+      role: 'owner',
+    },
+    context,
+  });
 payload.logger.info('e2e seed: done');

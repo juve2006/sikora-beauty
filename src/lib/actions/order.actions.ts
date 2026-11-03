@@ -5,6 +5,7 @@ import { after } from 'next/server';
 import { getPayload } from 'payload';
 
 import type { OrderState } from '@/types';
+import { currentCustomer } from '@/lib/actions/customer.actions';
 import { SITE_URL } from '@/lib/constants';
 import { priceOrder } from '@/lib/orders';
 import { brandName } from '@/lib/product-page';
@@ -59,9 +60,11 @@ export async function placeOrder(
       total,
     );
     if (!priced) return { status: 'changed' };
+    // A signed-in shopper's order is theirs by the session, never by what the form says.
+    const customer = await currentCustomer();
     const placed = await payload.create({
       collection: 'orders',
-      data: { ...order, ...priced, status: 'new' },
+      data: { ...order, ...priced, status: 'new', customer: customer?.id },
     });
     after(() =>
       sendTelegram(orderMessage(placed, SITE_URL)).catch((error) =>

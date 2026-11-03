@@ -1,11 +1,8 @@
-import config from '@payload-config';
 import { cn } from 'cn';
 import { MessageCircle, ShoppingBag } from 'lucide-react';
 import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getPayload } from 'payload';
 import type { ReactNode } from 'react';
 import type {
   Listing as ListingResult,
@@ -15,6 +12,9 @@ import type {
 } from '@/types';
 import type { Media } from '@/payload-types';
 import { routing } from '@/i18n/routing';
+import { isStaff } from '@/lib/access';
+import { ORDER_STATUSES } from '@/lib/constants';
+import { sessionUser } from '@/lib/actions/customer.actions';
 import { listingParams } from '@/lib/validators';
 import FilterPanel from '@/components/shared/catalog/filter-panel';
 import FiltersSheet from '@/components/shared/catalog/filters-sheet';
@@ -44,6 +44,14 @@ import DeliveryFields from '@/app/[locale]/(shop)/cart/delivery-fields';
 import OrderPlaced from '@/app/[locale]/(shop)/cart/thanks/order-placed';
 import FinderQuestions from '@/app/[locale]/(shop)/care-finder/finder-questions';
 import Routine from '@/app/[locale]/(shop)/care-finder/routine';
+import NewPasswordForm from '@/app/[locale]/(shop)/account/new-password-form';
+import OrderHistory from '@/app/[locale]/(shop)/account/order-history';
+import ProfileForm from '@/app/[locale]/(shop)/account/profile-form';
+import RegisterForm from '@/app/[locale]/(shop)/account/register-form';
+import RequestResetForm from '@/app/[locale]/(shop)/account/request-reset-form';
+import ResendForm from '@/app/[locale]/(shop)/account/resend-form';
+import SignInForm from '@/app/[locale]/(shop)/account/sign-in-form';
+import AccountLink from '@/components/shared/header/account-link';
 import AdminLink from '@/components/shared/header/admin-link';
 import CartLink from '@/components/shared/header/cart-link';
 import FavoritesLink from '@/components/shared/header/favorites-link';
@@ -72,14 +80,11 @@ export async function generateMetadata() {
   return { title: t('title'), robots: { index: false, follow: false } };
 }
 
-// In production only someone signed in to the admin sees the canvas — every user is an owner or
-// a cosmetologist; locally anyone does.
+// In production only the owner or the cosmetologist sees the canvas; a shopper's session is a
+// session too, and it opens nothing here. Locally anyone does.
 async function requireAdminUser() {
   if (process.env.NODE_ENV !== 'production') return;
-  const requestHeaders = await headers();
-  const payload = await getPayload({ config });
-  const { user } = await payload.auth({ headers: requestHeaders });
-  if (!user) notFound();
+  if (!isStaff(await sessionUser())) notFound();
 }
 
 const colors = [
@@ -150,6 +155,12 @@ const CanvasPage = async ({ params }: Props) => {
   const consultation = await getTranslations('Consultation');
   const nav = await getTranslations('Nav');
   const sampleProduct = { id: 0, name: t('sampleName') };
+  const sampleCustomer = {
+    firstName: t('sampleFirstName'),
+    lastName: t('sampleLastName'),
+    phone: '+380671234567',
+    email: 'name@example.com',
+  };
   const photos = samples.map((url) => ({ url, alt: t('sampleAlt') }));
   const image: Media = {
     id: 0,
@@ -379,6 +390,12 @@ const CanvasPage = async ({ params }: Props) => {
         <Section title="AdminLink">
           <Specimen label="shown">
             <AdminLink shown />
+          </Specimen>
+        </Section>
+
+        <Section title="AccountLink">
+          <Specimen label="from sm; a phone has it in MobileMenu">
+            <AccountLink />
           </Specimen>
         </Section>
 
@@ -989,6 +1006,253 @@ const CanvasPage = async ({ params }: Props) => {
             <Specimen label="without">
               <div>
                 <OrderPlaced />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="SignInForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full max-w-sm">
+                <SignInForm />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full max-w-sm">
+                <SignInForm
+                  initialState={{
+                    status: 'invalid',
+                    errors: {
+                      email: ['emailInvalid'],
+                      password: ['required'],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            {(['wrong', 'locked', 'failed'] as const).map((status) => (
+              <Specimen key={status} label={status}>
+                <div className="w-full max-w-sm">
+                  <SignInForm initialState={{ status }} />
+                </div>
+              </Specimen>
+            ))}
+            <Specimen label="unverified">
+              <div className="w-full max-w-sm">
+                <SignInForm
+                  initialState={{
+                    status: 'unverified',
+                    email: 'name@example.com',
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full max-w-sm">
+                <SignInForm sending />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="RegisterForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full max-w-md">
+                <RegisterForm />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full max-w-md">
+                <RegisterForm
+                  initialState={{
+                    status: 'invalid',
+                    errors: {
+                      firstName: ['required'],
+                      lastName: ['long'],
+                      email: ['taken'],
+                      password: ['passwordShort'],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full max-w-md">
+                <RegisterForm initialState={{ status: 'failed' }} />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full max-w-md">
+                <RegisterForm sending />
+              </div>
+            </Specimen>
+            <Specimen label="sent">
+              <div className="w-full max-w-md">
+                <RegisterForm
+                  initialState={{ status: 'sent', email: 'name@example.com' }}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="ResendForm">
+          <Specimen label="idle / sending / sent / failed">
+            <ResendForm email="name@example.com" />
+            <ResendForm email="name@example.com" sending />
+            <ResendForm
+              email="name@example.com"
+              initialState={{ status: 'sent', email: 'name@example.com' }}
+            />
+            <ResendForm
+              email="name@example.com"
+              initialState={{ status: 'failed' }}
+            />
+          </Specimen>
+        </Section>
+
+        <Section title="RequestResetForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full">
+                <RequestResetForm />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full">
+                <RequestResetForm
+                  initialState={{
+                    status: 'invalid',
+                    errors: { email: ['emailInvalid'] },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full">
+                <RequestResetForm sending />
+              </div>
+            </Specimen>
+            <Specimen label="sent">
+              <div className="w-full">
+                <RequestResetForm
+                  initialState={{ status: 'sent', email: 'name@example.com' }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full">
+                <RequestResetForm initialState={{ status: 'failed' }} />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="NewPasswordForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full">
+                <NewPasswordForm token="sample" />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full">
+                <NewPasswordForm
+                  token="sample"
+                  initialState={{
+                    status: 'invalid',
+                    errors: { password: ['passwordShort'] },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full">
+                <NewPasswordForm token="sample" sending />
+              </div>
+            </Specimen>
+            {(['expired', 'failed', 'changed'] as const).map((status) => (
+              <Specimen key={status} label={status}>
+                <div className="w-full">
+                  <NewPasswordForm token="sample" initialState={{ status }} />
+                </div>
+              </Specimen>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="ProfileForm">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="idle">
+              <div className="w-full max-w-sm">
+                <ProfileForm customer={sampleCustomer} />
+              </div>
+            </Specimen>
+            <Specimen label="invalid">
+              <div className="w-full max-w-sm">
+                <ProfileForm
+                  customer={sampleCustomer}
+                  initialState={{
+                    status: 'invalid',
+                    errors: {
+                      firstName: ['required'],
+                      phone: ['phoneInvalid'],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="sending">
+              <div className="w-full max-w-sm">
+                <ProfileForm customer={sampleCustomer} sending />
+              </div>
+            </Specimen>
+            <Specimen label="saved">
+              <div className="w-full max-w-sm">
+                <ProfileForm
+                  customer={sampleCustomer}
+                  initialState={{ status: 'saved' }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="failed">
+              <div className="w-full max-w-sm">
+                <ProfileForm
+                  customer={sampleCustomer}
+                  initialState={{ status: 'failed' }}
+                />
+              </div>
+            </Specimen>
+          </div>
+        </Section>
+
+        <Section title="OrderHistory">
+          <div className="grid gap-10 sm:grid-cols-2">
+            <Specimen label="empty">
+              <div className="w-full">
+                <OrderHistory orders={[]} />
+              </div>
+            </Specimen>
+            <Specimen label="every status">
+              <div className="w-full">
+                <OrderHistory
+                  orders={ORDER_STATUSES.map((status, index) => ({
+                    id: 100 + index,
+                    createdAt: '2026-11-02T10:00:00.000Z',
+                    status,
+                    total: 249100,
+                    lines: [
+                      {
+                        id: 'a',
+                        name: t('sampleName'),
+                        price: 124550,
+                        quantity: 2,
+                      },
+                    ],
+                  }))}
+                />
               </div>
             </Specimen>
           </div>

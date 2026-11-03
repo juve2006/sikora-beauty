@@ -231,10 +231,11 @@ listed fields. Later in the conversation: the site offers Ukrainian (default) an
 
 - In scope: the storefront (catalog by zone and category, filters by skin type, condition and
   need, brands, collections, a product page with every required field) in Ukrainian and English;
-  search, favorites, cart and guest checkout; card payment and cash on delivery; Nova Poshta; the
+  search, favorites, cart and guest checkout; customer accounts (added 2026-11-02,
+  adr-20261103-customer-accounts); card payment and cash on delivery; Nova Poshta; the
   "pick my care" questionnaire; consultation requests; an admin for the owner and the
   cosmetologist; catalog import; deployment, backups, analytics.
-- Not doing: customer accounts, languages beyond Ukrainian and English, stock sync with the
+- Not doing: languages beyond Ukrainian and English, stock sync with the
   distributor, reviews, promo codes, loyalty, blog (all fog after launch); a mobile app; booking a
   consultation in a calendar; marketplaces.
 

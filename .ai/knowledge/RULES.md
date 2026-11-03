@@ -21,9 +21,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   on `orders`, Vitest in `tests/orders.test.ts`)
 - An order is created only by `placeOrder`, after the form's Zod schema, Turnstile and repricing:
   no role creates one through REST or GraphQL, and no role changes what the shopper sent or the
-  snapshot — only the status and the manager's note. Only an admin role reads an order; only the
-  owner deletes one. (adr-20261101-cart-and-checkout; checked by: Vitest in `tests/access.test.ts`
-  and `tests/orders.test.ts`)
+  snapshot — only the status and the manager's note. An admin role reads every order, and a shopper
+  only their own, without the manager's note; only the owner deletes one.
+  (adr-20261101-cart-and-checkout, adr-20261103-customer-accounts; checked by: Vitest in
+  `tests/access.test.ts` and `tests/orders.test.ts`)
 - A monobank webhook has no effect before its signature is verified. (adr-20261028-monobank-and-cash-on-delivery;
   checked by: Vitest with a valid and a forged signature)
 - Online card payment is offered only when every order line is in stock.
@@ -52,6 +53,14 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `src/lib/claims.ts` flags in the admin — and the person who marks the texts «Перевірено»)
 - A published product has a Ukrainian name, whichever locale it was published from.
   (adr-20261028-storefront-languages-uk-en; checked by: the `beforeChange` hook on `products`)
+- A session is not staff: a shopper never passes `hasRole`, and no code draws a conclusion from
+  `req.user` alone. (adr-20261103-customer-accounts; checked by: Vitest in `tests/access.test.ts`,
+  with a shopper who has staff's id, and `tests/e2e/account.spec.ts`)
+- An email is confirmed only by the account's password on the letter's page; opening the link
+  changes nothing. (adr-20261103-customer-accounts; checked by: `tests/account.test.ts`,
+  `tests/e2e/account.spec.ts`)
+- An order is tied to an account only at checkout, by the session, never by email.
+  (adr-20261103-customer-accounts; checked by: Vitest in `tests/orders.test.ts`)
 
 ## Rules
 
@@ -88,6 +97,25 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   without admin access to the login only from its own views. The view redirects when
   `permissions.canAccessAdmin` is false and checks the role itself; its endpoints check the role
   again. (adr-20261029-catalog-import; checked by: review)
+- Every collection with `versions` declares `readVersions`: Payload's default lets any session read
+  them, drafts included, and a shopper has a session. (adr-20261103-customer-accounts; checked by:
+  Vitest in `tests/access.test.ts`)
+- Payload's own collections (`payload-locked-documents`, `payload-preferences`) are closed in the
+  config itself, not in `onInit`: `onInit` changes only the copy of the config that woke the process,
+  and GraphQL builds its schema from another. (adr-20261103-customer-accounts; checked by:
+  `tests/access.test.ts`, `tests/e2e/account.spec.ts`)
+- A GET has no side effect on an account: Chromium's `Critical-CH` restart and mail scanners open a
+  link by themselves. (adr-20261103-customer-accounts; checked by: `tests/e2e/account.spec.ts`)
+- On `users` and `customers` Payload writes a row whole, from a snapshot, so reading and then writing
+  is not atomic. A write to one column there is one `payload.db.updateOne` with `atomic: true`, and an
+  operation that changes a password or sessions carries a mark in `markAccessWrites`, or
+  `src/lib/auth-writes.ts` drops the change. A hold on a row goes in the write, never before Payload's
+  reads, which ask the pool for a second client. GraphQL mutations stay off on both, as `req.context`
+  is shared by the mutations of one request. (adr-20261103-customer-accounts; checked by:
+  `tests/auth-writes.test.ts`, `tests/e2e/account.spec.ts`)
+- Nothing inside a Payload transaction waits on an outside service without a timeout: it holds a pool
+  client and the row. Payload sends its auth letters inside one, so SMTP has timeouts of seconds.
+  (adr-20261103-customer-accounts; checked by: `tests/account.test.ts`)
 - UI strings live in `messages/uk.json` and `messages/en.json`, never inline, and both files keep
   the same keys. (adr-20261028-storefront-languages-uk-en; checked by: a key-parity check in CI)
 - Content text fields are localized with `uk` as default and fallback; prices, INCI, SKU and images
@@ -95,7 +123,7 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - UI is mobile-first: an item is done only when it works at 360 px and on desktop, in both locales.
   (spec `sikora-beauty`; checked by: Playwright at both widths)
 - Every UI component appears in `/canvas` in every variant and state. `/canvas` is open locally;
-  in production it answers 404 to anyone without a Payload session, and it is `noindex`. Its
+  in production it answers 404 to anyone but staff, and it is `noindex`. Its
   component, variant and size names are code identifiers, not UI strings. (spec `sikora-beauty`,
   task `design-direction`; checked by: review)
 - `next build` runs in CI without a database, so no page under `(shop)/` is prerendered: its

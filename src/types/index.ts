@@ -37,6 +37,11 @@ export type ConsultationState =
 // A cart's line in the browser, and what the checkout form shows after a submit: the error keys of
 // each field the shopper typed, or that the cart changed under the order, or the order's number.
 export type CartLine = z.infer<typeof cartLine>;
+export type OrderContact = {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+};
 export type OrderField =
   | 'firstName'
   | 'lastName'
@@ -49,6 +54,25 @@ export type OrderState =
   | { status: 'idle' | 'failed' | 'changed' }
   | { status: 'invalid'; errors: Partial<Record<OrderField, string[]>> }
   | { status: 'placed'; number: number };
+// What an account's forms show after a submit: the error keys of each field the shopper typed, or
+// how it went. One state for them all: each form answers the ones its action returns.
+export type AccountField =
+  'firstName' | 'lastName' | 'email' | 'password' | 'phone' | 'token';
+export type AccountState =
+  | {
+      status:
+        | 'idle'
+        | 'failed'
+        | 'wrong'
+        | 'locked'
+        | 'expired'
+        | 'saved'
+        | 'changed'
+        | 'staff'
+        | 'customer';
+    }
+  | { status: 'sent' | 'unverified'; email: string }
+  | { status: 'invalid'; errors: Partial<Record<AccountField, string[]>> };
 // A settlement or an NP warehouse found for what the shopper typed; `latin` when they typed Latin
 // letters, which Nova Poshta refuses; `unavailable` when it did not answer.
 export type DeliveryOption = { ref: string; label: string };

@@ -12,7 +12,7 @@ vi.mock('server-only', () => ({}));
 vi.mock('@payload-config', () => ({ default: {} }));
 
 // The action's Payload.
-const payload = { find: vi.fn(), create: vi.fn() };
+const payload = { auth: vi.fn(), find: vi.fn(), create: vi.fn() };
 vi.mock('payload', async (original) => ({
   ...(await original<typeof import('payload')>()),
   getPayload: async () => payload,
@@ -23,6 +23,7 @@ vi.mock('next/server', async (original) => ({
   ...(await original<typeof import('next/server')>()),
   after: (task: () => Promise<unknown>) => later.push(task),
 }));
+vi.mock('next/headers', () => ({ headers: async () => new Headers() }));
 const afterTheAnswer = () => Promise.all(later.splice(0).map((task) => task()));
 
 const cream = {
@@ -357,6 +358,7 @@ describe('placeOrder', () => {
 
   beforeEach(() => {
     vi.stubGlobal('fetch', fetch);
+    payload.auth.mockResolvedValue({ user: null });
     payload.find.mockResolvedValue({ docs: products });
     payload.create.mockImplementation(async ({ data }) => ({
       id: 17,
@@ -473,6 +475,29 @@ describe('placeOrder', () => {
       await afterTheAnswer();
       expect(fetch).not.toHaveBeenCalled();
     });
+  });
+
+  // AC-6 of the task `customer-accounts`.
+  it("leaves a guest's order with nobody", async () => {
+    payload.auth.mockResolvedValue({ user: null });
+    await placeOrder(idle, form(filled));
+    expect(payload.create.mock.calls.at(-1)?.[0].data.customer).toBeUndefined();
+  });
+
+  it("makes a signed-in shopper's order theirs, by the session alone", async () => {
+    payload.auth.mockResolvedValue({
+      user: { id: 5, collection: 'customers' },
+    });
+    await placeOrder(idle, form({ ...filled, customer: '9' }));
+    expect(payload.create.mock.calls.at(-1)?.[0].data.customer).toBe(5);
+  });
+
+  it('makes no order of staff a shopper’s', async () => {
+    payload.auth.mockResolvedValue({
+      user: { id: 5, collection: 'users', role: 'owner' },
+    });
+    await placeOrder(idle, form(filled));
+    expect(payload.create.mock.calls.at(-1)?.[0].data.customer).toBeUndefined();
   });
 
   it('orders nothing when the shopper was shown another sum', async () => {

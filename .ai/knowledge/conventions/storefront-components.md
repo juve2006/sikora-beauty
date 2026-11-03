@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-11-01
+reviewed_at: 2026-11-03
 ---
 # Storefront components take their look from the theme tokens
 
@@ -37,7 +37,8 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
           outside a server component, except through a server action in src/lib/actions/
           (suggestProducts, adr-20261031-search-in-memory; productCards,
           adr-20261031-favorites-in-the-browser; placeOrder, findSettlements, findWarehouses,
-          adr-20261101-cart-and-checkout) or AdminLink's /api/users/me
+          adr-20261101-cart-and-checkout; the account's forms in account.actions.ts,
+          adr-20261103-customer-accounts) or AdminLink's /api/users/me
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
 

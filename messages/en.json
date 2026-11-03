@@ -31,7 +31,8 @@
     "finder": "Skincare finder",
     "collections": "Sets and new arrivals",
     "about": "About Sikora Beauty",
-    "admin": "Admin"
+    "admin": "Admin",
+    "account": "Account"
   },
   "Product": {
     "price": "UAH {amount}",
@@ -133,7 +134,9 @@
     "sampleYes": "Yes",
     "sampleNo": "No",
     "sampleStep": "Cleansing",
-    "sampleStep3": "SPF"
+    "sampleStep3": "SPF",
+    "sampleFirstName": "Olena",
+    "sampleLastName": "Koval"
   },
   "Consultation": {
     "open": "Get a consultation",
@@ -275,5 +278,76 @@
     "disclaimer": "This is a match to your answers, not a diagnosis. A cosmetologist can advise you more precisely.",
     "stale": "The questionnaire has changed, so these answers no longer make a routine. Please take it again.",
     "start": "Take the questionnaire"
+  },
+  "Account": {
+    "title": "Account",
+    "intro": "Your account keeps your details and orders. You can also order without one.",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "register": "Create account",
+    "registering": "Creating…",
+    "forgot": "Forgot your password?",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "phone": "Phone",
+    "phonePlaceholder": "067 123 45 67",
+    "consent": "By creating an account you agree that we keep your name, email and order history to run your account.",
+    "wrong": "Wrong email or password.",
+    "locked": "Too many attempts. Try again in 10 minutes.",
+    "unverified": "First confirm your email with the link in our letter.",
+    "failed": "That did not work. Try again in a minute.",
+    "sent": "We sent a letter to {email}. Follow the link in it to confirm your email.",
+    "resend": "Send the letter again",
+    "resending": "Sending…",
+    "resent": "The letter is on its way. If it has not come in a few minutes, check your spam folder or press again.",
+    "verifyTitle": "Email confirmation",
+    "verifyInvalid": "This link is invalid or already used. If your email is confirmed, just sign in. If not, try to sign in and we will offer to send the letter again.",
+    "resetTitle": "New password",
+    "resetIntro": "Enter your account's email and we will send a link to set a new password.",
+    "resetSend": "Send the link",
+    "resetSent": "If there is such an account, the letter is on its way. The link works for an hour.",
+    "newPassword": "New password",
+    "savePassword": "Save password",
+    "saving": "Saving…",
+    "changed": "Your password is changed. You can sign in now.",
+    "expired": "This link is invalid or has expired.",
+    "resetAgain": "Ask for a new link",
+    "profile": "My details",
+    "save": "Save",
+    "saved": "Saved.",
+    "orders": "My orders",
+    "noOrders": "No orders yet. They appear here once you order while signed in.",
+    "order": "Order №{number}",
+    "quantity": "{name} × {quantity}",
+    "total": "Total: {amount} UAH",
+    "signOut": "Sign out",
+    "statuses": {
+      "new": "New",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "errors": {
+      "required": "Fill in this field",
+      "long": "Too many characters",
+      "emailInvalid": "Enter an email, like name@example.com",
+      "passwordShort": "The password needs at least 8 characters",
+      "taken": "This email is already registered. Sign in or reset your password.",
+      "phoneInvalid": "Enter a Ukrainian number, like 067 123 45 67"
+    },
+    "verifyAsk": "To confirm your email, sign in with the password you chose when registering."
+  },
+  "Email": {
+    "verifySubject": "Confirm your email for Sikora Beauty",
+    "verifyText": "To sign in to your Sikora Beauty account, confirm this address.",
+    "verifyAction": "Confirm email",
+    "resetSubject": "A new password for Sikora Beauty",
+    "resetText": "To set a new password, follow the link. It works for an hour.",
+    "resetAction": "Set a new password",
+    "ignore": "If this was not you, do nothing: without following the link nothing changes."
   }
 }

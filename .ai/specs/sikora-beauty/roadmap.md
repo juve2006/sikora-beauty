@@ -135,9 +135,11 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
 - [ ] launch readiness — the site is open (after: cart and checkout — the conversion measures a purchase; header, home and about — public navigation; production host — the store opens there; backups and restore — no launch without a tested restore)
   - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
     value; open the store to shoppers on the production host: the site password removed
-    (`src/proxy.ts`, `src/env.ts`)
+    (`src/proxy.ts`, `src/env.ts`); `SITE_URL` from the host's own address, as a letter's link
+    falls back to localhost off Vercel; mail from the store's domain instead of its Gmail
   - Frontend: offer, privacy (it names Telegram, where orders and requests go:
-    adr-20261102-orders-and-answers-in-telegram), delivery and payment, returns pages in both
+    adr-20261102-orders-and-answers-in-telegram, and accounts and Gmail, which sends their letters:
+    adr-20261103-customer-accounts), delivery and payment, returns pages in both
     languages; consent banner
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
@@ -176,8 +178,9 @@ waybill is created from an order and the delivery status updates.
 Goal: the store grows with real demand. Done when: each item below has become a concrete task or
 been dropped on purpose.
 
-- [ ] fog: customer accounts — once there are repeat buyers; the developer wants them, scope to be
-  discussed (2026-10-30)
+- [x] `customer-accounts` — a shopper registers and signs in, and staff sign in the same way and get
+  the admin; done ahead of the launch at the developer's request of 2026-11-02
+  (adr-20261103-customer-accounts)
 - [ ] fog: stock and price sync with the distributor — depends on the stock model
 - [ ] fog: reviews, promo codes, loyalty, blog — by demand after launch
 - [ ] fog: languages beyond Ukrainian and English — by traffic

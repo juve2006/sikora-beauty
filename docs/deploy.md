@@ -20,16 +20,17 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 
 ## Secrets and settings
 
-| Name                                                     | Kind                                                                           | Lives in                                                                                                                                                                    |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                           | Neon pooled connection                                                         | Vercel env, Production and Preview (set by the Neon integration)                                                                                                            |
-| `DATABASE_URL_UNPOOLED`                                  | Neon direct connection                                                         | Vercel env, Production and Preview (set by the Neon integration)                                                                                                            |
-| `PAYLOAD_SECRET`                                         | 32+ random characters, one per environment                                     | Vercel env, Production and Preview, Sensitive                                                                                                                               |
-| `BLOB_READ_WRITE_TOKEN`                                  | Blob store token                                                               | Vercel env, Production, Preview and Development (set by Vercel when the store is connected); the build fails without it                                                     |
-| `SITE_PASSWORD`                                          | the site password, 12+ characters, shared with the owner and the cosmetologist | Vercel env, Production only, Sensitive; the Production build fails without it                                                                                               |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                 | the bot that posts orders and consultation requests, and the group it posts to | Vercel env, Production only, the token Sensitive; without them an order or a request is only saved                                                                          |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile widget keys for the consultation form and the checkout    | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
-| `NOVA_POSHTA_API_KEY`                                    | the developer's Nova Poshta API key (business cabinet → Settings → Security)   | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
+| Name                                                                | Kind                                                                                                                          | Lives in                                                                                                                                                                    |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                      | Neon pooled connection                                                                                                        | Vercel env, Production and Preview (set by the Neon integration)                                                                                                            |
+| `DATABASE_URL_UNPOOLED`                                             | Neon direct connection                                                                                                        | Vercel env, Production and Preview (set by the Neon integration)                                                                                                            |
+| `PAYLOAD_SECRET`                                                    | 32+ random characters, one per environment                                                                                    | Vercel env, Production and Preview, Sensitive                                                                                                                               |
+| `BLOB_READ_WRITE_TOKEN`                                             | Blob store token                                                                                                              | Vercel env, Production, Preview and Development (set by Vercel when the store is connected); the build fails without it                                                     |
+| `SITE_PASSWORD`                                                     | the site password, 12+ characters, shared with the owner and the cosmetologist                                                | Vercel env, Production only, Sensitive; the Production build fails without it                                                                                               |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                            | the bot that posts orders and consultation requests, and the group it posts to                                                | Vercel env, Production only, the token Sensitive; without them an order or a request is only saved                                                                          |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form and the checkout                                                   | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
+| `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
 
 ## Build it from nothing
 
@@ -70,17 +71,25 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    with `Telegram:` in the host's log, until the new id is set and Production is redeployed.
    Before the site opens: Cloudflare → Turnstile → add a widget (Managed) for the production
    domain → `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (Sensitive).
-9. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
-10. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
+9. **Letters to shoppers.** A Gmail account of the store's own, never a person's → Google Account
+   → Security → 2-Step Verification on → App passwords → create one → password manager. Vercel →
+   Settings → Environment Variables, Production only: `SMTP_HOST` `smtp.gmail.com`, `SMTP_PORT`
+   `465`, `SMTP_USER` and `SMTP_FROM` its address, `SMTP_PASSWORD` the 16 characters without
+   spaces, Sensitive. Gmail sends about 500 letters a day; `launch readiness` replaces it with the
+   domain's mail. A changed Google password revokes the app password: letters then fail with
+   `Account` in the host's log and nobody can register, until a new one is set and Production is
+   redeployed.
+10. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
+11. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
     create the first user with a password from the password manager. From then on `/admin` shows
     the login page.
-11. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
+12. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
     the first search synonyms (only while there are none), once: copy
     `DATABASE_URL_UNPOOLED` (Production) from Vercel → Settings → Environment Variables, then
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
     The seed signs nothing, so a throwaway secret will do, and the URL never enters the shell
     history. It prints how many records it created; run again, it creates none.
-12. **Products from cosmetika.com.ua** (after the seed: it needs the brands). As the owner,
+13. **Products from cosmetika.com.ua** (after the seed: it needs the brands). As the owner,
     `/admin` → Інструменти → Імпорт → «Перевірити» → «Імпортувати нові». The page sends a few
     products at a time and must stay open; the photos go to Blob. Interrupted, «Перевірити» shows
     what is left; run again, it creates none.
@@ -93,6 +102,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 - A request sent from «Консультація» shows in `/admin` → Запити and in the Telegram group.
 - An order placed at `/cart` shows in `/admin` → Замовлення with its number from `/cart/thanks`,
   and in the Telegram group.
+- At `/account`, a new account gets its letter, in the language it registered in; its link opens the
+  sign-in form, and the account's password there confirms the email and leads to the home page.
+  Signed in, an order shows in «Кабінет» and in `/admin` → Замовлення, with its «Покупець». The owner signs in at the same form and lands in
+  `/admin`; a shopper's session at `/admin` lands in their own account.
 - To change the password: a new `SITE_PASSWORD` in Vercel, then redeploy Production.
 - Before an Instant Rollback or Promote to a Production deployment older than the site password
   (built before `adr-20261029-site-password`), switch Deployment Protection to All Deployments:

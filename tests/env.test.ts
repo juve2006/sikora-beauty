@@ -6,6 +6,13 @@ const valid = {
   DATABASE_URL: 'postgres://user:secret-password@127.0.0.1:5432/sikora',
   PAYLOAD_SECRET: 'x'.repeat(32),
 };
+const smtp = {
+  SMTP_HOST: 'smtp.gmail.com',
+  SMTP_PORT: '465',
+  SMTP_USER: 'store@gmail.com',
+  SMTP_PASSWORD: 'app-password',
+  SMTP_FROM: 'store@gmail.com',
+};
 
 describe('parseEnv', () => {
   it('accepts a complete environment', () => {
@@ -34,8 +41,47 @@ describe('parseEnv', () => {
     ).toBe('token');
   });
 
+  it('takes the mail settings all together, and needs them on Production', () => {
+    expect(() => parseEnv({ ...valid, SMTP_HOST: 'smtp.gmail.com' })).toThrow(
+      'Invalid environment variables: SMTP_HOST',
+    );
+    expect(parseEnv({ ...valid, ...smtp }).SMTP_PORT).toBe(465);
+    // As .env.example leaves them.
+    expect(
+      parseEnv({
+        ...valid,
+        SMTP_HOST: '',
+        SMTP_PORT: '',
+        SMTP_USER: '',
+        SMTP_PASSWORD: '',
+        SMTP_FROM: '',
+      }).SMTP_HOST,
+    ).toBe('');
+    const production = {
+      ...valid,
+      VERCEL: '1',
+      BLOB_READ_WRITE_TOKEN: 'token',
+      VERCEL_ENV: 'production',
+      SITE_PASSWORD: 'x'.repeat(12),
+    };
+    expect(() => parseEnv(production)).toThrow(
+      'Invalid environment variables: SMTP_HOST',
+    );
+    expect(parseEnv({ ...production, ...smtp }).SMTP_HOST).toBe(
+      'smtp.gmail.com',
+    );
+    expect(
+      parseEnv({ ...production, VERCEL_ENV: 'preview' }).SMTP_HOST,
+    ).toBeUndefined();
+  });
+
   it('needs a long site password on Vercel Production only', () => {
-    const vercel = { ...valid, VERCEL: '1', BLOB_READ_WRITE_TOKEN: 'token' };
+    const vercel = {
+      ...valid,
+      ...smtp,
+      VERCEL: '1',
+      BLOB_READ_WRITE_TOKEN: 'token',
+    };
     expect(() => parseEnv({ ...vercel, VERCEL_ENV: 'production' })).toThrow(
       'Invalid environment variables: SITE_PASSWORD',
     );
@@ -78,6 +124,7 @@ describe('parseEnv', () => {
   it('needs Turnstile on a Production with no site password, open to shoppers', () => {
     const production = {
       ...valid,
+      ...smtp,
       VERCEL: '1',
       BLOB_READ_WRITE_TOKEN: 'token',
       VERCEL_ENV: 'production',

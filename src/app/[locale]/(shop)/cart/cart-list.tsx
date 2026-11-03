@@ -6,7 +6,7 @@ import CartView, { type CartStatus } from './cart-view';
 import CheckoutForm from './checkout-form';
 import { productCards } from '@/lib/actions/product-cards.actions';
 import { keepCart, removeFromCart, setQuantity, useCart } from '@/lib/cart';
-import type { CardProduct } from '@/types';
+import type { CardProduct, OrderContact } from '@/types';
 
 const nothing = () => () => {};
 
@@ -16,7 +16,7 @@ const nothing = () => () => {};
 // the first answer, a line another tab adds and the cart the order found changed are asked for
 // behind the shown lines, so the form keeps what was typed, and a line that does not come is told
 // above them with a retry.
-const CartList = () => {
+const CartList = ({ contact }: { contact?: OrderContact | null }) => {
   const locale = useLocale();
   const lines = useCart();
   const ids = lines.map(({ id }) => id);
@@ -86,6 +86,7 @@ const CartList = () => {
       checkout={(order) => (
         <CheckoutForm
           {...order}
+          contact={contact}
           onChanged={() => {
             setStale(true);
             setAttempt((count) => count + 1);
