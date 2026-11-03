@@ -167,6 +167,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Товар з’являється на сайті, коли заповнено «Наявність» (її ставить власник), стоїть «Перевірено» і він опублікований. Кілька одразу: виберіть галочками → «Редагувати» → поля «Наявність» і «Перевірка текстів» → «Опублікувати зміни».
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
@@ -238,7 +240,7 @@ export interface Brand {
   createdAt: string;
 }
 /**
- * Зона — запис без батька (Обличчя, Тіло…). Категорія — запис, чий батько зона.
+ * Зона — верхній рівень каталогу (Обличчя, Тіло…), поле «Зона» в ній порожнє. Категорія — тип товару всередині зони: виберіть зону в полі «Зона».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".

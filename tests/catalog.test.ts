@@ -190,8 +190,8 @@ describe('parentError', () => {
   });
 
   it('keeps the tree two levels deep', () => {
-    expect(parentError(category, 5, 0)).toBe('Батьком може бути лише зона');
-    expect(parentError(zone, 1, 0)).toBe('Батьком може бути лише зона');
+    expect(parentError(category, 5, 0)).toBe('Вибрати можна лише зону');
+    expect(parentError(zone, 1, 0)).toBe('Вибрати можна лише зону');
     expect(parentError(zone, 5, 2)).toBe(
       'Зона з категоріями не може стати категорією',
     );
