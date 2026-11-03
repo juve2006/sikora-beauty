@@ -20,6 +20,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default buildConfig({
   admin: {
     user: Users.slug,
+    dateFormat: 'dd.MM.yyyy HH:mm',
     importMap: {
       baseDir: path.resolve(dirname),
     },

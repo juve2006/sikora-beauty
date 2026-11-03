@@ -1,5 +1,5 @@
-import { useFormatter, useTranslations } from 'next-intl';
-import { formatHryvnias } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import { formatDateTime, formatHryvnias } from '@/lib/utils';
 import type { Order } from '@/payload-types';
 import { Badge } from '@/components/ui/badge';
 
@@ -11,7 +11,6 @@ type Props = {
 // the order has got to.
 const OrderHistory = ({ orders }: Props) => {
   const t = useTranslations('Account');
-  const format = useFormatter();
   if (orders.length === 0)
     return <p className="text-muted-foreground">{t('noOrders')}</p>;
   return (
@@ -23,10 +22,7 @@ const OrderHistory = ({ orders }: Props) => {
             <Badge variant="secondary">{t(`statuses.${status}`)}</Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {format.dateTime(new Date(createdAt), {
-              dateStyle: 'long',
-              timeZone: 'Europe/Kyiv',
-            })}
+            {formatDateTime(createdAt)}
           </p>
           <ul className="mt-3 flex flex-col gap-1 text-sm">
             {lines.map((line) => (

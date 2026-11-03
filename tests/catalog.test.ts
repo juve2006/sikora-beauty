@@ -4,6 +4,7 @@ import { Brands } from '@/collections/brands';
 import { parentError } from '@/collections/categories';
 import type { Product } from '@/payload-types';
 import {
+  formatDateTime,
   formatHryvnias,
   offerPrice,
   parseHryvnias,
@@ -13,6 +14,13 @@ import { brandName, jsonLdScript, productJsonLd } from '@/lib/product-page';
 import { productRules } from '@/lib/validators';
 import { slugField } from '@/collections/slug-field';
 import { stillEmpty, toTranslate } from '@/lib/translate';
+
+describe('dates', () => {
+  it('writes a moment as 03.11.2026 20:50, at Kyiv’s time in winter and in summer', () => {
+    expect(formatDateTime('2026-11-03T18:50:00.000Z')).toBe('03.11.2026 20:50');
+    expect(formatDateTime('2026-07-01T21:05:00.000Z')).toBe('02.07.2026 00:05');
+  });
+});
 
 describe('prices', () => {
   it('reads hryvnias as integer kopiyky', () => {
