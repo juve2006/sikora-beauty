@@ -3,6 +3,9 @@ import { default as default_84030c336e9b418458d43748d6cbdb29 } from '../../../co
 import { default as default_74c0d38c611d0190c74d6fb01d6a76e9 } from '../../../components/admin/price-field'
 import { default as default_a496e2ee4600cd5feaae085de5966a19 } from '../../../components/admin/ai-draft'
 import { default as default_423b6a5a41ed4c8f43afbcc9bf12cc95 } from '../../../components/admin/claims-warning'
+import { default as default_20d2034a2308e511cf62a0aa83edd633 } from '../../../components/admin/publish-count'
+import { default as default_c9e5d588a081abb261de3547df39426a } from '../../../components/admin/products-hint'
+import { default as default_285abe9153d841c516744733ba77fe5e } from '../../../components/admin/published-at'
 import { default as default_b3c411850dc4c0fc55051de440706322 } from '../../../components/admin/site-link'
 import { default as default_f78e6709de9f35591696c9b8278fc333 } from '../../../components/admin/canvas-link'
 import { default as default_44d245ccfacc609a1c76324491246dd3 } from '../../../components/admin/import-nav-link'
@@ -18,6 +21,9 @@ export const importMap = {
   "/components/admin/price-field#default": default_74c0d38c611d0190c74d6fb01d6a76e9,
   "/components/admin/ai-draft#default": default_a496e2ee4600cd5feaae085de5966a19,
   "/components/admin/claims-warning#default": default_423b6a5a41ed4c8f43afbcc9bf12cc95,
+  "/components/admin/publish-count#default": default_20d2034a2308e511cf62a0aa83edd633,
+  "/components/admin/products-hint#default": default_c9e5d588a081abb261de3547df39426a,
+  "/components/admin/published-at#default": default_285abe9153d841c516744733ba77fe5e,
   "/components/admin/site-link#default": default_b3c411850dc4c0fc55051de440706322,
   "/components/admin/canvas-link#default": default_f78e6709de9f35591696c9b8278fc333,
   "/components/admin/import-nav-link#default": default_44d245ccfacc609a1c76324491246dd3,

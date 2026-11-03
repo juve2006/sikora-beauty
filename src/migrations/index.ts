@@ -10,6 +10,7 @@ import * as migration_20261101_111214_care_finder from './20261101_111214_care_f
 import * as migration_20261102_182447_customer_accounts from './20261102_182447_customer_accounts';
 import * as migration_20261103_110459_customer_phone from './20261103_110459_customer_phone';
 import * as migration_20261103_170810_site_contacts from './20261103_170810_site_contacts';
+import * as migration_20261103_201435_volume_unit_default from './20261103_201435_volume_unit_default';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20261103_170810_site_contacts.up,
     down: migration_20261103_170810_site_contacts.down,
-    name: '20261103_170810_site_contacts'
+    name: '20261103_170810_site_contacts',
+  },
+  {
+    up: migration_20261103_201435_volume_unit_default.up,
+    down: migration_20261103_201435_volume_unit_default.down,
+    name: '20261103_201435_volume_unit_default'
   },
 ];

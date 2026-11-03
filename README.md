@@ -16,8 +16,9 @@ concerns, products with photos, as drafts and published. A product's English tex
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), and its
 Ukrainian texts drafted by AI (Claude) from the brand's material pasted into «Заповнити з AI».
 A product with an AI draft or a translation, and one brought by the import, waits under
-«Перевірка текстів» and cannot be published until someone marks it «Перевірено»; words of a
-medical claim are flagged as they are typed. Every admin user is an owner («Власник»: users, prices, availability,
+«Перевірка текстів» and cannot be published until someone marks it «Перевірено»; the list says the
+way to the storefront, shows every field a product must have, and a product says when it went
+live; words of a medical claim are flagged as they are typed. Every admin user is an owner («Власник»: users, prices, availability,
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published

@@ -64,6 +64,14 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   - The way back up: `BackToTop` (`src/components/shared/back-to-top/`, from the same layout) and the
     admin's own (`src/components/admin/back-to-top.tsx`, a Payload provider, as that is what reaches
     every admin page) share `src/lib/back-to-top.ts`, as they share no styles.
+  - The admin's look is Payload's UI with its buttons in the store's colour and its «are you sure»
+    dialogs centred (`src/app/(payload)/custom.scss`). Payload's bulk publish dialog takes no count
+    and its status row takes no item, so `PublishCount` and `PublishedAt` (`src/components/admin/`)
+    add theirs from the slots beside them, by Payload's class names: a Payload upgrade can move
+    those, and `tests/e2e/admin-look.spec.ts` is what notices. The publication date is the latest
+    published version's, not a field. `useIntersect` keeps a batch's first entry, so a relationship
+    cell can act on where the page sat in the frame the nav stands open; `custom.scss` keeps the
+    page's width in that frame, or a list with text over it loses its brands on a phone.
   - Pages: the collection `pages`, admin group «Сторінки» — a title, a slug and blocks: `hero`,
     `products`, `tiles`, `consultation`, `text` (`src/collections/page-blocks.ts`). The slug `home`
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug
