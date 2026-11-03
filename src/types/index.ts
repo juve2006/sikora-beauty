@@ -192,12 +192,16 @@ export type Imported = ImportedTexts & {
   brand: string;
   categories: string[];
   isSet: boolean;
-  price: number;
+  page: string;
   volume?: number;
   volumeUnit?: VolumeUnit;
   inciSource?: string;
-  images: string[];
   warnings: string[];
+};
+// What only a product's page holds.
+export type ImportedOffer = {
+  price: number;
+  images: string[];
 };
 
 // A product's texts «Перекласти з української» and «Заповнити з AI» read and fill. The admin

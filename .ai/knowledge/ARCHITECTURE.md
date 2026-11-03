@@ -156,7 +156,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   - The owner's «Імпорт» page (`/admin/import`, a Payload admin view) brings our brands' products
     from cosmetika.com.ua as drafts, five per request, and applies a CSV of prices whole or not at
     all; its endpoints sit on `products` (`import-endpoints.ts`) and refuse anyone but the owner
-    (adr-20261029-catalog-import).
+    (adr-20261029-catalog-import). It reads the store's public addresses, as its Store API is
+    closed (adr-20261103-import-from-public-pages).
 - **Consultation** — a shopper's request to be contacted by the cosmetologist
   (adr-20261030-consultation-requests). `ConsultationDialog` (`src/components/shared/consultation/`)
   opens from «Консультація» in `SiteHeader` and «Запитати косметолога» on a product page, which

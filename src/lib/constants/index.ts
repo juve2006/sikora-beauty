@@ -106,4 +106,4 @@ export const COLLECTIONS = {
 } as const;
 
 export const COSMETIKA_API =
-  'https://cosmetika.com.ua/wp-json/wc/store/v1/products';
+  'https://www.cosmetika.com.ua/wp-json/wp/v2/product';
