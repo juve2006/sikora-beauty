@@ -1,0 +1,74 @@
+name: Races
+
+# The tests marked @race take half of e2e, so they run only when what they exercise changes: the
+# accounts, their schema, or the Payload and Drizzle underneath, which is why a lockfile counts.
+on:
+  pull_request:
+    paths:
+      - src/collections/customers.ts
+      - src/collections/users.ts
+      - src/lib/access.ts
+      - src/lib/auth-writes.ts
+      - src/lib/constants/**
+      - src/lib/email.ts
+      - src/lib/turnstile.ts
+      - src/lib/validators.ts
+      - src/lib/actions/account.actions.ts
+      - src/lib/actions/customer.actions.ts
+      - src/components/shared/account/**
+      - src/app/*/*/account/**
+      - src/migrations/**
+      - src/payload.config.ts
+      - src/proxy.ts
+      - next.config.ts
+      - tests/e2e/account.spec.ts
+      - tests/e2e/seed.ts
+      - playwright.config.ts
+      - package.json
+      - package-lock.json
+      - .nvmrc
+      - .github/workflows/races.yml
+
+permissions:
+  contents: read
+
+jobs:
+  # The same steps as `e2e` in ci.yml: a change to one belongs in both.
+  races:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: sikora
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://ci:ci@127.0.0.1:5432/sikora
+      PAYLOAD_SECRET: ci-e2e-only-not-a-real-secret-000000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run payload -- migrate
+        env:
+          NODE_ENV: production
+      - run: npm run seed:catalog
+      - run: npm run payload -- run tests/e2e/seed.ts
+        env:
+          NODE_ENV: production
+      - run: npm run build
+      - run: npm run test:e2e -- --grep @race

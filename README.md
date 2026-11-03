@@ -117,7 +117,8 @@ take the token from the `customers` table (`_verificationtoken`, `reset_password
 production build — `npm run build` first — against a throwaway database: its migrations,
 `npm run seed:catalog`, then `NODE_ENV=production npm run payload -- run tests/e2e/seed.ts`, with
 `DATABASE_URL` pointing at it. A stub stands in for Nova Poshta. The first time,
-`npx playwright install chromium`.
+`npx playwright install chromium`. `-- --grep-invert @race` leaves out the slow race tests, as CI's
+`e2e` does.
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
 storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components
@@ -133,7 +134,9 @@ The code is laid out and written as in nextjs-store
 Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
 `format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout, the
 care finder and the accounts in Playwright), `i18n` (same keys in both message files),
-`knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
+`knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks). The tests marked `@race` take
+half of `e2e`, so they run apart, in `.github/workflows/races.yml`, and only on a pull request that
+changes what they exercise: the accounts, the schema or the dependencies.
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull
 request whose CI is green. A Production build applies migrations before `next build`; a Preview

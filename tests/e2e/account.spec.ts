@@ -518,7 +518,7 @@ test('a letter goes again only once the interval has passed', async ({
 // The same aim by another way: a second registration timed for the moment the owner of the address
 // confirms. Mocks cannot show this, and it does not happen every time: before the fix about one
 // round in eight ended with the other password on a confirmed account or the confirmation undone.
-test('registering again while the owner confirms never hands over the account', async ({
+test('registering again while the owner confirms never hands over the account @race', async ({
   browser,
   page,
   playwright,
@@ -617,7 +617,7 @@ const resetReady = async (tab: Page, email: string, secret: string) => {
   return tab.getByRole('button', { name: uk.Account.savePassword });
 };
 
-test('a new password holds while the old one keeps signing in', async ({
+test('a new password holds while the old one keeps signing in @race', async ({
   browser,
   page,
   playwright,
@@ -663,7 +663,7 @@ test('a new password holds while the old one keeps signing in', async ({
 
 // Wrong attempts over the limit make Payload drop the sessions of the last 20 seconds: it writes the
 // whole row it read before the password check, so the row needs an older session for it to happen.
-test('a new password holds against a burst of wrong ones', async ({
+test('a new password holds against a burst of wrong ones @race', async ({
   browser,
   page,
   playwright,
@@ -725,7 +725,7 @@ test('a new password holds against a burst of wrong ones', async ({
 });
 
 // `payload.update` writes the whole row it read: staff need no password for that, only their session.
-test('a new password holds while an old session keeps saving', async ({
+test('a new password holds while an old session keeps saving @race', async ({
   browser,
   playwright,
 }, testInfo) => {
@@ -864,7 +864,7 @@ test('GraphQL changes nothing on an account', async ({ playwright }) => {
   await manager.dispose();
 });
 
-test('a sign-out holds and a sign-in keeps its cookie, whatever overlaps them', async ({
+test('a sign-out holds and a sign-in keeps its cookie, whatever overlaps them @race', async ({
   page,
   playwright,
 }, testInfo) => {
@@ -986,7 +986,7 @@ test('a sign-out holds and a sign-in keeps its cookie, whatever overlaps them', 
 // Payload's forgot-password holds a pool client and asks for another: at once they would take all of
 // it. Only a cold pool opens the window, as new clients take time to connect, and `pg` closes idle ones
 // after 10 seconds.
-test('more reset requests at once than the pool has clients leave the store answering', async ({
+test('more reset requests at once than the pool has clients leave the store answering @race', async ({
   browser,
   page,
 }, testInfo) => {
