@@ -32,7 +32,7 @@ export default buildConfig({
           meta: { title: 'Імпорт' },
         },
       },
-      actions: ['/components/admin/site-link'],
+      actions: ['/components/admin/site-link', '/components/admin/canvas-link'],
       afterNavLinks: ['/components/admin/import-nav-link'],
     },
   },

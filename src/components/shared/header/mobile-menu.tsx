@@ -32,17 +32,24 @@ const row =
 const MenuLink = ({
   href,
   className,
+  prefetch,
   onClick,
   children,
 }: {
   href: string;
   className?: string;
+  prefetch?: boolean;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   children: string;
 }) => (
   <li>
     <SheetClose asChild>
-      <Link href={href} className={cn(row, className)} onClick={onClick}>
+      <Link
+        href={href}
+        className={cn(row, className)}
+        prefetch={prefetch}
+        onClick={onClick}
+      >
         {children}
       </Link>
     </SheetClose>
@@ -175,6 +182,7 @@ const MobileMenu = ({
               <MenuLink
                 href="/account"
                 className="font-medium"
+                prefetch={false}
                 onClick={(event) => {
                   setSheet(false);
                   onClick(event);
