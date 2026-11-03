@@ -48,7 +48,8 @@ const MainMenu = ({
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>{t('catalog')}</NavigationMenuTrigger>
-          <NavigationMenuContent>
+          {/* The header does not scroll away, so in a low window the longest panel scrolls itself. */}
+          <NavigationMenuContent className="max-h-[calc(100dvh-7rem)] overflow-y-auto">
             <ul className="grid w-2xl grid-cols-3 gap-4 p-2">
               {menu.zones.map((zone) => (
                 <li key={zone.slug}>

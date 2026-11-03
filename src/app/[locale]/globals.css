@@ -85,7 +85,8 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply font-sans antialiased;
+    /* The header's height, one line or two (SiteHeader). */
+    @apply scroll-pt-20 font-sans antialiased sm:scroll-pt-32;
   }
   body {
     @apply bg-background text-foreground;
