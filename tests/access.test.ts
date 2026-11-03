@@ -26,6 +26,7 @@ import { keepOnRestore, Products } from '@/collections/products';
 import { collections } from '@/collections';
 import { resetLetterThroughStore, Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
+import { Contacts } from '@/globals/contacts';
 import { closeOwnCollections, hasRole, isOwner, isStaff } from '@/lib/access';
 
 const owner = { id: 1, collection: 'users', role: 'owner' };
@@ -318,9 +319,12 @@ describe('search', () => {
   });
 });
 
-describe('the care finder', () => {
+describe.each([
+  ['the care finder', CareFinder],
+  ['the contacts', Contacts],
+])('%s', (_, global) => {
   it('both roles keep it, which the storefront reads for anyone', () => {
-    const { read, update } = CareFinder.access!;
+    const { read, update } = global.access!;
     expect([owner, cosmetologist, null].map((user) => run(read, user))).toEqual(
       [true, true, true],
     );
@@ -451,6 +455,7 @@ describe('a shopper', () => {
     expect(run(Customers.access!.admin, shopper)).toBe(false);
     expect(run(Users.access!.unlock, shopper)).toBe(false);
     expect(run(CareFinder.access!.update, shopper)).toBe(false);
+    expect(run(Contacts.access!.update, shopper)).toBe(false);
     const role = fieldAccess(Users.fields, 'role');
     expect(run(role.create, shopper)).toBe(false);
     expect(run(role.update, shopper, 2)).toBe(false);

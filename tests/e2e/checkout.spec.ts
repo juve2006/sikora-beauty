@@ -84,7 +84,7 @@ for (const [locale, m, prefix] of [
 
     // The ordered lines left the cart: its link has no count to name.
     await expect(
-      page.getByRole('link', { name: m.Cart.title, exact: true }),
+      page.getByRole('link', { name: m.Cart.title, exact: true }).first(),
     ).toBeVisible();
     const { rows } = await database.query(
       "select id, price from products where slug = 'e2e-serum'",

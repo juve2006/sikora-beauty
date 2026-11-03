@@ -115,7 +115,7 @@ const register = async (
 const pressAccount = async (page: Page, m: typeof uk) => {
   if (page.viewportSize()!.width < 640)
     await page.getByRole('button', { name: m.Nav.menu }).click();
-  await page.getByRole('link', { name: m.Nav.account }).click();
+  await page.getByRole('link', { name: m.Nav.account }).first().click();
 };
 
 const column = async (email: string, name: string) => {
@@ -1275,7 +1275,7 @@ test('a closed dialog hands the focus back to what opened it', async ({
   await expect(
     page.viewportSize()!.width < 640
       ? page.getByRole('button', { name: uk.Nav.menu })
-      : page.getByRole('link', { name: uk.Nav.account }),
+      : page.getByRole('link', { name: uk.Nav.account }).first(),
   ).toBeFocused();
 });
 
@@ -1285,7 +1285,7 @@ test('another address closes the dialog: the header outlives the page', async ({
   await open(page, '/brands');
   if (page.viewportSize()!.width < 640)
     await page.getByRole('button', { name: uk.Nav.menu }).click();
-  await page.getByRole('link', { name: uk.Nav.about }).click();
+  await page.getByRole('link', { name: uk.Nav.about }).first().click();
   await expect(page).toHaveURL(/\/about$/);
   await pressAccount(page, uk);
   const dialog = page.getByRole('dialog', { name: uk.Account.signInTitle });
@@ -1385,6 +1385,7 @@ test('a link to the account opened in a new tab skips the dialog', async ({
     context.waitForEvent('page'),
     page
       .getByRole('link', { name: uk.Nav.account })
+      .first()
       .click({ modifiers: ['ControlOrMeta'] }),
   ]);
   await expect(tab).toHaveURL(/\/account$/);
@@ -1417,7 +1418,7 @@ test.describe('without JavaScript', () => {
       'A phone has the link in the sheet, which needs JavaScript.',
     );
     await page.goto('/');
-    await page.getByRole('link', { name: uk.Nav.account }).click();
+    await page.getByRole('link', { name: uk.Nav.account }).first().click();
     await expect(page).toHaveURL(/\/account$/);
     await expect(signInForm(page, uk)).toBeVisible();
   });
@@ -1605,7 +1606,9 @@ for (const [locale, m, prefix] of [
   }) => {
     await page.setViewportSize({ width: 640, height: 800 });
     await open(page, `${prefix}/`);
-    await expect(page.getByRole('link', { name: m.Nav.account })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: m.Nav.account }).first(),
+    ).toBeVisible();
     const width = await page.evaluate(
       () => document.documentElement.scrollWidth,
     );

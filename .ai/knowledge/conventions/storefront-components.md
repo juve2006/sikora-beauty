@@ -43,6 +43,9 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
 
+- A block on a coloured surface renames `--foreground`, `--muted-foreground` and `--ring` for what
+  is inside (`FooterContent`), so a component in it stays readable, and its focus ring visible,
+  without a variant of its own.
 - `rounded-full` is a shape, not a radius value: a circle or a pill (the heart over a card's photo,
   the count on it) takes it; anything with corners takes the theme's steps.
 - A toggle button — one that says whether something is on, like the favorites heart — keeps one

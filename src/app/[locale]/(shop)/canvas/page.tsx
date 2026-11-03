@@ -56,6 +56,7 @@ import AccountLink from '@/components/shared/header/account-link';
 import AdminLink from '@/components/shared/header/admin-link';
 import CartLink from '@/components/shared/header/cart-link';
 import FavoritesLink from '@/components/shared/header/favorites-link';
+import FooterContent from '@/components/shared/footer/footer-content';
 import MainMenu from '@/components/shared/header/main-menu';
 import MobileMenu from '@/components/shared/header/mobile-menu';
 import ThemeToggle from '@/components/shared/header/theme-toggle';
@@ -391,6 +392,25 @@ const CanvasPage = async ({ params }: Props) => {
         <Section title="AdminLink">
           <Specimen label="shown">
             <AdminLink shown />
+          </Specimen>
+        </Section>
+
+        <Section title="FooterContent">
+          <Specimen label="every contact filled in; the care finder on">
+            <FooterContent
+              menu={menu}
+              finder
+              contacts={{
+                phone: '+38 (067) 000-00-00',
+                email: 'shop@example.com',
+                instagram: 'https://www.instagram.com/example',
+                hours: 'Пн.-Пт. 10:00–19:00\nСб.-Нд. 11:00–18:00',
+                address: 'Адреса магазину, яка може бути довгою й переноситись',
+              }}
+            />
+          </Specimen>
+          <Specimen label="no contacts yet: their column is not there">
+            <FooterContent menu={menu} contacts={{}} />
           </Specimen>
         </Section>
 
