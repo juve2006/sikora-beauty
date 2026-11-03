@@ -129,7 +129,11 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     there): the database would set the product's brand to null, and the brand is required. `fullTitle`
     («Обличчя → Очищення») tells apart categories with the same title in pickers. Skin type, condition and concern are three Payload collections from
     one function, not selects, so the cosmetologist can add a term without a deploy.
-  - Products have drafts; anonymous readers see published ones only (`access.read`). Price is
+  - Products have drafts; anonymous readers see published ones only (`access.read`). Drafts and
+    the admin's publication date rest on versions, so they stay on with Payload's default limit:
+    it deletes a product's oldest versions whatever their status, and a low limit could delete the
+    published one. Their tab is hidden (the developer, 2026-11-04); `/versions` still opens by its
+    URL. Price is
     integer kopiyky, typed in hryvnias through `PriceField`. The product rules — made to order
     needs days, INCI needs its source — are in `src/lib/validators.ts`, and the fields validate
     with them.

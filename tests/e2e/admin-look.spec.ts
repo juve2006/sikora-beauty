@@ -85,6 +85,9 @@ test('a product says when it was published, or that it was not', async ({
   const serum = await bySlug('e2e-serum');
   await page.goto(`/admin/collections/products/${serum.id}`);
   await expect(row).toContainText(stamp);
+  // The date reads a version, and the versions' tab stays away.
+  await expect(page.locator('.doc-tab').first()).toContainText('Редагувати');
+  await expect(page.locator('.doc-tab', { hasText: 'Версії' })).toHaveCount(0);
 
   // Publishing says so at once, with no reload, on a product of its own: e2e-draft stays a draft.
   const draft = await bySlug('e2e-draft');
