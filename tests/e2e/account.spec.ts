@@ -1470,6 +1470,13 @@ test('the owner signs in through the same form and lands in the admin', async ({
   const canvas = await page.goto('/canvas');
   expect(canvas?.status()).toBe(200);
 
+  // A date reads the same in the store and in the admin.
+  await expect(page.getByText('02.11.2026 12:00').first()).toBeAttached();
+  await page.goto('/admin/account');
+  await expect(
+    page.getByText(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/).first(),
+  ).toBeAttached();
+
   // The admin's own preferences still save.
   const preference = await page.request.post('/api/payload-preferences/e2e', {
     data: { value: 'kept' },

@@ -1,5 +1,21 @@
 export { cn } from 'cn';
 
+// A moment as the admin shows it (`admin.dateFormat`): 03.11.2026 20:50, in every language, at the
+// store's time.
+const dateTime = new Intl.DateTimeFormat('uk-UA', {
+  timeZone: 'Europe/Kyiv',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+export function formatDateTime(date: string): string {
+  return dateTime.format(new Date(date)).replace(',', '');
+}
+
 // Prices are stored as integer kopiyky (RULES.md); people read and type hryvnias.
 
 export function formatHryvnias(kopiyky: number): string {

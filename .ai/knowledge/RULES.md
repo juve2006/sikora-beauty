@@ -130,6 +130,9 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   are not localized. (adr-20261028-storefront-languages-uk-en; checked by: review)
 - UI is mobile-first: an item is done only when it works at 360 px and on desktop, in both locales.
   (spec `sikora-beauty`; checked by: Playwright at both widths)
+- A date with its time reads `03.11.2026 20:50` everywhere and in every language: `formatDateTime`
+  on the storefront, at Kyiv's time, and `admin.dateFormat` in the admin, at the browser's.
+  (developer, 2026-11-03; checked by: `tests/catalog.test.ts`, `tests/e2e/account.spec.ts`)
 - Every UI component appears in `/canvas` in every variant and state. `/canvas` is open locally;
   in production it answers 404 to anyone but staff, and it is `noindex`. Its
   component, variant and size names are code identifiers, not UI strings. (spec `sikora-beauty`,
