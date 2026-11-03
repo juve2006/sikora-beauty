@@ -26,7 +26,8 @@ its texts, delivery and payment, related products and «Додати в коши
 header's menu reads the zones with their categories and the skin concerns from the catalog, beside
 links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
 signed in to the admin; the footer repeats the catalog's links beside a shopper's, with the contacts
-the owner fills in at «Сторінки → Контакти», showing only what is filled in;
+the owner fills in at «Сторінки → Контакти», showing only what is filled in; far down any page, in
+the store and in the admin, an arrow leads back up;
 `/catalog/<zone>` and `/catalog/<category>` list published products,
 24 to a page, filtered by skin type, condition, concern and brand and sorted by availability,
 price or novelty; a product's skin type and concern lead to `/skin-type/<slug>` and

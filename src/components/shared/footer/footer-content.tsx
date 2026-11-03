@@ -149,7 +149,8 @@ const FooterContent = ({
             </Column>
           )}
         </div>
-        <p className="mt-10 border-t border-primary-foreground/20 pt-6 text-sm">
+        {/* On a phone the way back up sits in this corner, so the line ends above it. */}
+        <p className="mt-10 border-t border-primary-foreground/20 pt-6 text-sm max-sm:pb-12">
           {t('copyright', { year: new Date().getFullYear() })}
         </p>
       </div>

@@ -58,6 +58,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     privacy, delivery and returns pages join once those pages exist. The block is in the primary
     colour and renames `--foreground`, `--muted-foreground` and `--ring` for what is inside, so `Logo`
     and a focus ring read on it without a variant of their own.
+  - The way back up: `BackToTop` (`src/components/shared/back-to-top/`, from the same layout) and the
+    admin's own (`src/components/admin/back-to-top.tsx`, a Payload provider, as that is what reaches
+    every admin page) share `src/lib/back-to-top.ts`, as they share no styles.
   - Pages: the collection `pages`, admin group «Сторінки» — a title, a slug and blocks: `hero`,
     `products`, `tiles`, `consultation`, `text` (`src/collections/page-blocks.ts`). The slug `home`
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug

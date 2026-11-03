@@ -1,6 +1,7 @@
 import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import BackToTop from '@/components/shared/back-to-top';
 import SiteFooter from '@/components/shared/footer';
 import SiteHeader from '@/components/shared/header';
 import { routing } from '@/i18n/routing';
@@ -21,6 +22,7 @@ const ShopLayout = async ({ children, params }: Props) => {
       <SiteHeader locale={locale} />
       {children}
       <SiteFooter locale={locale} />
+      <BackToTop />
     </div>
   );
 };

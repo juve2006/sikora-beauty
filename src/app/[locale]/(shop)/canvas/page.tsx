@@ -379,6 +379,10 @@ const CanvasPage = async ({ params }: Props) => {
           <ThemeToggle />
         </Section>
 
+        <Section title="BackToTop">
+          <p className="text-sm text-muted-foreground">{t('backToTopNote')}</p>
+        </Section>
+
         <Section title="MainMenu">
           <div className="flex min-h-80 items-start">
             <MainMenu menu={menu} finder />
