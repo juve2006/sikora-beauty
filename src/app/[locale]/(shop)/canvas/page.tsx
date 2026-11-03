@@ -404,8 +404,8 @@ const CanvasPage = async ({ params }: Props) => {
                 phone: '+38 (067) 000-00-00',
                 email: 'shop@example.com',
                 instagram: 'https://www.instagram.com/example',
-                hours: 'Пн.-Пт. 10:00–19:00\nСб.-Нд. 11:00–18:00',
-                address: 'Адреса магазину, яка може бути довгою й переноситись',
+                hours: t('sampleHours'),
+                address: t('sampleAddress'),
               }}
             />
           </Specimen>

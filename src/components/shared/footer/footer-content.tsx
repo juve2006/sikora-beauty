@@ -80,7 +80,10 @@ const FooterContent = ({
   const nav = useTranslations('Nav');
   const favorites = useTranslations('Favorites');
   const cart = useTranslations('Cart');
-  const { phone, email, instagram, hours, address } = contacts;
+  const { phone, email, instagram } = contacts;
+  // The two fields without a check of their own: the admin saves spaces in them.
+  const hours = contacts.hours?.trim();
+  const address = contacts.address?.trim();
   const anyContact = phone || email || instagram || hours || address;
   return (
     <footer className="mt-auto w-full bg-primary text-primary-foreground/80 [--foreground:var(--primary-foreground)] [--muted-foreground:var(--primary-foreground)] [--ring:var(--primary-foreground)]">
@@ -100,7 +103,9 @@ const FooterContent = ({
           </Column>
           <Column title={t('shoppers')}>
             <FooterLink href="/about">{nav('about')}</FooterLink>
-            <FooterLink href="/account">{nav('account')}</FooterLink>
+            <FooterLink href="/account" prefetch={false}>
+              {nav('account')}
+            </FooterLink>
             <FooterLink href="/favorites">{favorites('title')}</FooterLink>
             <FooterLink href="/cart">{cart('title')}</FooterLink>
           </Column>
