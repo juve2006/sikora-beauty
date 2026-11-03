@@ -31,6 +31,7 @@ export default buildConfig({
           meta: { title: 'Імпорт' },
         },
       },
+      actions: ['/components/admin/site-link'],
       afterNavLinks: ['/components/admin/import-nav-link'],
     },
   },
