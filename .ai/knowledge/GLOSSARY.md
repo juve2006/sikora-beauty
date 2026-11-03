@@ -277,6 +277,22 @@ A Nova Poshta shipment document created for an order.
 Informal synonyms: ТТН, накладна, express waybill.
 Use in: source code, schema, API, documentation.
 
+## Shopper
+
+Someone buying from the store: a guest, or, with an account, a row of the Payload collection
+`customers`, «Покупець», who signs in at `/account`.
+
+Informal synonyms: покупець, клієнт, customer.
+Use in: source code (`customers`, `currentCustomer`), schema, API, documentation.
+
+## Staff
+
+Whoever has an admin role: a row of the Payload collection `users`, an owner or a cosmetologist.
+A session alone does not make someone staff: a shopper has one too.
+
+Informal synonyms: персонал, адмін.
+Use in: source code (`isStaff`), documentation.
+
 ## Owner
 
 The admin role that runs the store: orders, prices, availability, settings, users. Role value `owner`, «Власник».

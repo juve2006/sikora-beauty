@@ -105,7 +105,7 @@ describe('the AI endpoint', () => {
       user,
       json: async () => body,
     } as unknown as PayloadRequest);
-  const cosmetologist = { id: 2, role: 'cosmetologist' };
+  const cosmetologist = { id: 2, collection: 'users', role: 'cosmetologist' };
   const body = { name: 'Крем', material: 'Матеріал бренду. '.repeat(10) };
 
   it('answers only an admin role', async () => {

@@ -247,7 +247,10 @@ describe('prices in CSV', () => {
 
 describe('the import page', () => {
   it('answers only the owner: both tools write prices', async () => {
-    for (const user of [null, { id: 2, role: 'cosmetologist' }]) {
+    for (const user of [
+      null,
+      { id: 2, collection: 'users', role: 'cosmetologist' },
+    ]) {
       for (const endpoint of importEndpoints) {
         const response = await endpoint.handler({
           user,
@@ -311,7 +314,7 @@ describe('the import page', () => {
         delete: async ({ where }: { where: unknown }) => removed.push(where),
       };
       const req = {
-        user: { role: 'owner' },
+        user: { collection: 'users', role: 'owner' },
         payload,
         json: async () => ({ ids: [source.id] }),
       };
@@ -347,7 +350,7 @@ describe('the import page', () => {
         Response.json([source], { headers: { 'X-WP-TotalPages': pages } }),
       );
       const response = await plan.handler({
-        user: { role: 'owner' },
+        user: { collection: 'users', role: 'owner' },
         payload,
       } as unknown as PayloadRequest);
       expect(response.status).toBe(502);

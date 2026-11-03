@@ -1,9 +1,17 @@
-import type { Access, CollectionConfig, Field, FieldAccess } from 'payload';
-import { describe, expect, it } from 'vitest';
+import {
+  type Access,
+  type CollectionConfig,
+  type Endpoint,
+  type Field,
+  type FieldAccess,
+  Forbidden,
+} from 'payload';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Brands } from '@/collections/brands';
 import { Categories } from '@/collections/categories';
 import { ConsultationRequests } from '@/collections/consultation-requests';
+import { Customers, onlyThroughActions } from '@/collections/customers';
 import { Media } from '@/collections/media';
 import { Orders } from '@/collections/orders';
 import { Pages } from '@/collections/pages';
@@ -16,11 +24,15 @@ import {
 } from '@/collections/skin-vocabularies';
 import { keepOnRestore, Products } from '@/collections/products';
 import { collections } from '@/collections';
-import { Users } from '@/collections/users';
+import { resetLetterThroughStore, Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
+import { closeOwnCollections, hasRole, isOwner, isStaff } from '@/lib/access';
 
-const owner = { id: 1, role: 'owner' };
-const cosmetologist = { id: 2, role: 'cosmetologist' };
+const owner = { id: 1, collection: 'users', role: 'owner' };
+const cosmetologist = { id: 2, collection: 'users', role: 'cosmetologist' };
+// Each collection counts its ids from 1, so a shopper has someone's on staff (AC-5 of the task
+// `customer-accounts`).
+const shopper = { id: 1, collection: 'customers' };
 const args = (user: object | null, id?: number | string) =>
   ({ req: { user }, id }) as never;
 const run = (
@@ -39,7 +51,57 @@ function field(fields: Field[], name: string): Field | undefined {
 const fieldAccess = (fields: Field[], name: string) =>
   (field(fields, name) as { access: Record<string, FieldAccess> }).access;
 
+describe('Payload’s own collections', () => {
+  const handler = vi.fn(async () => Response.json({}));
+  const config = () =>
+    closeOwnCollections({
+      collections: [
+        { slug: 'payload-locked-documents', access: { read: () => true } },
+        {
+          slug: 'payload-preferences',
+          access: {},
+          endpoints: [{ handler, method: 'post', path: '/:key' }],
+        },
+      ],
+    } as never);
+  const access = (slug: string) =>
+    config().collections.find((c) => c.slug === slug)!.access;
+
+  it('keeps document locks to staff', () => {
+    const locks = access('payload-locked-documents');
+    for (const operation of ['create', 'read', 'update', 'delete'] as const) {
+      expect(run(locks[operation], owner), operation).toBe(true);
+      expect(run(locks[operation], cosmetologist), operation).toBe(true);
+      expect(run(locks[operation], shopper), operation).toBe(false);
+      expect(run(locks[operation], null), operation).toBe(false);
+    }
+  });
+
+  it('keeps admin preferences to staff, whose endpoints write around access', async () => {
+    expect(run(access('payload-preferences').create, owner)).toBe(true);
+    expect(run(access('payload-preferences').create, shopper)).toBe(false);
+    const preferences = config().collections.find(
+      (c) => c.slug === 'payload-preferences',
+    )!;
+    const [endpoint] = preferences.endpoints as Endpoint[];
+    expect(() =>
+      endpoint.handler({ user: shopper, t: (key: string) => key } as never),
+    ).toThrow(Forbidden);
+    expect(handler).not.toHaveBeenCalled();
+    await endpoint.handler({ user: owner } as never);
+    expect(handler).toHaveBeenCalledOnce();
+  });
+});
+
 describe('every collection', () => {
+  it.each(
+    collections.filter((c) => c.versions).map((c) => [c.slug, c] as const),
+  )('%s keeps its versions to staff: a draft is one', (_, c) => {
+    expect(run(c.access?.readVersions, owner)).toBe(true);
+    expect(run(c.access?.readVersions, shopper)).toBe(false);
+    expect(run(c.access?.readVersions, null)).toBe(false);
+  });
+
   it.each(collections.map((c) => [c.slug, c] as const))(
     '%s states its own create, update and delete access',
     (_, c) => {
@@ -204,11 +266,26 @@ describe('orders', () => {
     ]);
   });
 
-  it('the status and the note have no access of their own: a role changes them', () => {
-    for (const name of ['status', 'managerNote'])
-      expect(
-        (field(Orders.fields, name) as { access?: unknown }).access,
-      ).toBeUndefined();
+  it('nobody changes whose order it is', () => {
+    const { update } = fieldAccess(Orders.fields, 'customer');
+    expect([run(update, owner), run(update, cosmetologist)]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('a role changes the status and the note, and only a role reads the note', () => {
+    expect(
+      (field(Orders.fields, 'status') as { access?: unknown }).access,
+    ).toBeUndefined();
+    const { read, update } = fieldAccess(Orders.fields, 'managerNote');
+    expect(update).toBeUndefined();
+    expect([
+      run(read, owner),
+      run(read, cosmetologist),
+      run(read, shopper),
+      run(read, null),
+    ]).toEqual([true, true, false, false]);
   });
 
   it('only the owner deletes one', () => {
@@ -256,11 +333,39 @@ describe('the care finder', () => {
 describe('users', () => {
   const { access } = Users;
 
+  // REST's forgot-password has no access rule, no Turnstile, and each request holds a pool client.
+  it.each(['REST', 'GraphQL'])('refuses %s forgotPassword', (payloadAPI) => {
+    expect(() =>
+      resetLetterThroughStore({
+        args: {},
+        operation: 'forgotPassword',
+        req: { payloadAPI, t: (key: string) => key },
+      } as never),
+    ).toThrow(Forbidden);
+  });
+
+  it.each([
+    ['local', 'forgotPassword'],
+    ['REST', 'login'],
+    ['REST', 'refresh'],
+    ['REST', 'resetPassword'],
+    ['REST', 'create'],
+  ])('lets %s %s through', (payloadAPI, operation) => {
+    const args = { keep: true };
+    expect(
+      resetLetterThroughStore({
+        args,
+        operation,
+        req: { payloadAPI },
+      } as never),
+    ).toBe(args);
+  });
+
   it('a role opens the admin', () => {
     expect([
       run(access!.admin, owner),
       run(access!.admin, cosmetologist),
-      run(access!.admin, { id: 3 }),
+      run(access!.admin, { id: 3, collection: 'users' }),
     ]).toEqual([true, true, false]);
   });
 
@@ -301,5 +406,126 @@ describe('users', () => {
       run(role.update, owner, '1'),
       run(role.update, cosmetologist, 2),
     ]).toEqual([false, false, false]);
+  });
+});
+
+// A shopper's session is a Payload session too, and a shopper's id is someone's on staff: being
+// signed in opens nothing (AC-5 and AC-8 of the task `customer-accounts`).
+describe('a shopper', () => {
+  it.each(collections.map((c) => [c.slug, c] as const))(
+    'creates, changes and deletes nothing in %s',
+    (_, { access }) => {
+      for (const operation of ['create', 'update', 'delete'] as const)
+        expect(run(access![operation], shopper)).toBe(false);
+    },
+  );
+
+  it.each([
+    ['users', Users],
+    ['consultation-requests', ConsultationRequests],
+    ['search-misses', SearchMisses],
+  ] as const)('reads nothing of %s', (_, { access }) => {
+    expect(run(access!.read, shopper)).toBe(false);
+  });
+
+  it('reads published products only, as anyone', () => {
+    expect(run(Products.access!.read, shopper)).toEqual({
+      _status: { equals: 'published' },
+    });
+  });
+
+  it('reads only their own orders', () => {
+    expect(run(Orders.access!.read, shopper)).toEqual({
+      customer: { equals: 1 },
+    });
+  });
+
+  it('reads only themselves among the shoppers', () => {
+    expect(run(Customers.access!.read, shopper)).toEqual({
+      id: { equals: 1 },
+    });
+  });
+
+  it('opens no admin and passes no staff rule', () => {
+    expect(run(Users.access!.admin, shopper)).toBe(false);
+    expect(run(Customers.access!.admin, shopper)).toBe(false);
+    expect(run(Users.access!.unlock, shopper)).toBe(false);
+    expect(run(CareFinder.access!.update, shopper)).toBe(false);
+    const role = fieldAccess(Users.fields, 'role');
+    expect(run(role.create, shopper)).toBe(false);
+    expect(run(role.update, shopper, 2)).toBe(false);
+    const price = fieldAccess(Products.fields, 'price');
+    expect(run(price.update, shopper)).toBe(false);
+  });
+
+  it('counts as staff nowhere, whatever a forged role says', () => {
+    const forged = { ...shopper, role: 'owner' };
+    expect(isStaff(forged as never)).toBe(false);
+    expect(hasRole(args(forged))).toBe(false);
+    expect(isOwner(args(forged))).toBe(false);
+  });
+});
+
+describe('customers', () => {
+  const { access } = Customers;
+  const roles = (operation: 'read' | 'create' | 'update' | 'delete') => [
+    run(access![operation], owner),
+    run(access![operation], cosmetologist),
+    run(access![operation], null),
+  ];
+
+  it('both roles read them, only the owner changes and deletes them', () => {
+    expect(roles('read')).toEqual([true, true, false]);
+    expect(roles('update')).toEqual([true, false, false]);
+    expect(roles('delete')).toEqual([true, false, false]);
+    expect(run(access!.unlock, owner)).toBe(true);
+    expect(run(access!.unlock, cosmetologist)).toBe(false);
+  });
+
+  it('nobody creates one through the API: the server action does', () => {
+    expect(roles('create')).toEqual([false, false, false]);
+  });
+
+  it('nobody opens the admin as a shopper', () => {
+    expect(run(access!.admin, owner)).toBe(false);
+  });
+
+  // first-register would make a verified account on an empty table, past Turnstile and the letter;
+  // forgot-password would send letters past Turnstile; reset-password would take a password Zod refuses;
+  // refresh would write an old copy of the sessions back.
+  it.each([
+    ['REST', 'create'],
+    ['GraphQL', 'create'],
+    ['REST', 'forgotPassword'],
+    ['GraphQL', 'forgotPassword'],
+    ['REST', 'resetPassword'],
+    ['GraphQL', 'resetPassword'],
+    ['REST', 'refresh'],
+    ['GraphQL', 'refresh'],
+  ])('refuses %s %s', (payloadAPI, operation) => {
+    expect(() =>
+      onlyThroughActions({
+        args: {},
+        operation,
+        req: { payloadAPI, t: (key: string) => key },
+      } as never),
+    ).toThrow(Forbidden);
+  });
+
+  it.each([
+    ['local', 'create'],
+    ['local', 'forgotPassword'],
+    ['local', 'resetPassword'],
+    ['REST', 'login'],
+    ['REST', 'update'],
+  ])('lets %s %s through', (payloadAPI, operation) => {
+    const args = { keep: true };
+    expect(
+      onlyThroughActions({
+        args,
+        operation,
+        req: { payloadAPI },
+      } as never),
+    ).toBe(args);
   });
 });

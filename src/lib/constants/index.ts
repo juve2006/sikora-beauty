@@ -24,6 +24,7 @@ export const RESERVED_SLUGS = [
   'product',
   'search',
   'skin-type',
+  'account',
   'admin',
   'api',
   'uk',
@@ -35,6 +36,13 @@ export const ROLE_LABELS: Record<(typeof ROLES)[number], string> = {
   owner: 'Власник',
   cosmetologist: 'Косметолог',
 };
+
+// How long a shopper stays signed in, and how seldom one account gets a reset letter: sooner, a
+// request is answered as usual and sends nothing.
+export const CUSTOMER_SESSION_SECONDS = 30 * 24 * 60 * 60;
+export const LETTER_INTERVAL = 5 * 60 * 1000;
+// The orders a shopper's account shows, the latest first.
+export const CUSTOMER_ORDERS = 50;
 
 export const AVAILABILITIES = [
   'in_stock',

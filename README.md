@@ -53,8 +53,16 @@ they reach the Telegram group with it.
 The questions, what each answer means (skin types, conditions, concerns) and the steps (their
 categories) are kept in the admin under «Каталог → Підбір догляду», where it stays off — no menu
 item, no page — until «Показувати на сайті» is ticked.
+«Кабінет» in the header, in the menu sheet on a phone, leads to `/account`. A shopper registers with
+an email and a password and gets a letter in the language they registered in; its link asks for that
+password, which confirms the email. Signed in, they land on the home page; in «Кабінет» they change their name and phone, see their orders as the manager moves them along, and
+find the checkout filled in. Ordering without an account works as before, and nothing links an
+earlier order. A forgotten password gets a letter too, staff's as well: the admin's own link leads to this form. The owner and the cosmetologist sign in
+through the same form and land in the admin; a shopper's session opens nothing of it. Accounts wait
+in the admin under «Продажі → Покупці»: both roles read them, the owner changes or deletes them, and
+a deleted shopper's orders stay.
 `/canvas` shows every storefront component in every variant and
-state; on a deployment only someone signed in to the admin sees it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+state; on a deployment only the owner and the cosmetologist see it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 
@@ -97,8 +105,11 @@ saved, without the second it is not checked. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.
+An account's letters go by SMTP with the `SMTP_*` variables (`docs/deploy.md`, step 9), which
+Production does not deploy without. Elsewhere nothing is sent or logged: to follow a letter's link,
+take the token from the `customers` table (`_verificationtoken`, `reset_password_token`).
 
-`npm run test:e2e` runs the checkout and the care finder in Playwright (360 px and desktop, both languages) on a
+`npm run test:e2e` runs the checkout, the care finder and the accounts in Playwright (360 px and desktop, both languages) on a
 production build — `npm run build` first — against a throwaway database: its migrations,
 `npm run seed:catalog`, then `NODE_ENV=production npm run payload -- run tests/e2e/seed.ts`, with
 `DATABASE_URL` pointing at it. A stub stands in for Nova Poshta. The first time,
@@ -116,8 +127,8 @@ The code is laid out and written as in nextjs-store
 ## Checks and deploy
 
 Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typecheck`, `lint`,
-`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout and the
-care finder in Playwright), `i18n` (same keys in both message files),
+`format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (the checkout, the
+care finder and the accounts in Playwright), `i18n` (same keys in both message files),
 `knowledge` (`jig knowledge check`), `audit` (`npm audit`, gitleaks).
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull

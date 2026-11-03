@@ -5,7 +5,7 @@ import {
 } from 'payload';
 
 import { availabilityLabels } from './products';
-import { hasRole, isOwner, nobody } from '@/lib/access';
+import { hasRole, isOwner, nobody, staffOrBuyer } from '@/lib/access';
 import { AVAILABILITIES, ORDER_STATUSES, PAYMENTS } from '@/lib/constants';
 import { canMoveStatus } from '@/lib/orders';
 
@@ -65,9 +65,9 @@ export const keepStatusForward: CollectionBeforeChangeHook = ({
 };
 
 // A shopper's order, waiting for the manager's confirmation (adr-20261028-two-step-launch). Their
-// name, phone and NP warehouse are personal data: only an admin role reads them, nobody creates an
-// order through the API — `placeOrder` does, after Zod, Turnstile and repricing — and only the
-// owner deletes one.
+// name, phone and NP warehouse are personal data: only an admin role and the shopper who ordered
+// signed in read them, nobody creates an order through the API — `placeOrder` does, after Zod,
+// Turnstile and repricing — and only the owner deletes one.
 export const Orders: CollectionConfig = {
   slug: 'orders',
   labels: { singular: 'Замовлення', plural: 'Замовлення' },
@@ -85,7 +85,12 @@ export const Orders: CollectionConfig = {
     ],
   },
   defaultSort: '-createdAt',
-  access: { read: hasRole, create: nobody, update: hasRole, delete: isOwner },
+  access: {
+    read: staffOrBuyer,
+    create: nobody,
+    update: hasRole,
+    delete: isOwner,
+  },
   hooks: { beforeChange: [keepStatusForward] },
   fields: [
     {
@@ -251,10 +256,22 @@ export const Orders: CollectionConfig = {
       })),
       admin: { position: 'sidebar', isClearable: false },
     },
+    // Staff's own: a shopper reads their order through the API too.
     {
       name: 'managerNote',
       type: 'textarea',
       label: 'Нотатка менеджера',
+      access: { read: hasRole },
+      admin: { position: 'sidebar' },
+    },
+    // Whose it is: set only at checkout, from the session, never by an email that matches
+    // (adr-20261103-customer-accounts). A guest's order has none, as has one whose account is gone.
+    {
+      name: 'customer',
+      type: 'relationship',
+      relationTo: 'customers',
+      label: 'Покупець',
+      access: sent,
       admin: { position: 'sidebar' },
     },
   ],

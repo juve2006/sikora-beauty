@@ -4,7 +4,7 @@ import {
   ValidationError,
 } from 'payload';
 
-import { editors, ownerField } from '@/lib/access';
+import { editors, hasRole, isStaff, ownerField } from '@/lib/access';
 import { aiDraftEndpoint } from './ai-draft-endpoint';
 import { importEndpoints } from './import-endpoints';
 import { revalidateStorefront } from './revalidate';
@@ -127,7 +127,10 @@ export const Products: CollectionConfig = {
   // `overrideAccess: false`: the Local API's default skips this rule and would return drafts.
   versions: { drafts: true },
   access: {
-    read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
+    read: ({ req }) =>
+      isStaff(req.user) ? true : { _status: { equals: 'published' } },
+    // Unstated, any session reads a draft through its version.
+    readVersions: hasRole,
     ...editors,
   },
   hooks: {

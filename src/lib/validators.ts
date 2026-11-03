@@ -12,6 +12,7 @@ import {
 } from '@/lib/constants';
 import { routing } from '@/i18n/routing';
 import { parseHryvnias } from '@/lib/utils';
+import type { AccountField } from '@/types';
 
 // The boundary of every input from outside (RULES.md): the admin's fields, a list's URL, an import,
 // a shopper's form.
@@ -397,3 +398,77 @@ export const npWarehouses = z.array(
     DenyToSelect: z.coerce.string(),
   }),
 );
+
+const email = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(254, 'long')
+  .pipe(z.email('emailInvalid'));
+// Payload refuses a blank password when it signs in, so one is never set.
+const newPassword = z
+  .string()
+  .max(200, 'long')
+  .refine((value) => value.trim().length >= 8, 'passwordShort');
+const turnstileToken = z.string().max(2048).optional().catch(undefined);
+
+// A shopper's account: each form checks its schema before sending, its server action again. A
+// message is a key of `Account.errors` in messages/*.json, translated by the form.
+export const signInRequest = z.object({
+  email,
+  // Whatever a password was when it was set: only the length a hash is worth computing for.
+  password: z
+    .string()
+    .max(200, 'long')
+    .refine((value) => value.trim(), 'required'),
+  // From a letter's link (`/account/verify`).
+  token: z
+    .string()
+    .regex(/^[a-f0-9]{40}$/)
+    .optional()
+    .catch(undefined),
+});
+export const registerRequest = z.object({
+  firstName: text(50),
+  lastName: text(50),
+  email,
+  password: newPassword,
+  locale: z.enum(routing.locales).catch(routing.defaultLocale),
+  token: turnstileToken,
+});
+// «Надіслати лист ще раз» and «Забули пароль?».
+export const emailRequest = z.object({ email, token: turnstileToken });
+// What Payload puts in a letter's link: 20 random bytes in hex.
+export const accountToken = z.preprocess(
+  first,
+  z.string().regex(/^[a-f0-9]{40}$/),
+);
+export const passwordReset = z.object({
+  token: accountToken,
+  password: newPassword,
+});
+export const profileUpdate = z.object({
+  firstName: text(50),
+  lastName: text(50),
+  // Optional, and clearing it clears it.
+  phone: z.preprocess((value) => value || null, phone.nullable()),
+});
+
+// A form's fields by name, Turnstile's own `cf-turnstile-response` as `token`: the data, or the error
+// keys of each field the shopper typed.
+export const parseAccountForm = <Schema extends z.ZodObject>(
+  schema: Schema,
+  form: FormData,
+) => {
+  const result = schema.safeParse({
+    token: form.get('cf-turnstile-response') ?? undefined,
+    ...Object.fromEntries(form),
+  });
+  return result.success
+    ? { data: result.data }
+    : {
+        errors: z.flattenError(result.error).fieldErrors as Partial<
+          Record<AccountField, string[]>
+        >,
+      };
+};

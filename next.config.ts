@@ -21,6 +21,15 @@ const nextConfig: NextConfig = {
     remotePatterns: blobStore ? [new URL(`https://${blobStore}.public.blob.vercel-storage.com/**`)] : [],
     localPatterns: [{ pathname: '/api/media/file/**', search: '' }],
   },
+  // Only a session the admin refuses lands at the first, which is a shopper's. Payload's page offers a
+  // log-out that cannot end their session; their account has one that does. The second is Payload's
+  // page for a letter's link, which confirms the email on a GET, without the password. Staff ask for a
+  // reset letter at the store's form, behind Turnstile: the admin's own page posts to a closed REST route.
+  redirects: async () => [
+    { source: '/admin/unauthorized', destination: '/account', permanent: false },
+    { source: '/admin/customers/verify/:token', destination: '/account/verify?token=:token', permanent: false },
+    { source: '/admin/forgot', destination: '/account/reset', permanent: false },
+  ],
   // From Payload's template: its sources import `.js` paths that are `.ts` files.
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

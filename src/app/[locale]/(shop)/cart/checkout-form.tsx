@@ -19,7 +19,13 @@ import { PAYMENTS } from '@/lib/constants';
 import { formatHryvnias } from '@/lib/utils';
 import { parseOrderForm } from '@/lib/validators';
 import { useRouter } from '@/i18n/navigation';
-import type { CartLine, DeliveryAnswer, OrderField, OrderState } from '@/types';
+import type {
+  CartLine,
+  DeliveryAnswer,
+  OrderContact,
+  OrderField,
+  OrderState,
+} from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +35,8 @@ type Props = {
   // What can be ordered, and the sum the shopper is shown: the server compares it with its own.
   lines: CartLine[];
   total: number;
+  // A signed-in shopper's name and phone, to start from.
+  contact?: OrderContact | null;
   // The cart changed under the order: its cards are read again.
   onChanged?: () => void;
   // /canvas only: a state to start from, the form while it sends, and the delivery search's answer.
@@ -68,6 +76,7 @@ export const sendOrder = async (
 const CheckoutForm = ({
   lines,
   total,
+  contact,
   onChanged,
   initialState = { status: 'idle' },
   sending = false,
@@ -141,6 +150,7 @@ const CheckoutForm = ({
                   id={`${id}-${name}`}
                   name={name}
                   required
+                  defaultValue={contact?.[name]}
                   {...input}
                   {...invalid(name)}
                 />
@@ -162,6 +172,7 @@ const CheckoutForm = ({
               required
               maxLength={20}
               placeholder={t('phonePlaceholder')}
+              defaultValue={contact?.phone}
               {...invalid('phone')}
             />
             {error('phone')}

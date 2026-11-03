@@ -2,6 +2,7 @@ import { DefaultTemplate } from '@payloadcms/next/templates';
 import { Gutter } from '@payloadcms/ui';
 import { redirect } from 'next/navigation';
 import type { AdminViewServerProps } from 'payload';
+import { isOwner } from '@/lib/access';
 import CosmetikaImport from './cosmetika-import';
 import PricesCsv from './prices-csv';
 
@@ -37,7 +38,7 @@ const ImportView = ({
           .import-page p, .import-page ul, .import-page details { margin: 0 0 var(--base); }
         `}</style>
         <h1>Імпорт</h1>
-        {req.user?.role === 'owner' ? (
+        {isOwner({ req }) ? (
           <>
             <CosmetikaImport />
             <PricesCsv />

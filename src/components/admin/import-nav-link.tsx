@@ -3,7 +3,7 @@ import type { ServerProps } from 'payload';
 
 // The menu entry, after the collections' groups; the owner's only.
 const ImportNavLink = ({ payload, user }: ServerProps) => {
-  if (user?.role !== 'owner') return null;
+  if (user?.collection !== 'users' || user.role !== 'owner') return null;
   return (
     <NavGroup label="Інструменти">
       <Link
