@@ -13,7 +13,7 @@ export function parentError(
   if (!parent) return null;
   if (children > 0) return 'Зона з категоріями не може стати категорією';
   if (parent.parent || ('id' in parent && parent.id === ownId))
-    return 'Батьком може бути лише зона';
+    return 'Вибрати можна лише зону';
   return null;
 }
 
@@ -25,7 +25,7 @@ export const Categories: CollectionConfig = {
     useAsTitle: 'fullTitle',
     defaultColumns: ['fullTitle', 'slug'],
     description:
-      'Зона — запис без батька (Обличчя, Тіло…). Категорія — запис, чий батько зона.',
+      'Зона — верхній рівень каталогу (Обличчя, Тіло…), поле «Зона» в ній порожнє. Категорія — тип товару всередині зони: виберіть зону в полі «Зона».',
   },
   orderable: true,
   access: { read: () => true, ...editors },
