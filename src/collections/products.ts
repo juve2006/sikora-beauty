@@ -132,6 +132,9 @@ export const Products: CollectionConfig = {
         '/components/admin/products-hint',
       ],
       edit: { beforeDocumentControls: ['/components/admin/published-at'] },
+      // Drafts and the publication date rest on versions, so they stay on, without their tab: people
+      // who run the store read it as a second copy of the product. /versions still opens by its URL.
+      views: { edit: { versions: { tab: { condition: () => false } } } },
     },
   },
   // A product reaches the storefront only once published (RULES.md). The storefront reads with
