@@ -90,6 +90,40 @@ test('the footer shows what the owner saved, in the page’s language, and nothi
   }
 });
 
+test('a contact of only spaces is not a contact', async ({ page, request }) => {
+  try {
+    await save(request, 'uk', { hours: ' \n ', address: '   ' });
+
+    await page.goto('/brands');
+    const footer = page.getByRole('contentinfo');
+    await expect(
+      footer.getByRole('heading', { name: uk.Footer.shoppers }),
+    ).toBeVisible();
+    await expect(
+      footer.getByRole('heading', { name: uk.Footer.contacts }),
+    ).toHaveCount(0);
+  } finally {
+    await save(request, 'uk', empty);
+  }
+});
+
+test('the footer’s way to the account asks for nothing before a click', async ({
+  page,
+}) => {
+  const asked: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/account') {
+      asked.push(request.url());
+    }
+  });
+
+  // Tall enough for the footer to be on screen from the start: Next prefetches the links it sees.
+  await page.setViewportSize({ ...page.viewportSize()!, height: 3000 });
+  await page.goto('/brands', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('contentinfo')).toBeInViewport();
+  expect(asked).toEqual([]);
+});
+
 test('the footer leads to the catalog and to a shopper’s pages', async ({
   page,
 }) => {

@@ -142,7 +142,9 @@
     "sampleStep": "Cleansing",
     "sampleStep3": "SPF",
     "sampleFirstName": "Olena",
-    "sampleLastName": "Koval"
+    "sampleLastName": "Koval",
+    "sampleHours": "Mon–Fri 10:00–19:00\nSat–Sun 11:00–18:00",
+    "sampleAddress": "A store address that may be long and wrap"
   },
   "Consultation": {
     "open": "Get a consultation",
