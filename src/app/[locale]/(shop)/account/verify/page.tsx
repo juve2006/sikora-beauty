@@ -3,7 +3,7 @@ import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { notFound, redirect } from 'next/navigation';
 
-import SignInForm from '../sign-in-form';
+import SignInForm from '@/components/shared/account/sign-in-form';
 import { routing } from '@/i18n/routing';
 import { getPathname } from '@/i18n/navigation';
 import { sessionUser, waitingToken } from '@/lib/actions/customer.actions';

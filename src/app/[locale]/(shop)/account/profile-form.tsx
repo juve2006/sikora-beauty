@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import AccountField from './account-field';
-import { useAccountForm } from './use-account-form';
+import AccountField from '@/components/shared/account/account-field';
+import { useAccountForm } from '@/components/shared/account/use-account-form';
+import Turnstile from '@/components/shared/consultation/turnstile';
 import { updateProfile } from '@/lib/actions/account.actions';
 import { profileUpdate } from '@/lib/validators';
 import type { Customer } from '@/payload-types';
@@ -25,6 +26,8 @@ const ProfileForm = ({
   const { state, pending, form, errors, onSubmit } = useAccountForm({
     action: updateProfile,
     schema: profileUpdate,
+    // Only the server knows whether the number is new, and asks only then.
+    turnstile: true,
     initialState,
   });
   const busy = pending || sending;
@@ -68,6 +71,7 @@ const ProfileForm = ({
         defaultValue={customer.phone ?? ''}
         errors={errors.phone}
       />
+      <Turnstile attempt={state} />
       {state.status === 'saved' && (
         <p role="status" className="text-sm text-muted-foreground">
           {t('saved')}

@@ -154,6 +154,14 @@ export const phone = z
   .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
   .transform((value) => `+38${value.slice(-10)}`);
 
+// The same in an account's forms: the sign-in dialog's field has +380 before it, so a number may come
+// without its 0.
+export const accountPhone = z
+  .string()
+  .transform((value) => value.replace(/[\s().-]/g, ''))
+  .transform((value) => (/^\d{9}$/.test(value) ? `0${value}` : value))
+  .pipe(phone);
+
 // The care finder's answers in `/care-finder?a=` (the first, if repeated) and in a consultation
 // request: Payload's ids of the answers' rows, comma-joined. Anything else is no answers.
 export const finderAnswers = z
@@ -428,9 +436,14 @@ export const signInRequest = z.object({
     .optional()
     .catch(undefined),
 });
+// `token` stays a letter's here, so Turnstile's keeps its own name.
+export const phoneSignInRequest = signInRequest
+  .omit({ email: true })
+  .extend({ phone: accountPhone, 'cf-turnstile-response': turnstileToken });
 export const registerRequest = z.object({
   firstName: text(50),
   lastName: text(50),
+  phone: accountPhone,
   email,
   password: newPassword,
   locale: z.enum(routing.locales).catch(routing.defaultLocale),
@@ -451,7 +464,8 @@ export const profileUpdate = z.object({
   firstName: text(50),
   lastName: text(50),
   // Optional, and clearing it clears it.
-  phone: z.preprocess((value) => value || null, phone.nullable()),
+  phone: z.preprocess((value) => value || null, accountPhone.nullable()),
+  token: turnstileToken,
 });
 
 // A form's fields by name, Turnstile's own `cf-turnstile-response` as `token`: the data, or the error

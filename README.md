@@ -53,12 +53,15 @@ they reach the Telegram group with it.
 The questions, what each answer means (skin types, conditions, concerns) and the steps (their
 categories) are kept in the admin under «Каталог → Підбір догляду», where it stays off — no menu
 item, no page — until «Показувати на сайті» is ticked.
-«Кабінет» in the header, in the menu sheet on a phone, leads to `/account`. A shopper registers with
-an email and a password and gets a letter in the language they registered in; its link asks for that
-password, which confirms the email. Signed in, they land on the home page; in «Кабінет» they change their name and phone, see their orders as the manager moves them along, and
-find the checkout filled in. Ordering without an account works as before, and nothing links an
+«Кабінет» in the header, in the menu sheet on a phone, opens a sign-in dialog over the page; someone
+signed in, or a browser without JavaScript, goes to `/account`. A shopper registers with a name, a
+phone number, an email and a password and gets a letter in the language they registered in; its link
+asks for that password, which confirms the email. They sign in by number or by email and stay on the
+page; in «Кабінет» they change their name and phone, see their orders as the manager moves them along, and
+find the checkout filled in. Nobody proves a number; a confirmed account keeps it, and the owner
+changes or clears one in the admin. The Google button does not work yet. Ordering without an account works as before, and nothing links an
 earlier order. A forgotten password gets a letter too, staff's as well: the admin's own link leads to this form. The owner and the cosmetologist sign in
-through the same form and land in the admin; a shopper's session opens nothing of it. Accounts wait
+by email through the same form and land in the admin; a shopper's session opens nothing of it. Accounts wait
 in the admin under «Продажі → Покупці»: both roles read them, the owner changes or deletes them, and
 a deleted shopper's orders stay.
 `/canvas` shows every storefront component in every variant and
@@ -101,7 +104,8 @@ unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з 
 order or a consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`
 (`docs/deploy.md`, step 8), and is checked by Cloudflare Turnstile with
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`; without the first pair it is only
-saved, without the second it is not checked. A public
+saved, without the second it is not checked. The same keys check a shopper's registration, their
+letters and whatever tries a phone number. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.

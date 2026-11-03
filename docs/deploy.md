@@ -28,7 +28,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `BLOB_READ_WRITE_TOKEN`                                             | Blob store token                                                                                                              | Vercel env, Production, Preview and Development (set by Vercel when the store is connected); the build fails without it                                                     |
 | `SITE_PASSWORD`                                                     | the site password, 12+ characters, shared with the owner and the cosmetologist                                                | Vercel env, Production only, Sensitive; the Production build fails without it                                                                                               |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                            | the bot that posts orders and consultation requests, and the group it posts to                                                | Vercel env, Production only, the token Sensitive; without them an order or a request is only saved                                                                          |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form and the checkout                                                   | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form, the checkout and a shopper's account                              | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
 | `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
 
@@ -70,7 +70,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    Production only. A group that Telegram upgrades to a supergroup gets a new id: sends then fail
    with `Telegram:` in the host's log, until the new id is set and Production is redeployed.
    Before the site opens: Cloudflare → Turnstile → add a widget (Managed) for the production
-   domain → `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (Sensitive).
+   domain → `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (Sensitive). Then register,
+   sign in by number and change the number in «Кабінет» on that domain by hand: no test runs the
+   real widget, as CI has no keys (adr-20261103-phone-sign-in).
 9. **Letters to shoppers.** A Gmail account of the store's own, never a person's → Google Account
    → Security → 2-Step Verification on → App passwords → create one → password manager. Vercel →
    Settings → Environment Variables, Production only: `SMTP_HOST` `smtp.gmail.com`, `SMTP_PORT`

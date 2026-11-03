@@ -1,4 +1,10 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import {
+  type Browser,
+  expect,
+  test,
+  type Locator,
+  type Page,
+} from '@playwright/test';
 import pg from 'pg';
 
 import en from '../../messages/en.json' with { type: 'json' };
@@ -23,14 +29,40 @@ const open = (page: Page, path: string) =>
 const signInForm = (page: Page, m: typeof uk) =>
   page.getByRole('region', { name: m.Account.signIn });
 
+// A number nobody has: the tests' accounts keep theirs.
+const freshNumber = () =>
+  `50${String(Math.random()).slice(2, 9).padEnd(7, '0')}`;
+
+// «За Email», unless the form is there already.
+const byEmail = async (form: Locator, m: typeof uk) => {
+  // A dialog asks the server first, and `isVisible` does not wait for it.
+  await expect(
+    form.getByLabel(m.Account.password, { exact: true }),
+  ).toBeVisible();
+  const button = form.getByRole('button', { name: m.Account.byEmail });
+  if (await button.isVisible()) await button.click();
+};
+
 const fillSignIn = async (
   form: Locator,
   m: typeof uk,
   email: string,
   secret: string,
 ) => {
+  await byEmail(form, m);
   await form.getByLabel(m.Account.email).fill(email);
-  await form.getByLabel(m.Account.password).fill(secret);
+  await form.getByLabel(m.Account.password, { exact: true }).fill(secret);
+  await form.getByRole('button', { name: m.Account.signIn }).click();
+};
+
+const fillByNumber = async (
+  form: Locator,
+  m: typeof uk,
+  number: string,
+  secret: string,
+) => {
+  await form.getByLabel(m.Account.phone).fill(number);
+  await form.getByLabel(m.Account.password, { exact: true }).fill(secret);
   await form.getByRole('button', { name: m.Account.signIn }).click();
 };
 
@@ -45,26 +77,46 @@ const pressOnLetter = (
   secret: string,
 ) => fillSignIn(page.getByRole('main'), m, email, secret);
 
-const fillRegister = async (
+const fillForm = async (
+  form: Locator,
+  m: typeof uk,
+  email: string,
+  secret: string,
+  number = freshNumber(),
+) => {
+  await form.getByLabel(m.Account.firstName).fill('Олена');
+  await form.getByLabel(m.Account.lastName).fill('Тестова');
+  await form.getByLabel(m.Account.phone).fill(number);
+  await form.getByLabel(m.Account.email).fill(email);
+  await form.getByLabel(m.Account.password, { exact: true }).fill(secret);
+  return form.getByRole('button', { name: m.Account.register });
+};
+
+const registerForm = (page: Page, m: typeof uk) =>
+  page.getByRole('region', { name: m.Account.register });
+
+const fillRegister = (
   page: Page,
   m: typeof uk,
   email: string,
   secret: string,
-) => {
-  const form = page.getByRole('region', { name: m.Account.register });
-  await form.getByLabel(m.Account.firstName).fill('Олена');
-  await form.getByLabel(m.Account.lastName).fill('Тестова');
-  await form.getByLabel(m.Account.email).fill(email);
-  await form.getByLabel(m.Account.password).fill(secret);
-  return form.getByRole('button', { name: m.Account.register });
-};
+  number?: string,
+) => fillForm(registerForm(page, m), m, email, secret, number);
 
 const register = async (
   page: Page,
   m: typeof uk,
   email: string,
   secret = password,
-) => (await fillRegister(page, m, email, secret)).click();
+  number?: string,
+) => (await fillRegister(page, m, email, secret, number)).click();
+
+// The way in from any page: the header's link from `sm`, an item of the sheet on a phone.
+const pressAccount = async (page: Page, m: typeof uk) => {
+  if (page.viewportSize()!.width < 640)
+    await page.getByRole('button', { name: m.Nav.menu }).click();
+  await page.getByRole('link', { name: m.Nav.account }).click();
+};
 
 const column = async (email: string, name: string) => {
   const { rows } = await database.query(
@@ -147,15 +199,13 @@ for (const [locale, m, prefix] of [
   }) => {
     const email = unique();
 
-    // The header leads to the account: a link from `sm`, an item of the sheet on a phone.
-    await page.goto(`${prefix}/`);
-    if (page.viewportSize()!.width < 640)
-      await page.getByRole('button', { name: m.Nav.menu }).click();
-    await page.getByRole('link', { name: m.Nav.account }).click();
-    await expect(page).toHaveURL(/\/account$/);
+    // Signed out, the header's way to the account opens the dialog over the page.
+    await open(page, `${prefix}/`);
+    await pressAccount(page, m);
     await expect(
-      page.getByRole('heading', { level: 1, name: m.Account.title }),
+      page.getByRole('dialog', { name: m.Account.signInTitle }),
     ).toBeVisible();
+    await expect(page).toHaveURL(prefix || '/');
 
     await open(page, `${prefix}/account`);
     await register(page, m, email);
@@ -182,21 +232,20 @@ for (const [locale, m, prefix] of [
     await pressOnLetter(page, m, email, password);
     // To the home page, and the header's link now shows the account, not a form kept from before.
     await expect(page).toHaveURL(prefix || '/');
-    if (page.viewportSize()!.width < 640)
-      await page.getByRole('button', { name: m.Nav.menu }).click();
-    await page.getByRole('link', { name: m.Nav.account }).click();
+    await pressAccount(page, m);
     await expect(page).toHaveURL(/\/account$/);
     const signOut = signOutButton(page, m);
     await expect(signOut).toBeVisible();
     expect(await column(email, '_verified')).toBe(true);
     await expect(page.getByText(m.Account.noOrders)).toBeVisible();
 
-    // Their name fills in the checkout; the phone is not known yet, then it is.
+    // Their name and number fill in the checkout.
     await orderSerum(page, m, prefix);
     await expect(page.getByLabel(m.Checkout.firstName)).toHaveValue('Олена');
     await expect(page.getByLabel(m.Checkout.lastName)).toHaveValue('Тестова');
-    await expect(page.getByLabel(m.Checkout.phone)).toHaveValue('');
-    await page.getByLabel(m.Checkout.phone).fill('067 123 45 67');
+    await expect(page.getByLabel(m.Checkout.phone)).toHaveValue(
+      await column(email, 'phone'),
+    );
     const id = await place(page, m);
     expect(await buyer(id)).toBe(await column(email, 'id'));
 
@@ -228,14 +277,15 @@ for (const [locale, m, prefix] of [
       profile.getByLabel(m.Account.phone),
     ).toHaveAccessibleDescription(m.Account.errors.phoneInvalid);
     await expect(profile.getByLabel(m.Account.firstName)).toHaveValue('Марія');
-    await profile.getByLabel(m.Account.phone).fill('067 765 43 21');
+    const number = freshNumber();
+    await profile.getByLabel(m.Account.phone).fill(`0${number}`);
     await profile.getByRole('button', { name: m.Account.save }).click();
     await expect(profile.getByRole('status')).toHaveText(m.Account.saved);
     expect(await column(email, 'first_name')).toBe('Марія');
     await orderSerum(page, m, prefix);
     await expect(page.getByLabel(m.Checkout.firstName)).toHaveValue('Марія');
     await expect(page.getByLabel(m.Checkout.phone)).toHaveValue(
-      '+380677654321',
+      `+380${number}`,
     );
 
     // Signing out ends the session on the server: the cookie kept from before opens nothing.
@@ -506,8 +556,9 @@ test('registering again while the owner confirms never hands over the account', 
 
     await open(page, `/account/verify?token=${token}`);
     const letter = page.getByRole('main');
+    await byEmail(letter, uk);
     await letter.getByLabel(uk.Account.email).fill(email);
-    await letter.getByLabel(uk.Account.password).fill(theirs);
+    await letter.getByLabel(uk.Account.password, { exact: true }).fill(theirs);
     const confirm = letter.getByRole('button', { name: uk.Account.signIn });
     const again = await Promise.all(
       others.map(async (tab) => {
@@ -1040,10 +1091,314 @@ test('a forgotten password: the same answer, a link, a new password', async ({
   await page.getByRole('button', { name: uk.Account.savePassword }).click();
   await expect(page.getByRole('status')).toHaveText(uk.Account.changed);
 
-  await page.getByLabel(uk.Account.email).fill(email);
-  await page.getByLabel(uk.Account.password).fill('a-new-password');
-  await page.getByRole('button', { name: uk.Account.signIn }).click();
+  await fillSignIn(page.getByRole('main'), uk, email, 'a-new-password');
   await landedSignedIn(page, uk, '');
+});
+
+test('the dialog signs in by number, however it is written, and stays on the page', async ({
+  page,
+}) => {
+  const email = await confirmed(page, uk, '');
+  const kept = await column(email, 'phone');
+
+  await open(page, '/brands');
+  await pressAccount(page, uk);
+  const dialog = page.getByRole('dialog', { name: uk.Account.signInTitle });
+
+  // An unknown number and a wrong password say the same.
+  await fillByNumber(dialog, uk, freshNumber(), password);
+  await expect(dialog.getByRole('alert')).toHaveText(uk.Account.wrongPhone);
+  await fillByNumber(dialog, uk, kept, 'not-the-password');
+  await expect(dialog.getByRole('alert')).toHaveText(uk.Account.wrongPhone);
+  await expect(
+    dialog.getByRole('button', { name: uk.Account.signIn }),
+  ).toBeEnabled();
+
+  await fillByNumber(dialog, uk, kept.slice(4), password);
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/brands$/);
+
+  // Signed in, the same way leads to the account. Once closed, nothing is left over the page.
+  await pressAccount(page, uk);
+  await expect(page).toHaveURL(/\/account$/);
+  await expect(signOutButton(page, uk)).toBeVisible();
+  await signOutButton(page, uk).click();
+  await expect(signInForm(page, uk)).toBeVisible();
+
+  // Every way it may be written leads to the one number.
+  for (const written of [`0${kept.slice(4)}`, kept]) {
+    await page.context().clearCookies();
+    await open(page, '/account');
+    await fillByNumber(signInForm(page, uk), uk, written, password);
+    await landedSignedIn(page, uk, '');
+  }
+});
+
+test('the dialog registers too; a link out closes it, and it opens on sign-in again', async ({
+  page,
+}) => {
+  await open(page, '/');
+  await pressAccount(page, uk);
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: uk.Account.register }).click();
+  await expect(
+    dialog.getByRole('heading', { name: uk.Account.registerTitle }),
+  ).toBeVisible();
+
+  const email = unique();
+  await (await fillForm(dialog, uk, email, password)).click();
+  await expect(dialog.getByRole('status')).toContainText(email);
+
+  await dialog.getByRole('button', { name: uk.Account.close }).click();
+  await expect(dialog).toBeHidden();
+  await pressAccount(page, uk);
+  await expect(
+    dialog.getByRole('heading', { name: uk.Account.signInTitle }),
+  ).toBeVisible();
+
+  await dialog.getByRole('link', { name: uk.Account.forgot }).click();
+  await expect(page).toHaveURL(/\/account\/reset$/);
+  await expect(dialog).toBeHidden();
+});
+
+test('a number is taken once confirmed, and only then', async ({
+  page,
+  playwright,
+}) => {
+  const number = freshNumber();
+  const kept = `+380${number}`;
+  const first = unique();
+  const second = unique();
+
+  // Nobody confirmed the first, so the number goes on to whoever registers it next.
+  await open(page, '/account');
+  await register(page, uk, first, password, number);
+  await expect(page.getByRole('status')).toContainText(first);
+  await open(page, '/account');
+  await register(page, uk, second, password, number);
+  await expect(page.getByRole('status')).toContainText(second);
+  expect(await column(first, 'phone')).toBeNull();
+  expect(await column(second, 'phone')).toBe(kept);
+
+  await open(
+    page,
+    `/account/verify?token=${await column(second, '_verificationtoken')}`,
+  );
+  await pressOnLetter(page, uk, second, password);
+  await landedSignedIn(page, uk, '');
+  await page.context().clearCookies();
+
+  // Confirmed, it stays: at registration, nothing is made of the attempt.
+  const third = unique();
+  await open(page, '/account');
+  await register(page, uk, third, password, number);
+  await expect(
+    registerForm(page, uk).getByLabel(uk.Account.phone),
+  ).toHaveAccessibleDescription(uk.Account.errors.phoneTaken);
+  expect(await column(third, 'id')).toBeUndefined();
+  expect(await column(second, 'phone')).toBe(kept);
+
+  // And in someone's account.
+  await signedIn(page, uk, '');
+  const profile = page.getByRole('region', { name: uk.Account.profile });
+  await profile.getByLabel(uk.Account.phone).fill(kept);
+  await profile.getByRole('button', { name: uk.Account.save }).click();
+  await expect(
+    profile.getByLabel(uk.Account.phone),
+  ).toHaveAccessibleDescription(uk.Account.errors.phoneTaken);
+  await expect(profile.getByLabel(uk.Account.phone)).toHaveValue(kept);
+
+  // The owner changes or clears it in the admin, as sign-in looks it up.
+  const manager = await playwright.request.newContext({
+    baseURL: 'http://localhost:3200',
+  });
+  await manager.post('/api/users/login', { data: owner });
+  const id = await column(second, 'id');
+  const write = (phone: string) =>
+    manager.patch(`/api/customers/${id}`, { data: { phone } });
+  const typed = freshNumber();
+  expect((await write(`0${typed}`)).status()).toBe(200);
+  expect(await column(second, 'phone')).toBe(`+380${typed}`);
+  expect((await write('not a number')).status()).toBe(400);
+  expect(await column(second, 'phone')).toBe(`+380${typed}`);
+  expect((await write('')).status()).toBe(200);
+  expect(await column(second, 'phone')).toBeNull();
+  // A write that does not name it keeps it: the other way round, in a clean row.
+  expect((await write(`0${typed}`)).status()).toBe(200);
+  expect(
+    (
+      await manager.patch(`/api/customers/${id}`, {
+        data: { firstName: 'Лариса' },
+      })
+    ).status(),
+  ).toBe(200);
+  expect(await column(second, 'phone')).toBe(`+380${typed}`);
+  await manager.dispose();
+});
+
+test('an account not confirmed answers by number as by email, and its letter takes the number', async ({
+  page,
+}) => {
+  const email = unique();
+  const number = freshNumber();
+  await open(page, '/account');
+  await register(page, uk, email, password, number);
+  await expect(page.getByRole('status')).toContainText(email);
+
+  await open(page, '/account');
+  await fillByNumber(signInForm(page, uk), uk, number, password);
+  await expect(signInForm(page, uk).getByRole('alert')).toHaveText(
+    uk.Account.unverified,
+  );
+
+  await open(
+    page,
+    `/account/verify?token=${await column(email, '_verificationtoken')}`,
+  );
+  await fillByNumber(page.getByRole('main'), uk, number, password);
+  await landedSignedIn(page, uk, '');
+  expect(await column(email, '_verified')).toBe(true);
+});
+
+test('a closed dialog hands the focus back to what opened it', async ({
+  page,
+}) => {
+  await open(page, '/');
+  await pressAccount(page, uk);
+  const dialog = page.getByRole('dialog', { name: uk.Account.signInTitle });
+  await expect(dialog).toBeVisible();
+  // Once it is gone, a sheet's own close cannot be what hands the focus back.
+  await expect(page.locator('[data-slot="sheet-content"]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  // A phone's item went with the sheet.
+  await expect(
+    page.viewportSize()!.width < 640
+      ? page.getByRole('button', { name: uk.Nav.menu })
+      : page.getByRole('link', { name: uk.Nav.account }),
+  ).toBeFocused();
+});
+
+test('another address closes the dialog: the header outlives the page', async ({
+  page,
+}) => {
+  await open(page, '/brands');
+  if (page.viewportSize()!.width < 640)
+    await page.getByRole('button', { name: uk.Nav.menu }).click();
+  await page.getByRole('link', { name: uk.Nav.about }).click();
+  await expect(page).toHaveURL(/\/about$/);
+  await pressAccount(page, uk);
+  const dialog = page.getByRole('dialog', { name: uk.Account.signInTitle });
+  await expect(dialog).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/brands$/);
+  await expect(dialog).toBeHidden();
+});
+
+test.describe('one number at once, on the real index', () => {
+  test.beforeEach(({ page }) => {
+    test.skip(
+      page.viewportSize()!.width < 640,
+      'The race is the server’s: one run of it is enough.',
+    );
+  });
+
+  const tabs = async (browser: Browser, count: number) =>
+    Promise.all(
+      Array.from({ length: count }, async () =>
+        (await browser.newContext()).newPage(),
+      ),
+    );
+
+  test('registering: one holder, and nobody is told it failed', async ({
+    browser,
+  }) => {
+    const number = freshNumber();
+    const pages = await tabs(browser, 6);
+    const emails = pages.map(() => unique());
+    const buttons = await Promise.all(
+      pages.map(async (tab, index) => {
+        await open(tab, '/account');
+        return fillRegister(tab, uk, emails[index], password, number);
+      }),
+    );
+    await Promise.all(buttons.map((button) => button.click()));
+    for (const tab of pages) {
+      await expect(
+        tab.getByRole('status').or(tab.getByText(uk.Account.errors.phoneTaken)),
+      ).toBeVisible();
+      await expect(tab.getByText(uk.Account.failed)).toHaveCount(0);
+    }
+    const holders = await Promise.all(
+      emails.map((email) => column(email, 'phone')),
+    );
+    expect(holders.filter(Boolean)).toEqual([`+380${number}`]);
+    await Promise.all(pages.map((tab) => tab.context().close()));
+  });
+
+  test('saving a profile: one keeps it, the others are told it is taken', async ({
+    browser,
+  }) => {
+    const number = freshNumber();
+    const pages = await tabs(browser, 4);
+    const emails = [];
+    for (const tab of pages) emails.push(await signedIn(tab, uk, ''));
+    const profiles = pages.map((tab) =>
+      tab.getByRole('region', { name: uk.Account.profile }),
+    );
+    await Promise.all(
+      profiles.map((profile) =>
+        profile.getByLabel(uk.Account.phone).fill(`0${number}`),
+      ),
+    );
+    await Promise.all(
+      profiles.map((profile) =>
+        profile.getByRole('button', { name: uk.Account.save }).click(),
+      ),
+    );
+    for (const [index, profile] of profiles.entries()) {
+      await expect(
+        profile
+          .getByRole('status')
+          .or(profile.getByText(uk.Account.errors.phoneTaken)),
+      ).toBeVisible();
+      await expect(pages[index].getByText(uk.Account.failed)).toHaveCount(0);
+    }
+    const holders = await Promise.all(
+      emails.map((email) => column(email, 'phone')),
+    );
+    expect(holders.filter((held) => held === `+380${number}`)).toHaveLength(1);
+    await Promise.all(pages.map((tab) => tab.context().close()));
+  });
+});
+
+test('a link to the account opened in a new tab skips the dialog', async ({
+  page,
+  context,
+}) => {
+  test.skip(
+    page.viewportSize()!.width < 640,
+    'A phone has the link in the sheet.',
+  );
+  await open(page, '/');
+  const [tab] = await Promise.all([
+    context.waitForEvent('page'),
+    page
+      .getByRole('link', { name: uk.Nav.account })
+      .click({ modifiers: ['ControlOrMeta'] }),
+  ]);
+  await expect(tab).toHaveURL(/\/account$/);
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await tab.close();
+});
+
+test('the owner signs in by email in the dialog and lands in the admin', async ({
+  page,
+}) => {
+  await open(page, '/');
+  await pressAccount(page, uk);
+  await fillSignIn(page.getByRole('dialog'), uk, owner.email, owner.password);
+  await expect(page).toHaveURL(/\/admin/);
 });
 
 test.describe('without JavaScript', () => {
@@ -1051,9 +1406,20 @@ test.describe('without JavaScript', () => {
 
   test('a password never reaches the address', async ({ page }) => {
     await page.goto('/account');
-    await pressSignIn(page, uk, unique(), password);
+    await fillByNumber(signInForm(page, uk), uk, freshNumber(), password);
     await page.waitForLoadState();
     expect(page.url()).not.toContain('password');
+  });
+
+  test('the header’s link leads to the account', async ({ page }) => {
+    test.skip(
+      page.viewportSize()!.width < 640,
+      'A phone has the link in the sheet, which needs JavaScript.',
+    );
+    await page.goto('/');
+    await page.getByRole('link', { name: uk.Nav.account }).click();
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(signInForm(page, uk)).toBeVisible();
   });
 });
 

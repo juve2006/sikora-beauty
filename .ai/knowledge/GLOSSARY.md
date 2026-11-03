@@ -280,7 +280,8 @@ Use in: source code, schema, API, documentation.
 ## Shopper
 
 Someone buying from the store: a guest, or, with an account, a row of the Payload collection
-`customers`, «Покупець», who signs in at `/account`.
+`customers`, «Покупець», who signs in by a phone number or an email, in the dialog from the header
+or at `/account`.
 
 Informal synonyms: покупець, клієнт, customer.
 Use in: source code (`customers`, `currentCustomer`), schema, API, documentation.

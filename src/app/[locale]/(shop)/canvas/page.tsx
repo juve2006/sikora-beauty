@@ -47,10 +47,11 @@ import Routine from '@/app/[locale]/(shop)/care-finder/routine';
 import NewPasswordForm from '@/app/[locale]/(shop)/account/new-password-form';
 import OrderHistory from '@/app/[locale]/(shop)/account/order-history';
 import ProfileForm from '@/app/[locale]/(shop)/account/profile-form';
-import RegisterForm from '@/app/[locale]/(shop)/account/register-form';
 import RequestResetForm from '@/app/[locale]/(shop)/account/request-reset-form';
-import ResendForm from '@/app/[locale]/(shop)/account/resend-form';
-import SignInForm from '@/app/[locale]/(shop)/account/sign-in-form';
+import AccountDialog from '@/components/shared/account/account-dialog';
+import RegisterForm from '@/components/shared/account/register-form';
+import ResendForm from '@/components/shared/account/resend-form';
+import SignInForm from '@/components/shared/account/sign-in-form';
 import AccountLink from '@/components/shared/header/account-link';
 import AdminLink from '@/components/shared/header/admin-link';
 import CartLink from '@/components/shared/header/cart-link';
@@ -1011,11 +1012,28 @@ const CanvasPage = async ({ params }: Props) => {
           </div>
         </Section>
 
+        <Section title="AccountDialog">
+          <Specimen label="sign-in, then registration inside it">
+            <AccountDialog
+              trigger={
+                <Button variant="outline" size="sm">
+                  AccountDialog
+                </Button>
+              }
+            />
+          </Specimen>
+        </Section>
+
         <Section title="SignInForm">
           <div className="grid gap-10 sm:grid-cols-2">
             <Specimen label="idle">
               <div className="w-full max-w-sm">
                 <SignInForm />
+              </div>
+            </Specimen>
+            <Specimen label="idle (by email)">
+              <div className="w-full max-w-sm">
+                <SignInForm byEmail />
               </div>
             </Specimen>
             <Specimen label="invalid">
@@ -1024,11 +1042,30 @@ const CanvasPage = async ({ params }: Props) => {
                   initialState={{
                     status: 'invalid',
                     errors: {
+                      phone: ['phoneInvalid'],
+                      password: ['required'],
+                    },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="invalid (by email)">
+              <div className="w-full max-w-sm">
+                <SignInForm
+                  byEmail
+                  initialState={{
+                    status: 'invalid',
+                    errors: {
                       email: ['emailInvalid'],
                       password: ['required'],
                     },
                   }}
                 />
+              </div>
+            </Specimen>
+            <Specimen label="wrong (by email)">
+              <div className="w-full max-w-sm">
+                <SignInForm byEmail initialState={{ status: 'wrong' }} />
               </div>
             </Specimen>
             {(['wrong', 'locked', 'failed'] as const).map((status) => (
@@ -1071,6 +1108,7 @@ const CanvasPage = async ({ params }: Props) => {
                     errors: {
                       firstName: ['required'],
                       lastName: ['long'],
+                      phone: ['phoneTaken'],
                       email: ['taken'],
                       password: ['passwordShort'],
                     },

@@ -23,7 +23,8 @@ const schema = z
     // stored.
     TELEGRAM_BOT_TOKEN: z.string().optional(),
     TELEGRAM_CHAT_ID: z.string().optional(),
-    // Cloudflare Turnstile on the consultation form; without them the form has no check.
+    // Cloudflare Turnstile on the consultation form, the checkout and a shopper's account: registration,
+    // letters, whatever tries a number. Without them none of these has a check.
     TURNSTILE_SECRET_KEY: z.string().optional(),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
     // Nova Poshta's search at the checkout; without the key it asks with an empty one, and when

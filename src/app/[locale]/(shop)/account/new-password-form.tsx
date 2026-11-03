@@ -1,9 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import AccountField from './account-field';
-import SignInForm from './sign-in-form';
-import { useAccountForm } from './use-account-form';
+import AccountField from '@/components/shared/account/account-field';
+import SignInForm from '@/components/shared/account/sign-in-form';
+import { useAccountForm } from '@/components/shared/account/use-account-form';
 import { resetPassword } from '@/lib/actions/account.actions';
 import { passwordReset } from '@/lib/validators';
 import { Link } from '@/i18n/navigation';

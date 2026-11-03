@@ -38,7 +38,8 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
           (suggestProducts, adr-20261031-search-in-memory; productCards,
           adr-20261031-favorites-in-the-browser; placeOrder, findSettlements, findWarehouses,
           adr-20261101-cart-and-checkout; the account's forms in account.actions.ts,
-          adr-20261103-customer-accounts) or AdminLink's /api/users/me
+          adr-20261103-customer-accounts; isSignedIn on a click, adr-20261103-phone-sign-in) or
+          AdminLink's /api/users/me
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
 
@@ -65,9 +66,10 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
   uses are deleted from it, not kept for later. A radius step it uses that the theme does not
   define (`rounded-4xl` in `Badge`) falls back to Tailwind's fixed default without an error, so the
   step is added to `@theme inline` in `globals.css` as shadcn's multiple of `--radius`.
-- The one place with raw colours is `src/app/[locale]/icon.svg`: a favicon cannot read CSS
-  variables, so it repeats the light theme's `--primary` and `--primary-foreground`. It changes
-  with them.
+- Raw colours live in three places. `src/app/[locale]/icon.svg`: a favicon cannot read CSS
+  variables, so it repeats the light theme's `--primary` and `--primary-foreground`, and changes
+  with them. The Ukrainian flag in `PhoneField` and Google's mark in `OtherWays`: their colours are
+  theirs, not the theme's, and stay the same in both themes.
 - On `/canvas` the names of components, variants and sizes are code identifiers and are not
   translated; every other string comes from the `Canvas` messages. Its sample photos are drawn
   SVGs in `public/samples/`, not files from the catalog: `/canvas` needs no database content.
