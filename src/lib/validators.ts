@@ -84,21 +84,40 @@ export const listingParams = z.object({
   page: z.preprocess(first, z.coerce.number().int().min(1).catch(1)),
 });
 
+// An address on cosmetika.com.ua: the server fetches it, so an answer never sends the server elsewhere.
+export const cosmetikaUrl = z.url({
+  protocol: /^https$/,
+  hostname: /^www\.cosmetika\.com\.ua$/,
+});
+
 // A cosmetika.com.ua product: only the fields the import reads; the rest of the answer is ignored.
-const named = z.array(z.object({ name: z.string() }));
 export const cosmetikaProduct = z.object({
   id: z.number().int(),
-  name: z.string().min(1),
-  permalink: z.url(),
-  description: z.string(),
-  prices: z.object({
-    price: z.string().regex(/^\d+$/),
-    currency_code: z.literal('UAH'),
-    currency_minor_unit: z.literal(2),
+  link: cosmetikaUrl,
+  title: z.object({ rendered: z.string().min(1) }),
+  content: z.object({ rendered: z.string() }),
+  _embedded: z.object({
+    'wp:term': z.array(
+      z.array(z.object({ taxonomy: z.string(), name: z.string() })),
+    ),
   }),
-  images: z.array(z.object({ src: z.url() })),
-  categories: named,
-  brands: named,
+});
+
+// The offer in the JSON-LD of a product's page. A sale adds the list price, marked with `priceType`.
+export const cosmetikaOffer = z.object({
+  offers: z
+    .array(
+      z.object({
+        priceSpecification: z.array(
+          z.object({
+            price: z.string().regex(/^\d+\.\d{2}$/),
+            priceCurrency: z.literal('UAH'),
+            priceType: z.string().optional(),
+          }),
+        ),
+      }),
+    )
+    .min(1),
 });
 
 // A page of cosmetika's answer: outside input too, its page count bounds the loop that reads them.

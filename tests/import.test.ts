@@ -2,33 +2,56 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { PayloadRequest } from 'payload';
 
-import { brandOf, decode, toProduct, toText, volumeOf } from '@/lib/cosmetika';
+import {
+  brandOf,
+  decode,
+  offerOf,
+  toProduct,
+  toText,
+  volumeOf,
+} from '@/lib/cosmetika';
 import { cosmetikaProduct } from '@/lib/validators';
 import { importEndpoints } from '@/collections/import-endpoints';
 import { parseCsv, planPrices, toCsv } from '@/lib/prices';
 import type { PricedProduct } from '@/types';
 
+const terms = (brand: string, ...categories: string[]) => ({
+  'wp:term': [
+    [{ taxonomy: 'product_brand', name: brand }],
+    categories.map((name) => ({ taxonomy: 'product_cat', name })),
+  ],
+});
+
+const link = 'https://www.cosmetika.com.ua/shop/axatopic-cream/';
 const source = {
   id: 17195,
-  name: 'Braderm Зволожувальна емульсія &#8211; Axatopic Cream, 250 ml',
-  permalink: 'https://cosmetika.com.ua/product/axatopic-cream/',
-  description: [
-    '<h2>Braderm Axatopic Cream</h2>',
-    '<p>Емульсія для сухої &amp; чутливої шкіри.</p>',
-    '<h3>Основні властивості</h3>\n<ul>\n<li><strong>Зволоження:</strong> гліцерин.</li>\n<li>Цераміди.</li>\n</ul>',
-    '<h3>Спосіб застосування</h3>\n<ol>\n<li>Нанесіть на шкіру.</li>\n</ol>',
-    '<p><strong>Повний склад (INCI)</strong></p>\n<p>AQUA, GLYCERIN</p>',
-    '<h3>Умови зберігання</h3><p>У сухому місці.</p>',
-  ].join('\n'),
-  prices: { price: '165000', currency_code: 'UAH', currency_minor_unit: 2 },
-  images: [{ src: 'https://cosmetika.com.ua/wp-content/uploads/a.webp' }],
-  categories: [
-    { name: 'Braderm' },
-    { name: 'Креми, гелі для обличчя' },
-    { name: 'ТІЛО' },
-  ],
-  brands: [{ name: 'Braderm' }],
+  link,
+  title: {
+    rendered: 'Braderm Зволожувальна емульсія &#8211; Axatopic Cream, 250 ml',
+  },
+  content: {
+    rendered: [
+      '<h2>Braderm Axatopic Cream</h2>',
+      '<p>Емульсія для сухої &amp; чутливої шкіри.</p>',
+      '<h3>Основні властивості</h3>\n<ul>\n<li><strong>Зволоження:</strong> гліцерин.</li>\n<li>Цераміди.</li>\n</ul>',
+      '<h3>Спосіб застосування</h3>\n<ol>\n<li>Нанесіть на шкіру.</li>\n</ol>',
+      '<p><strong>Повний склад (INCI)</strong></p>\n<p>AQUA, GLYCERIN</p>',
+      '<h3>Умови зберігання</h3><p>У сухому місці.</p>',
+    ].join('\n'),
+  },
+  _embedded: terms('Braderm', 'Braderm', 'Креми, гелі для обличчя', 'ТІЛО'),
 };
+
+// A product's page, cut down to what the import reads: its JSON-LD and its gallery.
+const photo = 'https://www.cosmetika.com.ua/wp-content/uploads/a.webp';
+const productPage = ({
+  prices = [{ price: '1650.00', priceCurrency: 'UAH' }] as object[],
+  photos = [photo],
+} = {}) =>
+  `<script type="application/ld+json">{"@context":"https://schema.org/","@graph":[
+    {"@type":"BreadcrumbList"},
+    {"@type":"Product","offers":[{"@type":"Offer","priceSpecification":${JSON.stringify(prices)}}]}
+  ]}</script>${photos.map((src) => `<div data-large_image="${src}"></div>`).join('')}`;
 
 describe('cosmetika import', () => {
   it('turns its HTML into the plain text of our text areas', () => {
@@ -61,9 +84,13 @@ describe('cosmetika import', () => {
   });
 
   it('takes only our three brands', () => {
-    expect(brandOf({ brands: [{ name: 'Dr. Spiller' }] })).toBe('dr-spiller');
-    expect(brandOf({ brands: [{ name: 'Instytutum' }] })).toBe('institutum');
-    expect(brandOf({ brands: [{ name: 'Mesoestetic' }] })).toBeUndefined();
+    expect(brandOf({ _embedded: terms('Dr. Spiller') })).toBe('dr-spiller');
+    expect(brandOf({ _embedded: terms('Instytutum') })).toBe('institutum');
+    expect(brandOf({ _embedded: terms('Mesoestetic') })).toBeUndefined();
+    // A category named after a brand does not make it one of ours.
+    expect(
+      brandOf({ _embedded: terms('Mesoestetic', 'Braderm') }),
+    ).toBeUndefined();
     expect(brandOf({ name: 'no brands' })).toBeUndefined();
   });
 
@@ -75,13 +102,12 @@ describe('cosmetika import', () => {
       brand: 'braderm',
       categories: ['face-creams'],
       isSet: false,
-      price: 165000,
+      page: link,
       volume: 250,
       volumeUnit: 'ml',
       howToUse: '— Нанесіть на шкіру.',
       inci: 'AQUA, GLYCERIN',
-      inciSource: 'https://cosmetika.com.ua/product/axatopic-cream/',
-      images: ['https://cosmetika.com.ua/wp-content/uploads/a.webp'],
+      inciSource: link,
       warnings: ['Категорію «ТІЛО» не зіставлено'],
     });
     expect(product.purpose).toBe(
@@ -90,16 +116,38 @@ describe('cosmetika import', () => {
     );
   });
 
+  it('takes a paragraph labelled «СКЛАД» for INCI, as Instytutum’s pages have it', () => {
+    for (const label of [
+      '<strong>СКЛАД</strong>:',
+      '<strong>Склад:</strong>',
+    ]) {
+      const product = toProduct(
+        cosmetikaProduct.parse({
+          ...source,
+          content: {
+            rendered: `<p>Крем.</p>\n<p>ОБ&#8217;ЄМ: 50 мл</p>\n<p>${label} AQUA, GLYCERIN.</p>`,
+          },
+        }),
+      );
+      expect(product).toMatchObject({
+        purpose: 'Крем.\n\nОБ’ЄМ: 50 мл',
+        inci: 'AQUA, GLYCERIN.',
+        inciSource: link,
+      });
+    }
+  });
+
   it('keeps INCI only with its source, and flags what the cosmetologist must fill', () => {
     const product = toProduct(
       cosmetikaProduct.parse({
         ...source,
-        name: 'Dr. Spiller Care &amp; Repair Cream',
-        description: '<p>Склад: Комплекс POC, пантенол.</p>',
-        categories: [
-          { name: 'Dr.Spiller' },
-          { name: 'Набори для догляду за обличчям' },
-        ],
+        title: { rendered: 'Dr. Spiller Care &amp; Repair Cream' },
+        content: { rendered: '<p>Склад: Комплекс POC, пантенол.</p>' },
+        _embedded: terms(
+          'Dr. Spiller',
+          'Dr.Spiller',
+          'Набори для догляду за обличчям',
+        ),
       }),
     );
     expect(product).toMatchObject({
@@ -115,22 +163,89 @@ describe('cosmetika import', () => {
   });
 
   it('refuses a product it cannot read', () => {
+    for (const broken of [
+      { title: { rendered: '' } },
+      { link: 'not a url' },
+      { link: 'https://elsewhere.example/shop/axatopic-cream/' },
+      { content: {} },
+      { _embedded: {} },
+    ])
+      expect(
+        cosmetikaProduct.safeParse({ ...source, ...broken }).success,
+        JSON.stringify(broken),
+      ).toBe(false);
+  });
+
+  it('reads today’s price and the gallery from a product’s page', () => {
+    expect(offerOf(productPage())).toEqual({
+      price: 165000,
+      images: [photo],
+    });
     expect(
-      cosmetikaProduct.safeParse({
-        ...source,
-        prices: { ...source.prices, price: '16.50' },
-      }).success,
-    ).toBe(false);
+      offerOf(
+        productPage({
+          photos: [photo, `${photo}?a=1&#038;b=2`, photo],
+        }),
+      ).images,
+    ).toEqual([photo, `${photo}?a=1&b=2`]);
+    expect(offerOf(productPage({ photos: [] })).images).toEqual([]);
+  });
+
+  it('takes a sale’s price, not the list price beside it', () => {
     expect(
-      cosmetikaProduct.safeParse({
-        ...source,
-        prices: { ...source.prices, currency_code: 'EUR' },
-      }).success,
-    ).toBe(false);
+      offerOf(
+        productPage({
+          prices: [
+            {
+              price: '4200.00',
+              priceCurrency: 'UAH',
+              priceType: 'https://schema.org/ListPrice',
+            },
+            { price: '2900.00', priceCurrency: 'UAH' },
+          ],
+        }),
+      ).price,
+    ).toBe(290000);
+  });
+
+  it('passes over a block of JSON-LD it cannot read', () => {
     expect(
-      cosmetikaProduct.safeParse({ ...source, images: [{ src: 'not a url' }] })
-        .success,
-    ).toBe(false);
+      offerOf(
+        `<script type="application/ld+json">{ broken</script>${productPage()}`,
+      ).price,
+    ).toBe(165000);
+  });
+
+  it('refuses a page without a price in hryvnias', () => {
+    for (const page of [
+      '<html></html>',
+      productPage({ prices: [] }),
+      productPage({ prices: [{ price: '1650.00', priceCurrency: 'EUR' }] }),
+      productPage({ prices: [{ price: '16.5', priceCurrency: 'UAH' }] }),
+      productPage({
+        prices: [
+          {
+            price: '1650.00',
+            priceCurrency: 'UAH',
+            priceType: 'https://schema.org/ListPrice',
+          },
+        ],
+      }),
+    ])
+      expect(() => offerOf(page)).toThrow('ціну не прочитано');
+  });
+
+  // The server fetches what a page names, so a page never sends it elsewhere.
+  it('refuses a photo off the store’s own address', () => {
+    for (const photos of [
+      ['https://elsewhere.example/a.webp'],
+      ['http://www.cosmetika.com.ua/a.webp'],
+      ['http://169.254.169.254/latest/meta-data/'],
+      ['not a url'],
+    ])
+      expect(() => offerOf(productPage({ photos }))).toThrow(
+        'незрозуміла адреса фото',
+      );
   });
 });
 
@@ -268,24 +383,26 @@ describe('the import page', () => {
         endpoint.path === '/cosmetika' && endpoint.method === 'post',
     )!;
     const photos = [
-      { src: 'https://cosmetika.com.ua/1.webp' },
-      { src: 'https://cosmetika.com.ua/2.webp' },
+      'https://www.cosmetika.com.ua/1.webp',
+      'https://www.cosmetika.com.ua/2.webp',
     ];
     const failures = [
-      { photo: 404, save: true, deleted: [1] },
-      { photo: 200, save: false, deleted: [1, 2] },
+      { photoStatus: 404, save: true, deleted: [1] },
+      { photoStatus: 200, save: false, deleted: [1, 2] },
     ];
-    for (const { photo, save, deleted } of failures) {
+    for (const { photoStatus, save, deleted } of failures) {
       let mediaId = 0;
       const removed: unknown[] = [];
       const names: string[] = [];
       vi.stubGlobal('fetch', async (url: string) =>
-        url.startsWith('https://cosmetika.com.ua/wp-json')
-          ? Response.json([{ ...source, images: photos }])
-          : new Response('webp', {
-              status: url.endsWith('2.webp') ? photo : 200,
-              headers: { 'Content-Type': 'image/webp' },
-            }),
+        url.includes('/wp-json/')
+          ? Response.json([source])
+          : url === link
+            ? new Response(productPage({ photos }))
+            : new Response('webp', {
+                status: url.endsWith('2.webp') ? photoStatus : 200,
+                headers: { 'Content-Type': 'image/webp' },
+              }),
       );
       const payload = {
         find: async ({ collection }: { collection: string }) => ({
@@ -330,6 +447,129 @@ describe('the import page', () => {
           /^braderm-zvolozhuvalna-emulsiia-axatopic-cream-250-ml-\d-[\da-f]{8}\.webp$/,
         );
     }
+    vi.unstubAllGlobals();
+  });
+
+  const portion = (totalDocs: number) => {
+    const created: string[] = [];
+    return {
+      created,
+      req: {
+        user: { collection: 'users', role: 'owner' },
+        json: async () => ({ ids: [source.id] }),
+        payload: {
+          find: async () => ({ docs: [{ slug: 'braderm', id: 1 }] }),
+          count: async () => ({ totalDocs }),
+          create: async ({ collection }: { collection: string }) => {
+            created.push(collection);
+            return { id: created.length };
+          },
+        },
+      } as unknown as PayloadRequest,
+    };
+  };
+  const importHandler = importEndpoints.find(
+    (endpoint) => endpoint.path === '/cosmetika' && endpoint.method === 'post',
+  )!.handler;
+
+  it('creates a draft at the page’s price, with the page as INCI’s source', async () => {
+    const drafts: Record<string, unknown>[] = [];
+    vi.stubGlobal('fetch', async (url: string) =>
+      url.includes('/wp-json/')
+        ? Response.json([source])
+        : url === link
+          ? new Response(productPage())
+          : new Response('webp', {
+              headers: { 'Content-Type': 'image/webp' },
+            }),
+    );
+    const { req } = portion(0);
+    const create = req.payload.create;
+    req.payload.create = (async (args: {
+      collection: string;
+      data: Record<string, unknown>;
+    }) => {
+      if (args.collection === 'products') drafts.push(args.data);
+      return create(args as never);
+    }) as never;
+    const { results } = await (await importHandler(req)).json();
+    expect(results[0].status).toBe('created');
+    expect(drafts[0]).toMatchObject({
+      _status: 'draft',
+      review: 'imported',
+      price: 165000,
+      images: [1],
+      inciSource: link,
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it('uploads nothing when a product’s page cannot be read', async () => {
+    for (const [answer, message] of [
+      [new Response('', { status: 403 }), 'сторінка товару відповіла 403'],
+      [new Response('<html></html>'), 'ціну не прочитано'],
+    ] as const) {
+      vi.stubGlobal('fetch', async (url: string) =>
+        url.includes('/wp-json/') ? Response.json([source]) : answer.clone(),
+      );
+      const { req, created } = portion(0);
+      const { results } = await (await importHandler(req)).json();
+      expect(results[0]).toMatchObject({ status: 'failed', message });
+      expect(created).toEqual([]);
+    }
+    vi.unstubAllGlobals();
+  });
+
+  it('reads no page of a product it already has', async () => {
+    const asked: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => {
+      asked.push(url);
+      return Response.json([source]);
+    });
+    const { req, created } = portion(1);
+    const { results } = await (await importHandler(req)).json();
+    expect(results[0].status).toBe('skipped');
+    expect(created).toEqual([]);
+    expect(asked.every((url) => url.includes('/wp-json/'))).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it('lists our brands’ products without their pages, asking for the terms it reads and refusing a redirect', async () => {
+    const plan = importEndpoints.find(
+      (endpoint) => endpoint.path === '/cosmetika' && endpoint.method === 'get',
+    )!;
+    const asked: string[] = [];
+    const redirects: unknown[] = [];
+    vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+      asked.push(url);
+      redirects.push(init.redirect);
+      return Response.json(
+        [source, { ...source, id: 2, _embedded: terms('Mesoestetic') }],
+        { headers: { 'X-WP-TotalPages': '1' } },
+      );
+    });
+    const response = await plan.handler({
+      user: { collection: 'users', role: 'owner' },
+      payload: {
+        find: async () => ({
+          docs: ['dr-spiller', 'institutum', 'braderm'].map((slug, id) => ({
+            slug,
+            id,
+          })),
+        }),
+      },
+    } as unknown as PayloadRequest);
+    const { products, errors } = await response.json();
+    expect(errors).toEqual([]);
+    expect(products).toEqual([
+      expect.objectContaining({ id: source.id, exists: false }),
+    ]);
+    expect(asked).toHaveLength(1);
+    expect(asked[0]).toContain(
+      'https://www.cosmetika.com.ua/wp-json/wp/v2/product?',
+    );
+    expect(asked[0]).toContain('_embed=wp:term');
+    expect(redirects).toEqual(['error']);
     vi.unstubAllGlobals();
   });
 

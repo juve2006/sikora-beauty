@@ -9,7 +9,7 @@ import {
 import { z } from 'zod';
 
 import { isOwner } from '@/lib/access';
-import { brandOf, brandSlugs, toProduct } from '@/lib/cosmetika';
+import { brandOf, brandSlugs, offerOf, toProduct } from '@/lib/cosmetika';
 import { cosmetikaProduct, importPortion, storePage } from '@/lib/validators';
 import type { Imported, PricedProduct } from '@/types';
 import { COSMETIKA_API, VOLUME_UNIT_LABELS } from '@/lib/constants';
@@ -28,12 +28,17 @@ const unreachable = (error: unknown) =>
     { status: 502 },
   );
 
-// A request to cosmetika that hangs must not use up the function's time.
+// A request to cosmetika that hangs must not use up the function's time, and a redirect must not
+// lead the server off the store.
 const get = (url: string) =>
-  fetch(url, { signal: AbortSignal.timeout(20_000) });
+  fetch(url, { redirect: 'error', signal: AbortSignal.timeout(20_000) });
 
+// Its Store API answers 403 since 2026-11; WordPress's own list has all but the price and the gallery,
+// which a product's page holds (adr-20261103-import-from-public-pages).
 async function readStore(query: string): Promise<z.infer<typeof storePage>> {
-  const response = await get(`${COSMETIKA_API}?${query}`);
+  const response = await get(
+    `${COSMETIKA_API}?_embed=wp:term&_fields=id,link,title,content,_links,_embedded&${query}`,
+  );
   if (!response.ok) throw new Error(`відповіла ${response.status}`);
   const page = storePage.safeParse({
     items: await response.json(),
@@ -85,7 +90,10 @@ async function importOne(
   if (totalDocs) return { status: 'skipped' as const };
   const images: number[] = [];
   try {
-    for (const [index, src] of product.images.entries()) {
+    const page = await get(product.page);
+    if (!page.ok) throw new Error(`сторінка товару відповіла ${page.status}`);
+    const offer = offerOf(await page.text());
+    for (const [index, src] of offer.images.entries()) {
       const response = await get(src);
       const mimetype =
         response.headers.get('content-type')?.split(';')[0] ?? '';
@@ -126,7 +134,7 @@ async function importOne(
           (slug) => categories.get(slug) ?? [],
         ),
         isSet: product.isSet,
-        price: product.price,
+        price: offer.price,
         volume: product.volume,
         volumeUnit: product.volumeUnit,
         images,
