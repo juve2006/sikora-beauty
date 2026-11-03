@@ -18,7 +18,7 @@ import {
 } from 'payload';
 import { generatePayloadCookie } from 'payload/shared';
 
-import { currentCustomer } from '@/lib/actions/customer.actions';
+import { currentCustomer, sessionUser } from '@/lib/actions/customer.actions';
 import { LETTER_INTERVAL } from '@/lib/constants';
 import { verifyLetter } from '@/lib/email';
 import { verifyTurnstile } from '@/lib/turnstile';
@@ -26,6 +26,7 @@ import {
   emailRequest,
   parseAccountForm,
   passwordReset,
+  phoneSignInRequest,
   profileUpdate,
   registerRequest,
   signInRequest,
@@ -52,6 +53,61 @@ const refused = (errors: object): AccountState => ({
   status: 'invalid',
   errors,
 });
+
+// A number is one account's, and only a confirmed one keeps it from anyone: nobody proves a number,
+// so an account nobody confirmed must not hold it against its real holder. It goes on without the
+// number. One statement, as that account may be confirming right now; one whose token the owner took
+// away counts as confirmed, as for its email (`register`). Answers null when the number is somebody's,
+// or else how to give it back if the write it was for does not happen: never in a transaction with
+// that write, which would hold this row through Payload's reads (RULES.md). Giving back fails harmlessly
+// when someone has the number by then.
+const claimPhone = async (payload: Payload, phone: string, mine?: number) => {
+  const holder = await payload.db.findOne<Customer>({
+    collection: 'customers',
+    where: { phone: { equals: phone } },
+  });
+  if (!holder || holder.id === mine) return async () => {};
+  const released = await payload.db.updateOne({
+    collection: 'customers',
+    data: { phone: null, updatedAt: new Date().toISOString() },
+    options: { atomic: true },
+    where: {
+      and: [
+        { id: { equals: holder.id } },
+        { _verified: { equals: false } },
+        { _verificationToken: { exists: true } },
+      ],
+    },
+  });
+  if (!released) return null;
+  return async () => {
+    await payload.db
+      .updateOne({
+        collection: 'customers',
+        data: { phone, updatedAt: new Date().toISOString() },
+        options: { atomic: true },
+        where: {
+          and: [{ id: { equals: holder.id } }, { phone: { exists: false } }],
+        },
+      })
+      .catch(() => null);
+  };
+};
+
+// Someone got the number between `claimPhone` and the write: Payload's answer to a whole row, the
+// database's to an atomic write.
+const numberTaken = (error: unknown) => {
+  const { cause, data } = error as {
+    cause?: { constraint?: string };
+    data?: { errors?: { path?: string }[] };
+  };
+  return (
+    cause?.constraint === 'customers_phone_idx' ||
+    Boolean(data?.errors?.some(({ path }) => path === 'phone'))
+  );
+};
+
+const phoneTaken = () => refused({ phone: ['phoneTaken'] });
 
 // The letter of an account that is not confirmed yet, one per LETTER_INTERVAL: a mailbox is not to be
 // flooded, and Gmail's daily limit is every shopper's. The last letter's link stays good, so the
@@ -138,17 +194,37 @@ const confirm = async (
 // the token away for `removeTokenFromResponses`; and the cookie written here, as Payload's own
 // `login` helper counts its term in milliseconds. With a letter's token, the right password confirms
 // the email: the store's only way to confirm one (`/account/verify`). Payload's REST and GraphQL
-// `verify` stay, as only the mailbox has the token.
+// `verify` stay, as only the mailbox has the token. A number is a shopper's, and leads to their email:
+// staff's row is never asked, or typing a shopper's number would count wrong passwords against an
+// address they share. An unknown number answers as a wrong password does. Numbers can be walked, one
+// password across all of them, and the lock is per account, so a number passes Turnstile first; an
+// email does not, as `/api/customers/login` takes one without it (adr-20261103-phone-sign-in).
 export async function signIn(
   _: AccountState,
   form: FormData,
 ): Promise<AccountState> {
-  const parsed = parseAccountForm(signInRequest, form);
+  const parsed = form.has('phone')
+    ? parseAccountForm(phoneSignInRequest, form)
+    : parseAccountForm(signInRequest, form);
   if (!parsed.data) return refused(parsed.errors);
-  const { token: letter, ...credentials } = parsed.data;
+  const { data } = parsed;
+  const { token: letter, password } = data;
+  const byPhone = 'phone' in data;
+  if (byPhone && !(await verifyTurnstile(data['cf-turnstile-response'])))
+    return { status: 'failed' };
   let answer: AccountState = { status: 'wrong' };
   try {
     const payload = await getPayload({ config });
+    const email = byPhone
+      ? (
+          await payload.db.findOne<Customer>({
+            collection: 'customers',
+            where: { phone: { equals: data.phone } },
+          })
+        )?.email
+      : data.email;
+    if (!email) return answer;
+    const credentials = { email, password };
     // Before the password is checked, so `confirm` can tell if it was replaced since. The token has
     // to be this account's, not just anyone's who is waiting.
     const waiting = letter
@@ -183,7 +259,9 @@ export async function signIn(
         sameSite: 'lax',
       });
     };
-    for (const slug of ['users', 'customers'] as const) {
+    for (const slug of byPhone
+      ? (['customers'] as const)
+      : (['users', 'customers'] as const)) {
       try {
         await signInTo(slug);
         return { status: slug === 'users' ? 'staff' : 'customer' };
@@ -219,6 +297,7 @@ export async function register(
   if (!parsed.data) return refused(parsed.errors);
   const { token, ...account } = parsed.data;
   if (!(await verifyTurnstile(token))) return { status: 'failed' };
+  let giveBack: (() => Promise<void>) | null = null;
   try {
     const payload = await getPayload({ config });
     const {
@@ -230,14 +309,18 @@ export async function register(
       depth: 0,
       showHiddenFields: true,
     });
-    if (found?._verified) return refused({ email: ['taken'] });
+    // Before the number moves: nobody can confirm a row whose token the owner took away, so it is
+    // somebody's.
+    if (found && (found._verified || !found._verificationToken))
+      return refused({ email: ['taken'] });
+    giveBack = await claimPhone(payload, account.phone, found?.id);
+    if (!giveBack) return phoneTaken();
     if (found) {
       const req = await createLocalReq({}, payload);
       await initTransaction(req);
       try {
         // Holds the row until the commit, so a confirmation waits and then sees the new hash. An
-        // account confirmed by now is not written, nor one whose token the owner took away by unticking
-        // `_verified`: nobody can confirm that one, and it is somebody's.
+        // account confirmed or unticked by now is not written.
         const held = await payload.db.updateOne({
           collection: 'customers',
           data: { updatedAt: new Date().toISOString() },
@@ -259,7 +342,10 @@ export async function register(
             req,
           });
         await commitTransaction(req);
-        if (!held) return refused({ email: ['taken'] });
+        if (!held) {
+          await giveBack();
+          return refused({ email: ['taken'] });
+        }
       } catch (error) {
         await killTransaction(req);
         throw error;
@@ -270,6 +356,8 @@ export async function register(
     }
     return { status: 'sent', email: account.email };
   } catch (error) {
+    await giveBack?.();
+    if (numberTaken(error)) return phoneTaken();
     return failed('registration', error);
   }
 }
@@ -369,6 +457,9 @@ export async function updateProfile(
     const customer = await currentCustomer();
     if (!customer) return { status: 'failed' };
     const payload = await getPayload({ config });
+    const { phone } = parsed.data;
+    if (phone && !(await claimPhone(payload, phone, customer.id)))
+      return phoneTaken();
     // These columns only: `payload.update` writes the whole row it read, over what changed meanwhile.
     await payload.db.updateOne({
       collection: 'customers',
@@ -378,6 +469,12 @@ export async function updateProfile(
     });
     return { status: 'saved' };
   } catch (error) {
+    if (numberTaken(error)) return phoneTaken();
     return failed('profile', error);
   }
+}
+
+// The header asks on a click, never on a page, so its pages stay cached (`AccountLink`).
+export async function isSignedIn() {
+  return Boolean(await sessionUser());
 }

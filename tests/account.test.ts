@@ -23,12 +23,14 @@ import {
   staffResetLetter,
   verifyLetter,
 } from '@/lib/email';
-import { Customers } from '@/collections/customers';
+import { Customers, storedPhone } from '@/collections/customers';
 import { Users } from '@/collections/users';
 import {
+  accountPhone,
   accountToken,
   parseAccountForm,
   passwordReset,
+  phoneSignInRequest,
   profileUpdate,
   registerRequest,
   signInRequest,
@@ -100,15 +102,18 @@ const idle = { status: 'idle' } as const;
 const t = ((key: string) => key) as never;
 const email = 'olena@example.com';
 const credentials = { email, password: 'correct horse' };
+const number = '+380501234567';
 const filled = {
   firstName: 'Олена',
   lastName: 'Тестова',
+  phone: '50 123 4567',
   ...credentials,
   locale: 'en',
 };
 const account = {
   firstName: 'Олена',
   lastName: 'Тестова',
+  phone: number,
   email,
   password: 'correct horse',
   locale: 'en',
@@ -143,6 +148,7 @@ describe('the account schemas', () => {
         form({
           firstName: ' ',
           lastName: 'x'.repeat(51),
+          phone: '',
           email: 'not-an-email',
           password: 'short',
         }),
@@ -150,6 +156,7 @@ describe('the account schemas', () => {
     ).toEqual({
       firstName: ['required'],
       lastName: ['long'],
+      phone: ['phoneInvalid'],
       email: ['emailInvalid'],
       password: ['passwordShort'],
     });
@@ -216,6 +223,38 @@ describe('the account schemas', () => {
         form({ token: 'nope', password: 'short' }),
       ).errors,
     ).toEqual({ token: expect.any(Array), password: ['passwordShort'] });
+  });
+
+  it.each([
+    '50 123 4567',
+    '501234567',
+    '050 123 45 67',
+    '(050) 123-45-67',
+    '380501234567',
+    '+380 50 123 45 67',
+  ])('reads %s as one number', (written) => {
+    expect(accountPhone.parse(written)).toBe(number);
+  });
+
+  it.each(['', '12', '50123456', '5012345678', '+48501234567', 'телефон'])(
+    'takes %j for no number',
+    (written) => {
+      expect(
+        parseAccountForm(
+          phoneSignInRequest,
+          form({ phone: written, password: 'x' }),
+        ).errors,
+      ).toEqual({ phone: ['phoneInvalid'] });
+    },
+  );
+
+  it('keeps what the owner types in the admin as sign-in looks it up', () => {
+    expect(storedPhone('067 123-45-67')).toBe('+380671234567');
+    expect(storedPhone('')).toBeNull();
+    expect(storedPhone(null)).toBeNull();
+    // A write that does not carry the number keeps it.
+    expect(storedPhone(undefined)).toBeUndefined();
+    expect(storedPhone('junk')).toBe('junk');
   });
 
   it('keeps a phone as +380…, and clearing it clears it', () => {
@@ -413,6 +452,174 @@ describe('signIn', () => {
     });
   });
 
+  describe('by number', () => {
+    const byNumber = form({ phone: '50 123 4567', password: 'correct horse' });
+
+    it('finds the shopper by the number as it is kept, and signs in with their email', async () => {
+      payload.db.findOne.mockResolvedValue({ id: 5, email });
+      login.mockResolvedValue({ token: 'jwt' });
+      expect(await signIn(idle, byNumber)).toEqual({ status: 'customer' });
+      expect(payload.db.findOne).toHaveBeenCalledWith({
+        collection: 'customers',
+        where: { phone: { equals: number } },
+      });
+      expect(login).toHaveBeenCalledOnce();
+      expect(login.mock.calls[0][0]).toMatchObject({
+        collection: payload.collections.customers,
+        data: credentials,
+      });
+    });
+
+    it('never counts a wrong password against staff, who may share the email', async () => {
+      payload.db.findOne.mockResolvedValue({ id: 5, email });
+      login.mockRejectedValue(new AuthenticationError(t));
+      expect(await signIn(idle, byNumber)).toEqual({ status: 'wrong' });
+      expect(login).toHaveBeenCalledOnce();
+      expect(login.mock.calls[0][0].collection).toBe(
+        payload.collections.customers,
+      );
+    });
+
+    it('says the same for an unknown number', async () => {
+      payload.db.findOne.mockResolvedValue(null);
+      expect(await signIn(idle, byNumber)).toEqual({ status: 'wrong' });
+      expect(login).not.toHaveBeenCalled();
+    });
+
+    it('names the email only after the right password of an account not confirmed', async () => {
+      payload.db.findOne.mockResolvedValue({ id: 5, email });
+      login.mockRejectedValue(new UnverifiedEmail({ t }));
+      expect(await signIn(idle, byNumber)).toEqual({
+        status: 'unverified',
+        email,
+      });
+    });
+
+    it('confirms a letter’s email too, with the letter’s token and the password', async () => {
+      const token = 'a1'.repeat(20);
+      const waiting = { id: 5, hash: 'h', _verificationToken: token };
+      payload.db.findOne
+        .mockResolvedValueOnce({ id: 5, email })
+        .mockResolvedValueOnce(waiting);
+      payload.db.updateOne.mockResolvedValue(waiting);
+      login.mockImplementationOnce(async () => {
+        throw new UnverifiedEmail({ t });
+      });
+      login.mockResolvedValue({ token: 'jwt' });
+      expect(
+        await signIn(
+          idle,
+          form({ phone: number, password: 'correct horse', token }),
+        ),
+      ).toEqual({ status: 'customer' });
+      expect(payload.db.findOne).toHaveBeenLastCalledWith({
+        collection: 'customers',
+        where: {
+          and: [
+            { email: { equals: email } },
+            { _verificationToken: { equals: token } },
+          ],
+        },
+      });
+    });
+
+    it('checks the number before the database', async () => {
+      expect(await signIn(idle, form({ phone: '12', password: 'y' }))).toEqual({
+        status: 'invalid',
+        errors: { phone: ['phoneInvalid'] },
+      });
+      expect(payload.db.findOne).not.toHaveBeenCalled();
+    });
+
+    describe('with Turnstile on', () => {
+      const answer = (success: boolean) =>
+        vi.fn(async (_: string, init: { body: string }) =>
+          Response.json({ success, sent: JSON.parse(init.body).response }),
+        );
+
+      beforeEach(() => vi.stubEnv('TURNSTILE_SECRET_KEY', 'secret'));
+
+      it('asks nothing of the database when it refuses, so numbers cannot be walked', async () => {
+        vi.stubGlobal('fetch', answer(false));
+        expect(
+          await signIn(
+            idle,
+            form({
+              phone: number,
+              password: 'correct horse',
+              'cf-turnstile-response': 'x',
+            }),
+          ),
+        ).toEqual({ status: 'failed' });
+        expect(payload.db.findOne).not.toHaveBeenCalled();
+        expect(login).not.toHaveBeenCalled();
+      });
+
+      it('refuses a form without its token', async () => {
+        const check = answer(true);
+        vi.stubGlobal('fetch', check);
+        expect(await signIn(idle, byNumber)).toEqual({ status: 'failed' });
+        expect(check).not.toHaveBeenCalled();
+        expect(payload.db.findOne).not.toHaveBeenCalled();
+      });
+
+      it('signs in when it agrees, with the token it was given', async () => {
+        const check = answer(true);
+        vi.stubGlobal('fetch', check);
+        payload.db.findOne.mockResolvedValue({ id: 5, email });
+        login.mockResolvedValue({ token: 'jwt' });
+        expect(
+          await signIn(
+            idle,
+            form({
+              phone: number,
+              password: 'correct horse',
+              'cf-turnstile-response': 'x',
+            }),
+          ),
+        ).toEqual({ status: 'customer' });
+        expect(JSON.parse(check.mock.calls[0][1].body).response).toBe('x');
+      });
+
+      it('keeps a letter’s token apart from its own', async () => {
+        const token = 'a1'.repeat(20);
+        vi.stubGlobal('fetch', answer(true));
+        payload.db.findOne
+          .mockResolvedValueOnce({ id: 5, email })
+          .mockResolvedValueOnce(null);
+        login.mockResolvedValue({ token: 'jwt' });
+        await signIn(
+          idle,
+          form({
+            phone: number,
+            password: 'correct horse',
+            token,
+            'cf-turnstile-response': 'x',
+          }),
+        );
+        expect(payload.db.findOne).toHaveBeenLastCalledWith({
+          collection: 'customers',
+          where: {
+            and: [
+              { email: { equals: email } },
+              { _verificationToken: { equals: token } },
+            ],
+          },
+        });
+      });
+
+      it('leaves sign-in by email alone: REST takes one without it', async () => {
+        const check = answer(false);
+        vi.stubGlobal('fetch', check);
+        login.mockResolvedValue({ token: 'jwt' });
+        expect(await signIn(idle, form(credentials))).toEqual({
+          status: 'staff',
+        });
+        expect(check).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   it('checks the fields before the database', async () => {
     expect(await signIn(idle, form({ email: 'x', password: 'y' }))).toEqual({
       status: 'invalid',
@@ -448,6 +655,171 @@ describe('register', () => {
       data: account,
     });
     expect(payload.sendEmail).not.toHaveBeenCalled();
+  });
+
+  describe('a number someone holds', () => {
+    const release = {
+      collection: 'customers',
+      data: { phone: null, updatedAt: expect.any(String) },
+      options: { atomic: true },
+      where: {
+        and: [
+          { id: { equals: 9 } },
+          { _verified: { equals: false } },
+          { _verificationToken: { exists: true } },
+        ],
+      },
+    };
+
+    it('takes it from an account nobody confirmed, in one conditional write', async () => {
+      payload.db.findOne.mockResolvedValue({ id: 9 });
+      payload.db.updateOne.mockResolvedValue({ id: 9 });
+      expect(await register(idle, form(filled))).toEqual({
+        status: 'sent',
+        email,
+      });
+      expect(payload.db.findOne).toHaveBeenCalledWith({
+        collection: 'customers',
+        where: { phone: { equals: number } },
+      });
+      expect(payload.db.updateOne).toHaveBeenCalledWith(release);
+      expect(payload.create).toHaveBeenCalledWith({
+        collection: 'customers',
+        data: account,
+      });
+    });
+
+    it('says it is taken when that account is confirmed, and creates nothing', async () => {
+      payload.db.findOne.mockResolvedValue({ id: 9 });
+      payload.db.updateOne.mockResolvedValue(null);
+      expect(await register(idle, form(filled))).toEqual({
+        status: 'invalid',
+        errors: { phone: ['phoneTaken'] },
+      });
+      expect(payload.db.updateOne).toHaveBeenCalledWith(release);
+      expect(payload.create).not.toHaveBeenCalled();
+    });
+
+    it('leaves it alone when the email is taken anyway', async () => {
+      payload.find.mockResolvedValue({ docs: [{ id: 5, _verified: true }] });
+      payload.db.findOne.mockResolvedValue({ id: 9 });
+      expect(await register(idle, form(filled))).toEqual({
+        status: 'invalid',
+        errors: { email: ['taken'] },
+      });
+      expect(payload.db.updateOne).not.toHaveBeenCalled();
+    });
+
+    it('lets an account registering again keep its own', async () => {
+      const found = { id: 5, _verified: false, _verificationToken: 't' };
+      payload.find.mockResolvedValue({ docs: [found] });
+      payload.db.findOne.mockResolvedValue({ id: 5 });
+      payload.db.updateOne.mockResolvedValue(found);
+      expect(await register(idle, form(filled))).toMatchObject({
+        status: 'sent',
+      });
+      expect(payload.db.updateOne).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ phone: null }),
+        }),
+      );
+    });
+
+    it('leaves it alone when the email’s row is one nobody can confirm', async () => {
+      payload.find.mockResolvedValue({
+        docs: [{ id: 5, _verified: false, _verificationToken: null }],
+      });
+      payload.db.findOne.mockResolvedValue({ id: 9 });
+      expect(await register(idle, form(filled))).toEqual({
+        status: 'invalid',
+        errors: { email: ['taken'] },
+      });
+      expect(payload.db.findOne).not.toHaveBeenCalled();
+      expect(payload.db.updateOne).not.toHaveBeenCalled();
+    });
+
+    describe('when the write it was taken for does not happen', () => {
+      const giveBack = {
+        collection: 'customers',
+        data: { phone: number, updatedAt: expect.any(String) },
+        options: { atomic: true },
+        where: {
+          and: [{ id: { equals: 9 } }, { phone: { exists: false } }],
+        },
+      };
+
+      beforeEach(() => {
+        payload.db.findOne.mockResolvedValue({ id: 9 });
+        payload.db.updateOne.mockResolvedValue({ id: 9 });
+      });
+
+      it('gives it back when the letter fails', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        payload.create.mockRejectedValue(new Error('smtp'));
+        expect(await register(idle, form(filled))).toEqual({
+          status: 'failed',
+        });
+        expect(payload.db.updateOne).toHaveBeenLastCalledWith(giveBack);
+      });
+
+      it('gives it back when the email’s row was confirmed meanwhile', async () => {
+        payload.find.mockResolvedValue({
+          docs: [{ id: 5, _verified: false, _verificationToken: 't' }],
+        });
+        payload.db.updateOne
+          .mockResolvedValueOnce({ id: 9 })
+          .mockResolvedValueOnce(null);
+        expect(await register(idle, form(filled))).toEqual({
+          status: 'invalid',
+          errors: { email: ['taken'] },
+        });
+        expect(payload.db.updateOne).toHaveBeenLastCalledWith(giveBack);
+      });
+
+      it('still answers when giving it back fails: someone has it by then', async () => {
+        payload.create.mockRejectedValue(
+          Object.assign(new Error('unique'), {
+            data: { errors: [{ path: 'phone' }] },
+          }),
+        );
+        payload.db.updateOne
+          .mockResolvedValueOnce({ id: 9 })
+          .mockRejectedValueOnce(new Error('unique'));
+        expect(await register(idle, form(filled))).toEqual({
+          status: 'invalid',
+          errors: { phone: ['phoneTaken'] },
+        });
+      });
+    });
+
+    it('has nothing to give back when nobody held it', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      payload.create.mockRejectedValue(new Error('smtp'));
+      await register(idle, form(filled));
+      expect(payload.db.updateOne).not.toHaveBeenCalled();
+    });
+
+    it('says it is taken when someone got it just before the write', async () => {
+      payload.create.mockRejectedValue(
+        Object.assign(new Error('unique'), {
+          data: { errors: [{ path: 'phone' }] },
+        }),
+      );
+      expect(await register(idle, form(filled))).toEqual({
+        status: 'invalid',
+        errors: { phone: ['phoneTaken'] },
+      });
+    });
+
+    it('fails as before when it is the email someone got', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      payload.create.mockRejectedValue(
+        Object.assign(new Error('unique'), {
+          data: { errors: [{ path: 'email' }] },
+        }),
+      );
+      expect(await register(idle, form(filled))).toEqual({ status: 'failed' });
+    });
   });
 
   it('says a confirmed email is taken, and changes nothing', async () => {
@@ -797,6 +1169,39 @@ describe('updateProfile', () => {
       where: { id: { equals: 5 } },
     });
     expect(payload.update).not.toHaveBeenCalled();
+  });
+
+  it('says a number a confirmed account holds is taken, and writes nothing of theirs', async () => {
+    payload.auth.mockResolvedValue({ user: shopper });
+    payload.db.findOne.mockResolvedValue({ id: 9 });
+    payload.db.updateOne.mockResolvedValue(null);
+    expect(await updateProfile(idle, form(profile))).toEqual({
+      status: 'invalid',
+      errors: { phone: ['phoneTaken'] },
+    });
+    expect(payload.db.updateOne).toHaveBeenCalledOnce();
+    expect(payload.db.updateOne.mock.calls[0][0].data.phone).toBeNull();
+  });
+
+  it('says so too when someone got the number just before the write', async () => {
+    payload.auth.mockResolvedValue({ user: shopper });
+    payload.db.updateOne.mockRejectedValue(
+      Object.assign(new Error('Failed query'), {
+        cause: { code: '23505', constraint: 'customers_phone_idx' },
+      }),
+    );
+    expect(await updateProfile(idle, form(profile))).toEqual({
+      status: 'invalid',
+      errors: { phone: ['phoneTaken'] },
+    });
+  });
+
+  it('asks nobody about a number being cleared', async () => {
+    payload.auth.mockResolvedValue({ user: shopper });
+    expect(await updateProfile(idle, form({ ...profile, phone: '' }))).toEqual({
+      status: 'saved',
+    });
+    expect(payload.db.findOne).not.toHaveBeenCalled();
   });
 
   it.each([

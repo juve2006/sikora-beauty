@@ -61,6 +61,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `tests/e2e/account.spec.ts`)
 - An order is tied to an account only at checkout, by the session, never by email.
   (adr-20261103-customer-accounts; checked by: Vitest in `tests/orders.test.ts`)
+- A phone number is at most one account's, written as `+380…`, and only a confirmed account keeps it:
+  an unconfirmed one gives it up to whoever registers or saves it. Nobody proves a number, so it finds
+  an account and never shows who someone is. (adr-20261103-phone-sign-in; checked by: the index
+  `customers_phone_idx`, `tests/account.test.ts`, `tests/e2e/account.spec.ts`)
+- Sign-in by number passes Turnstile before anything is looked up, as numbers can be walked, and asks
+  only `customers`, never `users`: a stranger's attempts at a number never lock staff, and staff's
+  password opens nothing by number. (adr-20261103-phone-sign-in; checked by: `tests/account.test.ts`)
 
 ## Rules
 

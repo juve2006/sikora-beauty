@@ -28,7 +28,9 @@ export const turnstileToken = async (read: () => FormData) => {
 
 // Cloudflare's check inside a form: the widget adds the hidden `cf-turnstile-response` itself and
 // shows only when it needs the shopper. A token is checked once, so each new `attempt` renders a
-// fresh widget. Without the site key there is no check (src/lib/env.ts).
+// fresh widget. Without the site key there is no check (src/lib/env.ts). `/account` has two at once, and
+// `next/script` calls `onReady` of only the first while the script loads, `onLoad` of both, and `onReady`
+// alone once it has loaded.
 const Turnstile = ({ attempt }: { attempt: unknown }) => {
   const container = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -54,6 +56,7 @@ const Turnstile = ({ attempt }: { attempt: unknown }) => {
     <>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+        onLoad={() => setReady(true)}
         onReady={() => setReady(true)}
       />
       <div ref={container} />

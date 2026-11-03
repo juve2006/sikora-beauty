@@ -8,6 +8,16 @@ import { isOwner, nobody, staffOrSelf } from '@/lib/access';
 import { markAccessWrites } from '@/lib/auth-writes';
 import { CUSTOMER_SESSION_SECONDS, LETTER_INTERVAL } from '@/lib/constants';
 import { resetLetter, verifyLetter } from '@/lib/email';
+import { phone } from '@/lib/validators';
+
+// What the owner types in the admin, as sign-in looks it up: +380…, and empty is no number at all, or
+// a second empty one would break the index. A write that does not carry the field stays `undefined`
+// and keeps the number. Anything else goes on to `validate`.
+export const storedPhone = (value: unknown) => {
+  if (value === '') return null;
+  const parsed = phone.safeParse(value);
+  return parsed.success ? parsed.data : value;
+};
 
 // An account is made and a reset letter sent only by the server actions, behind Zod and Turnstile.
 // `create: nobody` does not stop REST's first-register, which skips access and on an empty table
@@ -78,7 +88,19 @@ export const Customers: CollectionConfig = {
       fields: [
         { name: 'firstName', type: 'text', label: "Ім'я", required: true },
         { name: 'lastName', type: 'text', label: 'Прізвище', required: true },
-        { name: 'phone', type: 'text', label: 'Телефон' },
+        // A way in, so one account's. Optional: accounts older than it have none. Nobody proves a
+        // number; the owner clears one that someone took (adr-20261103-phone-sign-in).
+        {
+          name: 'phone',
+          type: 'text',
+          label: 'Телефон',
+          unique: true,
+          hooks: { beforeValidate: [({ value }) => storedPhone(value)] },
+          validate: (value: unknown) =>
+            !value ||
+            phone.safeParse(value).success ||
+            'Вкажіть український номер, наприклад 067 123 45 67',
+        },
       ],
     },
     // When the last letter of confirmation went, `createdAt` until then: one per LETTER_INTERVAL.

@@ -34,7 +34,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `FavoriteButton`;
     the catalog's in `src/components/shared/catalog/` — the filters, the sort, the list with its
     pages; the search's in `src/components/shared/search/` — `SearchDialog` and the suggestions it
-    shows. A component only one page shows lives in that page's route folder: the gallery, the cart
+    shows; the account's in `src/components/shared/account/` — `AccountDialog`, the forms of sign-in
+    and registration and their fields. A component only one page shows lives in that page's route folder: the gallery, the cart
     button and delivery and payment in the product page's, the category chips in
     `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s,
     the questions and the routine in `/care-finder`'s.
@@ -208,14 +209,18 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   «Отримати консультацію» carries them (Consultation, above). Answers are validated by
   `finderAnswers` (`validators.ts`).
 - **Accounts** — a shopper's registration, sign-in and cabinet, and staff's way in
-  (adr-20261103-customer-accounts). The collection `customers` (admin group «Продажі») is Payload
-  auth with `verify`; only the owner changes or deletes one through the API. `/account`
+  (adr-20261103-customer-accounts, adr-20261103-phone-sign-in). The collection `customers` (admin
+  group «Продажі») is Payload auth with `verify`; only the owner changes or deletes one through the
+  API. A shopper signs in by a number or an email, staff by email; a number is one account's and
+  nobody proves it. `/account`
   (`(shop)/account/`, `noindex`, `force-dynamic`): signed out, the forms; a shopper, their data and
   orders; staff, a redirect to `/admin`. `/account/verify?token=` and `/account/reset?token=` are a
   letter's pages. The server actions are in `account.actions.ts` — `signIn`, `register`,
-  `resendVerification`, `requestReset`, `resetPassword`, `signOut`, `updateProfile` — and the reads
-  in `customer.actions.ts` (`server-only`). `AccountLink` always links to `/account` and reads no
-  session, so cached pages stay cached. `/cart` fills the form from `currentCustomer`, and
+  `resendVerification`, `requestReset`, `resetPassword`, `signOut`, `updateProfile`, `isSignedIn` —
+  and the reads in `customer.actions.ts` (`server-only`). `AccountLink` and the menu sheet's item link
+  to `/account` and read no session, so cached pages stay cached; a plain click asks `isSignedIn`
+  (`useAccountEntry`) and, signed out, opens `AccountDialog` over the page, where a shopper stays
+  after signing in. `/cart` fills the form from `currentCustomer`, and
   `placeOrder` ties the order to the session (`orders.customer`). `src/lib/auth-writes.ts` wraps the
   database adapter's `updateOne`, as Payload writes an auth row whole from a snapshot: only an
   operation `markAccessWrites` marked changes who may get in (RULES.md).

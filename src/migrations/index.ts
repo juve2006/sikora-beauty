@@ -8,6 +8,7 @@ import * as migration_20261031_141921_search from './20261031_141921_search';
 import * as migration_20261101_053730_orders from './20261101_053730_orders';
 import * as migration_20261101_111214_care_finder from './20261101_111214_care_finder';
 import * as migration_20261102_182447_customer_accounts from './20261102_182447_customer_accounts';
+import * as migration_20261103_110459_customer_phone from './20261103_110459_customer_phone';
 
 export const migrations = [
   {
@@ -58,6 +59,11 @@ export const migrations = [
   {
     up: migration_20261102_182447_customer_accounts.up,
     down: migration_20261102_182447_customer_accounts.down,
-    name: '20261102_182447_customer_accounts'
+    name: '20261102_182447_customer_accounts',
+  },
+  {
+    up: migration_20261103_110459_customer_phone.up,
+    down: migration_20261103_110459_customer_phone.down,
+    name: '20261103_110459_customer_phone'
   },
 ];

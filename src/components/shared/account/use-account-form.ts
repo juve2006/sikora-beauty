@@ -17,7 +17,7 @@ const idle: AccountState = { status: 'idle' };
 type Options = {
   action: (previous: AccountState, form: FormData) => Promise<AccountState>;
   schema: z.ZodObject;
-  // The form sends a letter: Cloudflare's token first.
+  // The form sends a letter, or tries a number: Cloudflare's token first.
   turnstile?: boolean;
   // What the form does on the action's answer: leave the page.
   onAnswer?: (state: AccountState) => void;

@@ -3,10 +3,12 @@
 import { cn } from 'cn';
 import { ChevronDown, Menu as MenuIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import { type MouseEvent, type ReactNode, useRef, useState } from 'react';
 import AdminLink from './admin-link';
 import LanguageSwitcher from './language-switcher';
 import ThemeToggle from './theme-toggle';
+import AccountDialog from '@/components/shared/account/account-dialog';
+import { useAccountEntry } from '@/components/shared/account/use-account-entry';
 import { COLLECTIONS } from '@/lib/constants';
 import type { Menu } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -30,15 +32,17 @@ const row =
 const MenuLink = ({
   href,
   className,
+  onClick,
   children,
 }: {
   href: string;
   className?: string;
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
   children: string;
 }) => (
   <li>
     <SheetClose asChild>
-      <Link href={href} className={cn(row, className)}>
+      <Link href={href} className={cn(row, className)} onClick={onClick}>
         {children}
       </Link>
     </SheetClose>
@@ -73,7 +77,10 @@ const Section = ({
 );
 
 // The main menu below lg: the same sections as MainMenu, in a sheet from the left. On a phone the
-// language and the theme move here from the header, which keeps one line at 360 px.
+// language and the theme move here from the header, which keeps one line at 360 px. The account's
+// dialog stands outside the sheet, which closes as it opens, so the focus comes back to the menu's
+// button; and the sheet is closed by hand there, as `SheetClose` leaves it open after the click's
+// `preventDefault`.
 const MobileMenu = ({
   menu,
   finder = false,
@@ -86,84 +93,110 @@ const MobileMenu = ({
 }) => {
   const t = useTranslations('Nav');
   const catalog = useTranslations('Catalog');
+  const [sheet, setSheet] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const { open, setOpen, onCloseAutoFocus, onClick } =
+    useAccountEntry(menuButton);
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className={className}>
-          <MenuIcon />
-          <span className="sr-only">{t('menu')}</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent
-        side="left"
-        closeLabel={t('close')}
-        aria-describedby={undefined}
-      >
-        <SheetHeader className="pb-0">
-          <SheetTitle>{t('menu')}</SheetTitle>
-        </SheetHeader>
-        <nav aria-label={t('label')} className="overflow-y-auto px-2 pb-4">
-          <ul>
-            <Section title={t('catalog')}>
-              {menu.zones.map((zone) => (
-                <li key={zone.slug}>
-                  <ul>
-                    <MenuLink
-                      href={`/catalog/${zone.slug}`}
-                      className="font-medium"
-                    >
-                      {zone.title}
-                    </MenuLink>
-                    {zone.categories.map((category) => (
+    <>
+      <Sheet open={sheet} onOpenChange={setSheet}>
+        <SheetTrigger asChild>
+          <Button
+            ref={menuButton}
+            variant="ghost"
+            size="icon"
+            className={className}
+          >
+            <MenuIcon />
+            <span className="sr-only">{t('menu')}</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="left"
+          closeLabel={t('close')}
+          aria-describedby={undefined}
+        >
+          <SheetHeader className="pb-0">
+            <SheetTitle>{t('menu')}</SheetTitle>
+          </SheetHeader>
+          <nav aria-label={t('label')} className="overflow-y-auto px-2 pb-4">
+            <ul>
+              <Section title={t('catalog')}>
+                {menu.zones.map((zone) => (
+                  <li key={zone.slug}>
+                    <ul>
                       <MenuLink
-                        key={category.slug}
-                        href={`/catalog/${category.slug}`}
-                        className="text-muted-foreground"
+                        href={`/catalog/${zone.slug}`}
+                        className="font-medium"
                       >
-                        {category.title}
+                        {zone.title}
                       </MenuLink>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </Section>
-            <Section title={t('concerns')}>
-              {menu.concerns.map((concern) => (
-                <MenuLink key={concern.slug} href={`/concern/${concern.slug}`}>
-                  {concern.title}
-                </MenuLink>
-              ))}
-            </Section>
-            <MenuLink href="/brands" className="font-medium">
-              {t('brands')}
-            </MenuLink>
-            {finder && (
-              <MenuLink href="/care-finder" className="font-medium">
-                {t('finder')}
+                      {zone.categories.map((category) => (
+                        <MenuLink
+                          key={category.slug}
+                          href={`/catalog/${category.slug}`}
+                          className="text-muted-foreground"
+                        >
+                          {category.title}
+                        </MenuLink>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </Section>
+              <Section title={t('concerns')}>
+                {menu.concerns.map((concern) => (
+                  <MenuLink
+                    key={concern.slug}
+                    href={`/concern/${concern.slug}`}
+                  >
+                    {concern.title}
+                  </MenuLink>
+                ))}
+              </Section>
+              <MenuLink href="/brands" className="font-medium">
+                {t('brands')}
               </MenuLink>
-            )}
-            <Section title={t('collections')}>
-              {collections.map((slug) => (
-                <MenuLink key={slug} href={`/collection/${slug}`}>
-                  {catalog(`collections.${slug}`)}
+              {finder && (
+                <MenuLink href="/care-finder" className="font-medium">
+                  {t('finder')}
                 </MenuLink>
-              ))}
-            </Section>
-            <MenuLink href="/about" className="font-medium">
-              {t('about')}
-            </MenuLink>
-            <MenuLink href="/account" className="font-medium">
-              {t('account')}
-            </MenuLink>
-          </ul>
-          <AdminLink className="mt-2 w-full justify-start" />
-        </nav>
-        <SheetFooter className="flex-row items-center justify-between border-t sm:hidden">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+              )}
+              <Section title={t('collections')}>
+                {collections.map((slug) => (
+                  <MenuLink key={slug} href={`/collection/${slug}`}>
+                    {catalog(`collections.${slug}`)}
+                  </MenuLink>
+                ))}
+              </Section>
+              <MenuLink href="/about" className="font-medium">
+                {t('about')}
+              </MenuLink>
+              <MenuLink
+                href="/account"
+                className="font-medium"
+                onClick={(event) => {
+                  setSheet(false);
+                  onClick(event);
+                }}
+              >
+                {t('account')}
+              </MenuLink>
+            </ul>
+            <AdminLink className="mt-2 w-full justify-start" />
+          </nav>
+          <SheetFooter className="flex-row items-center justify-between border-t sm:hidden">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+      <AccountDialog
+        open={open}
+        onOpenChange={setOpen}
+        onCloseAutoFocus={onCloseAutoFocus}
+      />
+    </>
   );
 };
 

@@ -5,8 +5,8 @@ import { notFound, redirect } from 'next/navigation';
 
 import OrderHistory from './order-history';
 import ProfileForm from './profile-form';
-import RegisterForm from './register-form';
-import SignInForm from './sign-in-form';
+import RegisterForm from '@/components/shared/account/register-form';
+import SignInForm from '@/components/shared/account/sign-in-form';
 import { routing } from '@/i18n/routing';
 import { isStaff } from '@/lib/access';
 import { signOut } from '@/lib/actions/account.actions';

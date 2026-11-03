@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import AccountField from './account-field';
-import { useAccountForm } from './use-account-form';
+import AccountField from '@/components/shared/account/account-field';
+import { useAccountForm } from '@/components/shared/account/use-account-form';
 import Turnstile from '@/components/shared/consultation/turnstile';
 import { requestReset } from '@/lib/actions/account.actions';
 import { emailRequest } from '@/lib/validators';
