@@ -1424,6 +1424,28 @@ test.describe('without JavaScript', () => {
   });
 });
 
+test('the menu sheet’s way to the account asks for nothing before a click', async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== 'phone',
+    'The sheet is the phone’s way to the account.',
+  );
+  const asked: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/account') {
+      asked.push(request.url());
+    }
+  });
+
+  await open(page, '/');
+  await page.getByRole('button', { name: uk.Nav.menu }).click();
+  await expect(page.getByRole('link', { name: uk.Nav.account })).toBeVisible();
+  // Nothing to wait on: a prefetch would start as the link reaches the screen.
+  await page.waitForTimeout(1000);
+  expect(asked).toEqual([]);
+});
+
 test('the owner signs in through the same form and lands in the admin', async ({
   page,
 }) => {
@@ -1436,6 +1458,9 @@ test('the owner signs in through the same form and lands in the admin', async ({
   const toStore = page.getByRole('link', { name: 'На сайт', exact: true });
   await expect(toStore).toBeVisible();
   await expect(toStore).toHaveAttribute('href', '/');
+  const toCanvas = page.getByRole('link', { name: 'Канвас', exact: true });
+  await expect(toCanvas).toBeInViewport({ ratio: 1 });
+  await expect(toCanvas).toHaveAttribute('href', '/canvas');
 
   // Staff have nothing at /account; the store's header shows the admin.
   await page.goto('/account');
