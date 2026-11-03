@@ -104,7 +104,8 @@ unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з 
 order or a consultation request reaches Telegram with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`
 (`docs/deploy.md`, step 8), and is checked by Cloudflare Turnstile with
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`; without the first pair it is only
-saved, without the second it is not checked. A public
+saved, without the second it is not checked. The same keys check a shopper's registration, their
+letters and whatever tries a phone number. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.

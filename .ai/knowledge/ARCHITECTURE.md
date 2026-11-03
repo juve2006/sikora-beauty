@@ -217,7 +217,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   orders; staff, a redirect to `/admin`. `/account/verify?token=` and `/account/reset?token=` are a
   letter's pages. The server actions are in `account.actions.ts` — `signIn`, `register`,
   `resendVerification`, `requestReset`, `resetPassword`, `signOut`, `updateProfile`, `isSignedIn` —
-  and the reads in `customer.actions.ts` (`server-only`). `AccountLink` and the menu sheet's item link
+  and the reads in `customer.actions.ts` (`server-only`). Turnstile stands in front of registration,
+  a request for a letter, sign-in by number and a new number in the profile; sign-in by email passes
+  none, as `/api/customers/login` takes it anyway. `AccountLink` and the menu sheet's item link
   to `/account` and read no session, so cached pages stay cached; a plain click asks `isSignedIn`
   (`useAccountEntry`) and, signed out, opens `AccountDialog` over the page, where a shopper stays
   after signing in. `/cart` fills the form from `currentCustomer`, and

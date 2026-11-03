@@ -47,6 +47,11 @@ developer's decisions at its gate.
   anyway; REST takes only an email, so on a number's path it holds. Without keys it checks nothing, as
   everywhere until the launch, and a Production build without them fails once the site password is
   gone (RULES.md).
+- **A new number in the profile passes Turnstile too; the same number or none does not.** Otherwise
+  one confirmed session could walk numbers there: locally 300 in 1.5 s named every confirmed number in
+  the range and took the number from each unconfirmed row that held one (the review's F10). A name
+  has nothing to do with numbers, so changing it spends no check. The form cannot tell what changed,
+  so it always carries the widget and waits for its token, up to 30 s if Cloudflare is silent.
 - **By number only `customers` are asked, never `users`.** Otherwise a stranger's attempts at a
   shopper's number would lock the account of staff who share that shopper's email. Staff sign in by
   email.
@@ -54,11 +59,9 @@ developer's decisions at its gate.
   row. `claimPhone`, called by `register` and `updateProfile`: if nobody holds the number, or this row
   does, go on; if an unconfirmed row holds it, one atomic `db.updateOne` clears it where `_verified`
   is false and a token exists; otherwise `phoneTaken`. A race lands on the index and answers
-  `phoneTaken` too. The row that lost the number stays without one and can still confirm. A
-  registration that then does not happen gives the number back: a separate statement, not one
-  transaction with the write, which would hold that row through Payload's reads (RULES.md). A profile
-  save gives nothing back: its one write fails only if the owner deleted the shopper meanwhile or the
-  database failed, and the row that lost the number can type it again.
+  `phoneTaken` too. The row that lost the number stays without one and can still confirm. A write that
+  then does not happen gives the number back: a separate statement, not one transaction with the
+  write, which would hold that row through Payload's reads (RULES.md).
 - **A number is stored as `+380…`.** `accountPhone` reads nine digits and whatever `phone` reads. In
   the admin a field hook rewrites by `phone` alone, so nine digits are refused there; empty becomes
   `NULL`, and `validate` refuses the rest. The field stays optional: older accounts and a future
@@ -106,18 +109,15 @@ developer's decisions at its gate.
 - Until the launch the site password is what stands in front of a number: Turnstile has no keys yet,
   and Turnstile itself stops a walk only as far as solving it costs more than the walk is worth.
 - No test runs the real widget: without keys `Turnstile` renders nothing, and CI has none. A failure
-  with two widgets on `/account` showed only on Cloudflare's test keys, so sign-in by number and
-  registration are repeated by hand with the real keys at the launch (roadmap item `launch readiness`).
+  with two widgets on `/account` showed only on Cloudflare's test keys, so sign-in by number,
+  registration and changing a number are repeated by hand with the real keys at the launch (roadmap
+  item `launch readiness`).
 - A number is not proved. Someone may give another person's number and confirm their own email; the
   real holder then sees «зайнятий», which gives access to nothing, and asks the owner.
 - Whoever passes Turnstile can learn whether a number is registered: registration says so, and
   sign-in's answer time does (4 ms unknown, 67 ms known, locally). The same already holds for an
   email. Five wrong passwords lock an account for 10 minutes, so someone who knows a number can lock it
   on purpose.
-- The profile form asks no Turnstile, so one confirmed session can walk numbers there: locally 300 in
-  1.5 s named every confirmed number in the range and took the number from each unconfirmed row that
-  held one (the review's F10). It opens no account and moves no confirmed number. Whether the form
-  gets Turnstile is the developer's call before the site password comes off.
 - The migration rewrote numbers to `+380…`, erased what `accountPhone` would not read, and among
   duplicates left the number on a confirmed row, then the oldest. All of that was test data.
 - `numberTaken` reads the shape of an error from Payload and Drizzle: an upgrade that changes it shows

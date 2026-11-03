@@ -2,7 +2,7 @@
 
 import { useLocale } from 'next-intl';
 import Script from 'next/script';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 declare global {
   interface Window {
@@ -29,12 +29,13 @@ export const turnstileToken = async (read: () => FormData) => {
 // Cloudflare's check inside a form: the widget adds the hidden `cf-turnstile-response` itself and
 // shows only when it needs the shopper. A token is checked once, so each new `attempt` renders a
 // fresh widget. Without the site key there is no check (src/lib/env.ts). `/account` has two at once, and
-// `next/script` calls `onReady` of only the first while the script loads, `onLoad` of both, and `onReady`
-// alone once it has loaded.
+// a dialog may add a third: an `id` each makes `next/script` call every widget's `onLoad`, whenever it
+// mounts, where by `src` alone one mounted while the script loads would hear nothing more.
 const Turnstile = ({ attempt }: { attempt: unknown }) => {
   const container = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const locale = useLocale();
+  const script = useId();
 
   useEffect(() => {
     if (!ready || !siteKey || !container.current || !window.turnstile) return;
@@ -55,9 +56,9 @@ const Turnstile = ({ attempt }: { attempt: unknown }) => {
   return (
     <>
       <Script
+        id={script}
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         onLoad={() => setReady(true)}
-        onReady={() => setReady(true)}
       />
       <div ref={container} />
     </>

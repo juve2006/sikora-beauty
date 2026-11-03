@@ -65,9 +65,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   an unconfirmed one gives it up to whoever registers or saves it. Nobody proves a number, so it finds
   an account and never shows who someone is. (adr-20261103-phone-sign-in; checked by: the index
   `customers_phone_idx`, `tests/account.test.ts`, `tests/e2e/account.spec.ts`)
-- Sign-in by number passes Turnstile before anything is looked up, as numbers can be walked, and asks
-  only `customers`, never `users`: a stranger's attempts at a number never lock staff, and staff's
-  password opens nothing by number. (adr-20261103-phone-sign-in; checked by: `tests/account.test.ts`)
+- Sign-in by number and a new number in the profile pass Turnstile before anything is looked up, as
+  numbers can be walked. Sign-in by number asks only `customers`, never `users`: a stranger's attempts
+  at a number never lock staff, and staff's password opens nothing by number.
+  (adr-20261103-phone-sign-in; checked by: `tests/account.test.ts`)
 
 ## Rules
 

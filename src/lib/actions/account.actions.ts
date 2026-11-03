@@ -446,29 +446,40 @@ export async function signOut() {
   await logout({ config });
 }
 
-// A shopper changes their own data only here: the collection's `update` is the owner's.
+// A shopper changes their own data only here: the collection's `update` is the owner's. A new number
+// passes Turnstile first, as at sign-in: one session could otherwise walk numbers here, learning who
+// holds them and taking them from accounts nobody confirmed (adr-20261103-phone-sign-in).
 export async function updateProfile(
   _: AccountState,
   form: FormData,
 ): Promise<AccountState> {
   const parsed = parseAccountForm(profileUpdate, form);
   if (!parsed.data) return refused(parsed.errors);
+  const { token, ...profile } = parsed.data;
+  let giveBack: (() => Promise<void>) | null = null;
   try {
     const customer = await currentCustomer();
     if (!customer) return { status: 'failed' };
     const payload = await getPayload({ config });
-    const { phone } = parsed.data;
-    if (phone && !(await claimPhone(payload, phone, customer.id)))
-      return phoneTaken();
+    const { phone } = profile;
+    if (phone && phone !== customer.phone) {
+      if (!(await verifyTurnstile(token))) return { status: 'failed' };
+      giveBack = await claimPhone(payload, phone, customer.id);
+      if (!giveBack) return phoneTaken();
+    }
     // These columns only: `payload.update` writes the whole row it read, over what changed meanwhile.
-    await payload.db.updateOne({
+    const saved = await payload.db.updateOne({
       collection: 'customers',
-      data: { ...parsed.data, updatedAt: new Date().toISOString() },
+      data: { ...profile, updatedAt: new Date().toISOString() },
       options: { atomic: true },
       where: { id: { equals: customer.id } },
     });
-    return { status: 'saved' };
+    if (saved) return { status: 'saved' };
+    // The owner deleted this shopper meanwhile.
+    await giveBack?.();
+    return { status: 'failed' };
   } catch (error) {
+    await giveBack?.();
     if (numberTaken(error)) return phoneTaken();
     return failed('profile', error);
   }

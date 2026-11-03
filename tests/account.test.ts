@@ -1143,6 +1143,112 @@ describe('signOut', () => {
 describe('updateProfile', () => {
   const profile = { firstName: 'Ольга', lastName: 'Нова', phone: '0671234567' };
 
+  beforeEach(() => {
+    payload.db.updateOne.mockResolvedValue({ id: 5 });
+  });
+
+  describe('with Turnstile on', () => {
+    const answer = (success: boolean) =>
+      vi.fn(async (_: string, init: { body: string }) =>
+        Response.json({ success, sent: JSON.parse(init.body).response }),
+      );
+
+    beforeEach(() => {
+      vi.stubEnv('TURNSTILE_SECRET_KEY', 'secret');
+      payload.auth.mockResolvedValue({
+        user: { ...shopper, phone: '+380501112233' },
+      });
+    });
+
+    it('asks nothing of the database when it refuses a new number, so numbers cannot be walked', async () => {
+      vi.stubGlobal('fetch', answer(false));
+      expect(
+        await updateProfile(
+          idle,
+          form({ ...profile, 'cf-turnstile-response': 'x' }),
+        ),
+      ).toEqual({ status: 'failed' });
+      expect(payload.db.findOne).not.toHaveBeenCalled();
+      expect(payload.db.updateOne).not.toHaveBeenCalled();
+    });
+
+    it('refuses a new number without its token', async () => {
+      const check = answer(true);
+      vi.stubGlobal('fetch', check);
+      expect(await updateProfile(idle, form(profile))).toEqual({
+        status: 'failed',
+      });
+      expect(check).not.toHaveBeenCalled();
+      expect(payload.db.updateOne).not.toHaveBeenCalled();
+    });
+
+    it('saves a new number when it agrees, and the token stays out of the row', async () => {
+      const check = answer(true);
+      vi.stubGlobal('fetch', check);
+      expect(
+        await updateProfile(
+          idle,
+          form({ ...profile, 'cf-turnstile-response': 'x' }),
+        ),
+      ).toEqual({ status: 'saved' });
+      expect(JSON.parse(check.mock.calls[0][1].body).response).toBe('x');
+      expect(payload.db.updateOne.mock.calls[0][0].data).toEqual({
+        firstName: 'Ольга',
+        lastName: 'Нова',
+        phone: '+380671234567',
+        updatedAt: expect.any(String),
+      });
+    });
+
+    it.each([
+      ['the number they have', '050 111 22 33'],
+      ['no number', ''],
+    ])('does not ask for %s', async (_, phone) => {
+      const check = answer(false);
+      vi.stubGlobal('fetch', check);
+      expect(await updateProfile(idle, form({ ...profile, phone }))).toEqual({
+        status: 'saved',
+      });
+      expect(check).not.toHaveBeenCalled();
+      expect(payload.db.findOne).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('a number taken from a row nobody confirmed', () => {
+    const giveBack = {
+      collection: 'customers',
+      data: { phone: '+380671234567', updatedAt: expect.any(String) },
+      options: { atomic: true },
+      where: { and: [{ id: { equals: 9 } }, { phone: { exists: false } }] },
+    };
+
+    beforeEach(() => {
+      payload.auth.mockResolvedValue({ user: shopper });
+      payload.db.findOne.mockResolvedValue({ id: 9 });
+    });
+
+    it('goes back when the write fails', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      payload.db.updateOne
+        .mockResolvedValueOnce({ id: 9 })
+        .mockRejectedValueOnce(new Error('down'));
+      expect(await updateProfile(idle, form(profile))).toEqual({
+        status: 'failed',
+      });
+      expect(payload.db.updateOne).toHaveBeenLastCalledWith(giveBack);
+    });
+
+    it('goes back when the owner deleted the shopper meanwhile', async () => {
+      payload.db.updateOne
+        .mockResolvedValueOnce({ id: 9 })
+        .mockResolvedValueOnce(null);
+      expect(await updateProfile(idle, form(profile))).toEqual({
+        status: 'failed',
+      });
+      expect(payload.db.updateOne).toHaveBeenLastCalledWith(giveBack);
+    });
+  });
+
   it('changes only the signed-in shopper, and only their name and phone', async () => {
     payload.auth.mockResolvedValue({ user: shopper });
     expect(

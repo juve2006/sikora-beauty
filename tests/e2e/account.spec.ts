@@ -1267,6 +1267,8 @@ test('a closed dialog hands the focus back to what opened it', async ({
   await pressAccount(page, uk);
   const dialog = page.getByRole('dialog', { name: uk.Account.signInTitle });
   await expect(dialog).toBeVisible();
+  // Once it is gone, a sheet's own close cannot be what hands the focus back.
+  await expect(page.locator('[data-slot="sheet-content"]')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   // A phone's item went with the sheet.

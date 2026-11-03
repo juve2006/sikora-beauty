@@ -465,6 +465,7 @@ export const profileUpdate = z.object({
   lastName: text(50),
   // Optional, and clearing it clears it.
   phone: z.preprocess((value) => value || null, accountPhone.nullable()),
+  token: turnstileToken,
 });
 
 // A form's fields by name, Turnstile's own `cf-turnstile-response` as `token`: the data, or the error
