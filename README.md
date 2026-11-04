@@ -139,9 +139,8 @@ Every pull request runs CI (`.github/workflows/ci.yml`), one job per check: `typ
 `format` (prettier), `unit`, `build`, `migrations` (on an empty Postgres), `e2e` (Playwright, all but
 the accounts), `i18n` (same keys in both message files), `knowledge` (`jig knowledge check`), `audit`
 (`npm audit`, gitleaks). The accounts' tests are two thirds of Playwright's, so they run apart, in
-`.github/workflows/accounts.yml`, and only on a pull request that changes what they exercise: the
-accounts, the header, the orders tied to them, the schema or the dependencies. Every push to
-`master` runs all of Playwright there.
+`.github/workflows/accounts.yml`, and only on a pull request that changes the accounts or the
+lockfile. Every push to `master` runs all of Playwright there.
 
 Vercel deploys every push through its GitHub App, without waiting for CI: merge only a pull
 request whose CI is green. A Production build applies migrations before `next build`; a Preview

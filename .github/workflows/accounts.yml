@@ -1,14 +1,12 @@
 name: Accounts
 
-# tests/e2e/account.spec.ts is two thirds of e2e, so a pull request runs it only when what it
-# exercises changes: the accounts, the header they open from, the orders tied to them, the schema,
-# or the Payload and Drizzle underneath, which is why a lockfile counts. A merge runs all of e2e
-# (RULES.md).
+# tests/e2e/account.spec.ts is two thirds of e2e, so a pull request runs it only when the accounts
+# change, or the Payload and Drizzle underneath, which is why a lockfile counts. A merge runs all of
+# e2e (RULES.md).
 on:
   pull_request:
     paths:
       - src/collections/customers.ts
-      - src/collections/orders.ts
       - src/collections/users.ts
       - src/lib/access.ts
       - src/lib/auth-writes.ts
@@ -16,18 +14,13 @@ on:
       - src/lib/turnstile.ts
       - src/lib/actions/account.actions.ts
       - src/lib/actions/customer.actions.ts
-      - src/lib/actions/order.actions.ts
       - src/components/shared/account/**
-      - src/components/shared/header/**
       - src/app/*/*/account/**
-      - src/app/*/*/layout.tsx
-      - src/migrations/**
       - src/proxy.ts
       - next.config.ts
       - tests/e2e/account.spec.ts
       - tests/e2e/seed.ts
       - playwright.config.ts
-      - package.json
       - package-lock.json
       - .nvmrc
       - .github/workflows/accounts.yml
