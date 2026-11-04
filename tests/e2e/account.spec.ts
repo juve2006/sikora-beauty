@@ -1647,3 +1647,357 @@ for (const [locale, m, prefix] of [
     expect(width).toBeLessThanOrEqual(640);
   });
 }
+
+// Google's way in, on the stub (tests/e2e/google-stub.mjs): whoever `asGoogle` names signs in next.
+const googleStub = 'http://127.0.0.1:4011';
+const asGoogle = (identity: object) =>
+  fetch(`${googleStub}/next`, {
+    method: 'POST',
+    body: JSON.stringify(identity),
+  });
+const exchanges = async () =>
+  (await (await fetch(`${googleStub}/exchanges`)).json()).exchanges as number;
+const gmail = () => unique().replace('@example.com', '@gmail.com');
+const googler = (email: string, more: object = {}) => ({
+  sub: `sub-${email}`,
+  email,
+  given_name: 'Гугл',
+  family_name: 'Тестова',
+  ...more,
+});
+const googleLink = (form: Locator, m: typeof uk) =>
+  form.getByRole('link', { name: m.Account.google });
+const pressGoogle = async (page: Page, identity: object) => {
+  await asGoogle(identity);
+  await open(page, '/account');
+  await googleLink(signInForm(page, uk), uk).click();
+};
+const me = async (page: Page) =>
+  (await (await page.request.get('/api/customers/me')).json()).user;
+const refusedBy = async (
+  page: Page,
+  reason: keyof typeof uk.Account.googleRefused,
+) => {
+  await expect(page).toHaveURL(`/account?google=${reason}`);
+  await expect(page.getByText(uk.Account.googleRefused[reason])).toBeVisible();
+  expect(await me(page)).toBeNull();
+};
+
+test('Google makes an account, with no letter, and comes back to the page', async ({
+  page,
+}) => {
+  const email = gmail();
+  await asGoogle(googler(email));
+  await open(page, '/brands');
+  await pressAccount(page, uk);
+  await googleLink(
+    page.getByRole('dialog', { name: uk.Account.signInTitle }),
+    uk,
+  ).click();
+  await expect(page).toHaveURL('/brands');
+  const user = await me(page);
+  expect(user).toMatchObject({
+    email,
+    collection: 'customers',
+    firstName: 'Гугл',
+    lastName: 'Тестова',
+  });
+  expect(user).not.toHaveProperty('googleId');
+  expect(await column(email, '_verified')).toBe(true);
+  expect(await column(email, '_verificationtoken')).toBeNull();
+  expect(await column(email, 'hash')).toBeTruthy();
+  expect(await column(email, 'locale')).toBe('uk');
+});
+
+test('Google from the account page goes home, in its language', async ({
+  page,
+}) => {
+  const email = gmail();
+  await asGoogle(googler(email));
+  await open(page, '/en/account');
+  await googleLink(registerForm(page, en), en).click();
+  await landedSignedIn(page, en, '/en');
+  expect(await column(email, 'locale')).toBe('en');
+});
+
+test('Google finds its account by `sub` when the address changes, and the owner’s save keeps it', async ({
+  page,
+}) => {
+  const email = gmail();
+  await pressGoogle(page, googler(email));
+  await expect(page).toHaveURL('/');
+  const id = await column(email, 'id');
+  await page.context().clearCookies();
+  await pressGoogle(page, googler(email, { email: gmail() }));
+  await expect(page).toHaveURL('/');
+  expect((await me(page)).id).toBe(id);
+  await page.context().clearCookies();
+
+  await page.request.post('/api/users/login', { data: owner });
+  const saved = await page.request.patch(`/api/customers/${id}`, {
+    data: { firstName: 'Збережено' },
+  });
+  expect(saved.ok()).toBe(true);
+  expect(await column(email, 'first_name')).toBe('Збережено');
+  expect(await column(email, 'google_id')).toBe(`sub-${email}`);
+});
+
+test('Google joins an account whose address it hosts, and the password still works', async ({
+  page,
+}) => {
+  const email = await confirmed(page, uk, '');
+  const id = await column(email, 'id');
+  await pressGoogle(page, googler(email, { hd: 'example.com' }));
+  await expect(page).toHaveURL('/');
+  expect((await me(page)).id).toBe(id);
+  expect(await column(email, 'google_id')).toBe(`sub-${email}`);
+  await page.context().clearCookies();
+  await open(page, '/account');
+  await pressSignIn(page, uk, email, password);
+  await landedSignedIn(page, uk, '');
+});
+
+test('Google opens no existing account at an address it does not host', async ({
+  page,
+}) => {
+  const email = await confirmed(page, uk, '');
+  await pressGoogle(page, googler(email));
+  await refusedBy(page, 'usePassword');
+  expect(await column(email, 'google_id')).toBeNull();
+
+  const waiting = unique();
+  await open(page, '/account');
+  await register(page, uk, waiting);
+  await expect(page.getByRole('status')).toContainText(waiting);
+  const token = await column(waiting, '_verificationtoken');
+  await pressGoogle(page, googler(waiting));
+  await refusedBy(page, 'usePassword');
+  expect(await column(waiting, '_verificationtoken')).toBe(token);
+});
+
+test('Google replaces a stranger’s unconfirmed registration of its address', async ({
+  page,
+}) => {
+  const email = gmail();
+  const strangers = 'a-strangers-password';
+  await open(page, '/account');
+  await register(page, uk, email, strangers);
+  await expect(page.getByRole('status')).toContainText(email);
+  const id = await column(email, 'id');
+  expect(await column(email, 'phone')).toBeTruthy();
+
+  await pressGoogle(page, googler(email));
+  await expect(page).toHaveURL('/');
+  expect(await column(email, 'id')).not.toBe(id);
+  expect(await column(email, 'phone')).toBeNull();
+  expect(await column(email, 'first_name')).toBe('Гугл');
+
+  await page.context().clearCookies();
+  await open(page, '/account');
+  await pressSignIn(page, uk, email, strangers);
+  await expect(signInForm(page, uk).getByRole('alert')).toHaveText(
+    uk.Account.wrong,
+  );
+});
+
+test('Google refuses a row the owner unticked, and another Google account’s', async ({
+  page,
+}) => {
+  const untick = (email: string) =>
+    database.query(
+      'update customers set _verified = false, _verificationtoken = null where email = $1',
+      [email],
+    );
+
+  const known = gmail();
+  await pressGoogle(page, googler(known));
+  await expect(page).toHaveURL('/');
+  await page.context().clearCookies();
+  await untick(known);
+  await pressGoogle(page, googler(known));
+  await refusedBy(page, 'failed');
+
+  const unticked = await confirmed(page, uk, '');
+  await untick(unticked);
+  await pressGoogle(page, googler(unticked, { hd: 'example.com' }));
+  await refusedBy(page, 'failed');
+  expect(await column(unticked, 'google_id')).toBeNull();
+
+  const taken = await confirmed(page, uk, '');
+  await database.query(
+    `update customers set google_id = 'another-' || id where email = $1`,
+    [taken],
+  );
+  const linked = await column(taken, 'google_id');
+  await pressGoogle(page, googler(taken, { hd: 'example.com' }));
+  await refusedBy(page, 'failed');
+  expect(await column(taken, 'google_id')).toBe(linked);
+});
+
+test('Google’s answer that does not hold creates nothing', async ({ page }) => {
+  for (const change of [
+    { email_verified: false },
+    { aud: 'another-client' },
+    { exp: 1 },
+    { iss: 'https://elsewhere.example' },
+    { tokenStatus: 500 },
+  ]) {
+    const email = gmail();
+    await pressGoogle(page, googler(email, change));
+    await refusedBy(page, 'failed');
+    expect(await column(email, 'id')).toBeUndefined();
+  }
+});
+
+test('Google’s way back does nothing in a browser that did not leave for it', async ({
+  browser,
+  page,
+}) => {
+  const before = await exchanges();
+  await page.goto('/api/customers/google/callback?code=a&state=b');
+  await refusedBy(page, 'failed');
+  expect(await exchanges()).toBe(before);
+
+  // The same link, as a mail scanner would open it.
+  const email = gmail();
+  const back = page.waitForRequest(/\/google\/callback/);
+  await pressGoogle(page, googler(email));
+  const url = (await back).url();
+  await expect(page).toHaveURL('/');
+  await page.context().clearCookies();
+  const fresh = await browser.newContext({ baseURL: 'http://localhost:3200' });
+  const tab = await fresh.newPage();
+  const counted = await exchanges();
+  await tab.goto(url);
+  await refusedBy(tab, 'failed');
+  expect(await exchanges()).toBe(counted);
+  await fresh.close();
+});
+
+test('Google gives staff’s address a shopper’s session, never the admin', async ({
+  page,
+}) => {
+  const { rows: before } = await database.query(
+    'select hash from users where email = $1',
+    [owner.email],
+  );
+  try {
+    await pressGoogle(page, googler(owner.email));
+    await expect(page).toHaveURL('/');
+    expect((await me(page)).collection).toBe('customers');
+    const staff = await page.request.get('/api/users/me');
+    expect((await staff.json()).user).toBeNull();
+    await page.goto('/admin');
+    await expect(page).toHaveURL(/\/admin\/login|\/account/);
+  } finally {
+    await database.query('delete from customers where email = $1', [
+      owner.email,
+    ]);
+  }
+  const { rows: after } = await database.query(
+    'select hash from users where email = $1',
+    [owner.email],
+  );
+  expect(after).toEqual(before);
+});
+
+test('Google’s session is an ordinary one: closed by a sign-out and a reset, past a lock', async ({
+  browser,
+  page,
+}) => {
+  const baseURL = 'http://localhost:3200';
+  const email = gmail();
+  const identity = googler(email);
+  await pressGoogle(page, identity);
+  await expect(page).toHaveURL('/');
+
+  // A sign-out closes it on the server, not only in this browser.
+  const elsewhere = await browser.newContext({ baseURL });
+  await elsewhere.addCookies(await page.context().cookies());
+  const copy = await elsewhere.newPage();
+  expect((await me(copy)).email).toBe(email);
+  await page.goto('/account');
+  await signOutButton(page, uk).click();
+  await expect(signInForm(page, uk)).toBeVisible();
+  expect(await me(copy)).toBeNull();
+  await elsewhere.close();
+
+  // A lock stops a password, not Google.
+  await database.query(
+    `update customers set login_attempts = 5, lock_until = now() + interval '10 minutes' where email = $1`,
+    [email],
+  );
+  await pressGoogle(page, identity);
+  await expect(page).toHaveURL('/');
+  expect((await me(page)).email).toBe(email);
+  await page.context().clearCookies();
+  await open(page, '/account');
+  await pressSignIn(page, uk, email, password);
+  await expect(signInForm(page, uk).getByRole('alert')).toHaveText(
+    uk.Account.locked,
+  );
+  await database.query(
+    'update customers set login_attempts = 0, lock_until = null where email = $1',
+    [email],
+  );
+
+  // A reset closes it too, and gives them a password of their own.
+  await pressGoogle(page, identity);
+  await expect(page).toHaveURL('/');
+  const other = await browser.newContext({ baseURL });
+  const tab = await other.newPage();
+  const renewed = 'a-password-after-the-reset';
+  await (await resetReady(tab, email, renewed)).click();
+  await expect.poll(() => me(page)).toBeNull();
+  await other.close();
+  await page.context().clearCookies();
+  await open(page, '/account');
+  await pressSignIn(page, uk, email, renewed);
+  await landedSignedIn(page, uk, '');
+});
+
+test('Google cancelled comes back quietly, and an address off the site is not followed', async ({
+  page,
+}) => {
+  await asGoogle({ declined: true });
+  await open(page, '/brands');
+  await pressAccount(page, uk);
+  await googleLink(
+    page.getByRole('dialog', { name: uk.Account.signInTitle }),
+    uk,
+  ).click();
+  await expect(page).toHaveURL('/brands');
+  expect(await me(page)).toBeNull();
+
+  await pressGoogle(page, { declined: true });
+  await expect(page).toHaveURL('/account');
+  await expect(signInForm(page, uk)).toBeVisible();
+
+  for (const from of [
+    '//elsewhere.example/x',
+    'https://elsewhere.example/x',
+    '/\\elsewhere.example/x',
+    '/.//elsewhere.example/x',
+    '/brands/..//elsewhere.example/x',
+    '//',
+  ]) {
+    await asGoogle(googler(gmail()));
+    await page.goto(`/api/customers/google?from=${encodeURIComponent(from)}`);
+    await expect(page).toHaveURL('/');
+    await page.context().clearCookies();
+  }
+});
+
+test('Google without a name leaves it for the shopper to fill', async ({
+  page,
+}) => {
+  const email = gmail();
+  await pressGoogle(page, { sub: `sub-${email}`, email });
+  await expect(page).toHaveURL('/');
+  expect(await column(email, 'first_name')).toBeNull();
+  await page.goto('/account');
+  await expect(page.getByLabel(uk.Account.firstName)).toHaveValue('');
+  await expect(page.getByLabel(uk.Account.lastName)).toHaveValue('');
+  await orderSerum(page, uk, '');
+  await expect(page.getByLabel(uk.Checkout.firstName)).toHaveValue('');
+});

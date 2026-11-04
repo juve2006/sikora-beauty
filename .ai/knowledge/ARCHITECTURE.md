@@ -238,7 +238,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   (adr-20261103-customer-accounts, adr-20261103-phone-sign-in). The collection `customers` (admin
   group «Продажі») is Payload auth with `verify`; only the owner changes or deletes one through the
   API. A shopper signs in by a number or an email, staff by email; a number is one account's and
-  nobody proves it. `/account`
+  nobody proves it. A shopper may also come in by Google (adr-20261104-google-sign-in): the button in
+  `OtherWays` links to `/api/customers/google` and its callback, both in
+  `src/collections/customer-endpoints.ts`, which decides whose account it is and opens the session;
+  `src/lib/google.ts` speaks to Google. `/account`
   (`(shop)/account/`, `noindex`, `force-dynamic`): signed out, the forms; a shopper, their data and
   orders; staff, a redirect to `/admin`. `/account/verify?token=` and `/account/reset?token=` are a
   letter's pages. The server actions are in `account.actions.ts` — `signIn`, `register`,
@@ -314,8 +317,9 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 - **Orders** (`src/collections/orders.ts`, `src/lib/orders.ts`, `order.actions.ts`) — cart
   repricing, checkout, the `orders` collection and its statuses are built (above). Depends on
   catalog.
-- **Accounts** (`src/collections/customers.ts`, `account.actions.ts`, `customer.actions.ts`,
-  `src/lib/auth-writes.ts`, `src/lib/email.ts`) — built (above). It meets orders in one field,
+- **Accounts** (`src/collections/customers.ts`, `src/collections/customer-endpoints.ts`,
+  `account.actions.ts`, `customer.actions.ts`, `src/lib/auth-writes.ts`, `src/lib/email.ts`,
+  `src/lib/google.ts`) — built (above). It meets orders in one field,
   `orders.customer`: `placeOrder` fills it from `currentCustomer`, `myOrders` reads it.
 - **Payments** (`src/lib/monobank.ts`) — monobank invoices, webhook, reconciliation
   (adr-20261028-monobank-and-cash-on-delivery). Depends on orders.

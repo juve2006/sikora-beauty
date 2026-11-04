@@ -31,6 +31,11 @@ const schema = z
     // that is refused the shopper types the address. The URL is for the e2e tests' stub only.
     NOVA_POSHTA_API_KEY: z.string().optional(),
     NOVA_POSHTA_API_URL: z.url().optional(),
+    // Signing in with Google; without them its button leads to a message. The URL is for the e2e
+    // tests' stub only.
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    GOOGLE_STUB_URL: z.url().optional(),
     // The letters a shopper's account needs; without them nothing is sent (src/lib/email.ts).
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.coerce.number().int().optional(),
@@ -49,13 +54,17 @@ const schema = z
     path: ['SITE_PASSWORD'],
   })
   // A pair or nothing: a secret without the widget refuses every request, a widget without the
-  // secret checks nothing, a token without a chat sends nowhere.
+  // secret checks nothing, a token without a chat sends nowhere, half of Google's keys fails every
+  // sign-in.
   .refine(
     (env) => !env.TURNSTILE_SECRET_KEY === !env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     { path: ['TURNSTILE_SECRET_KEY'] },
   )
   .refine((env) => !env.TELEGRAM_BOT_TOKEN === !env.TELEGRAM_CHAT_ID, {
     path: ['TELEGRAM_BOT_TOKEN'],
+  })
+  .refine((env) => !env.GOOGLE_CLIENT_ID === !env.GOOGLE_CLIENT_SECRET, {
+    path: ['GOOGLE_CLIENT_ID'],
   })
   // All or nothing, and all on Production: an account there that gets no letter can never sign in.
   .refine(

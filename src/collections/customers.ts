@@ -4,6 +4,7 @@ import {
   Forbidden,
 } from 'payload';
 
+import { customerEndpoints } from '@/collections/customer-endpoints';
 import { isOwner, nobody, staffOrSelf } from '@/lib/access';
 import { markAccessWrites } from '@/lib/auth-writes';
 import { CUSTOMER_SESSION_SECONDS, LETTER_INTERVAL } from '@/lib/constants';
@@ -81,15 +82,17 @@ export const Customers: CollectionConfig = {
   },
   graphQL: { disableMutations: true },
   hooks: { beforeOperation: [onlyThroughActions, markAccessWrites] },
+  endpoints: customerEndpoints,
   fields: [
     // Email added by default
     {
       type: 'row',
       fields: [
-        { name: 'firstName', type: 'text', label: "Ім'я", required: true },
-        { name: 'lastName', type: 'text', label: 'Прізвище', required: true },
-        // A way in, so one account's. Optional: accounts older than it have none. Nobody proves a
-        // number; the owner clears one that someone took (adr-20261103-phone-sign-in).
+        // Optional: Google may give no name. The store's forms still ask for both.
+        { name: 'firstName', type: 'text', label: "Ім'я" },
+        { name: 'lastName', type: 'text', label: 'Прізвище' },
+        // A way in, so one account's. Optional: accounts older than it and Google's have none. Nobody
+        // proves a number; the owner clears one that someone took (adr-20261103-phone-sign-in).
         {
           name: 'phone',
           type: 'text',
@@ -103,6 +106,8 @@ export const Customers: CollectionConfig = {
         },
       ],
     },
+    // Who this is at Google, as an address there can change (adr-20261104-google-sign-in).
+    { name: 'googleId', type: 'text', unique: true, hidden: true },
     // When the last letter of confirmation went, `createdAt` until then: one per LETTER_INTERVAL.
     { name: 'verificationSentAt', type: 'date', hidden: true },
     // The language of their letters: the one they registered in.

@@ -11,6 +11,7 @@ import * as migration_20261102_182447_customer_accounts from './20261102_182447_
 import * as migration_20261103_110459_customer_phone from './20261103_110459_customer_phone';
 import * as migration_20261103_170810_site_contacts from './20261103_170810_site_contacts';
 import * as migration_20261103_201435_volume_unit_default from './20261103_201435_volume_unit_default';
+import * as migration_20261104_115441_google_sign_in from './20261104_115441_google_sign_in';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261103_201435_volume_unit_default.up,
     down: migration_20261103_201435_volume_unit_default.down,
-    name: '20261103_201435_volume_unit_default'
+    name: '20261103_201435_volume_unit_default',
+  },
+  {
+    up: migration_20261104_115441_google_sign_in.up,
+    down: migration_20261104_115441_google_sign_in.down,
+    name: '20261104_115441_google_sign_in'
   },
 ];

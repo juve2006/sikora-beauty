@@ -483,9 +483,10 @@ export interface Order {
  */
 export interface Customer {
   id: number;
-  firstName: string;
-  lastName: string;
+  firstName?: string | null;
+  lastName?: string | null;
   phone?: string | null;
+  googleId?: string | null;
   verificationSentAt?: string | null;
   locale?: ('uk' | 'en') | null;
   updatedAt: string;
@@ -926,6 +927,7 @@ export interface CustomersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   phone?: T;
+  googleId?: T;
   verificationSentAt?: T;
   locale?: T;
   updatedAt?: T;

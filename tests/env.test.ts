@@ -110,6 +110,12 @@ describe('parseEnv', () => {
     expect(() => parseEnv({ ...valid, TELEGRAM_CHAT_ID: '-100123' })).toThrow(
       'Invalid environment variables: TELEGRAM_BOT_TOKEN',
     );
+    expect(() => parseEnv({ ...valid, GOOGLE_CLIENT_ID: 'client' })).toThrow(
+      'Invalid environment variables: GOOGLE_CLIENT_ID',
+    );
+    expect(() =>
+      parseEnv({ ...valid, GOOGLE_CLIENT_SECRET: 'secret' }),
+    ).toThrow('Invalid environment variables: GOOGLE_CLIENT_ID');
     expect(
       parseEnv({
         ...valid,
