@@ -15,7 +15,7 @@ paths:
   - src/lib/actions/account.actions.ts
   - src/lib/actions/customer.actions.ts
 summary: Shoppers are a Payload collection of their own, a session no longer means staff, email is confirmed by letter and password, and only a marked operation writes the columns that decide who may get in
-reviewed_at: 2026-11-03
+reviewed_at: 2026-11-04
 ---
 # A shopper's account is a row of its own Payload collection, `customers`, and a session no longer means staff
 
@@ -100,7 +100,8 @@ said it was changed.
   mark means the password does not change while the form says it did, so a Payload upgrade reads
   `login.js`, `sessions.js` and `update.js` again and runs `tests/e2e/account.spec.ts`, which plays a
   reset against loops of sign-ins, wrong passwords and saves.
-- A row without `hash` passes the guard untouched. None exists today; `google-sign-in` must revisit it.
+- A row without `hash` passes the guard untouched. None exists, and `google-sign-in` makes none: a
+  Google account has a random password (adr-20261104-google-sign-in).
 - Limits accepted when the developer stopped the review rounds on this cause (2026-11-03), so a new
   race that needs a deliberate flood of requests is listed, not chased:
   - a flood of reset requests postpones real letters with no bound (18.6 s after 3 loops for 15 s);

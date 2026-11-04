@@ -11,9 +11,13 @@ import { routing } from '@/i18n/routing';
 import { isStaff } from '@/lib/access';
 import { signOut } from '@/lib/actions/account.actions';
 import { myOrders, sessionUser } from '@/lib/actions/customer.actions';
+import { googleRefusal } from '@/lib/validators';
 import { Button } from '@/components/ui/button';
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ google?: string | string[] }>;
+};
 
 // It reads the session on every request; a cached page never does (RULES.md).
 export const dynamic = 'force-dynamic';
@@ -30,18 +34,24 @@ const heading =
 const section = 'text-xl font-semibold tracking-tight';
 
 // The way in for everyone, and a shopper's own data and orders. Staff have the admin instead.
-const AccountPage = async ({ params }: Props) => {
+const AccountPage = async ({ params, searchParams }: Props) => {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const user = await sessionUser();
   if (isStaff(user)) redirect('/admin');
   const t = await getTranslations('Account');
 
-  if (user?.collection !== 'customers')
+  if (user?.collection !== 'customers') {
+    const refusal = googleRefusal.parse((await searchParams).google);
     return (
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
         <h1 className={heading}>{t('title')}</h1>
         <p className="mt-2 max-w-prose text-muted-foreground">{t('intro')}</p>
+        {refusal && (
+          <p role="alert" className="mt-4 max-w-prose text-sm text-destructive">
+            {t(`googleRefused.${refusal}`)}
+          </p>
+        )}
         <div className="mt-8 grid gap-12 lg:grid-cols-2">
           <section aria-labelledby="sign-in">
             <h2 id="sign-in" className={`${section} mb-4`}>
@@ -58,6 +68,7 @@ const AccountPage = async ({ params }: Props) => {
         </div>
       </main>
     );
+  }
 
   const orders = await myOrders(user);
   return (

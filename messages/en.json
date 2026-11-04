@@ -305,7 +305,11 @@
     "byEmail": "By email",
     "byPhone": "By phone",
     "google": "Google",
-    "googleSoon": "Signing in with Google is coming soon",
+    "googleRefused": {
+      "failed": "Couldn't sign in with Google. Try again, or sign in with your email and password.",
+      "usePassword": "This address already has an account. Sign in with your email and password.",
+      "unavailable": "Signing in with Google isn't available here yet. Sign in with your email and password."
+    },
     "close": "Close",
     "showPassword": "Show password",
     "forgot": "Forgot your password?",

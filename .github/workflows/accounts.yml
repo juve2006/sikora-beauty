@@ -7,10 +7,12 @@ on:
   pull_request:
     paths:
       - src/collections/customers.ts
+      - src/collections/customer-endpoints.ts
       - src/collections/users.ts
       - src/lib/access.ts
       - src/lib/auth-writes.ts
       - src/lib/email.ts
+      - src/lib/google.ts
       - src/lib/turnstile.ts
       - src/lib/actions/account.actions.ts
       - src/lib/actions/customer.actions.ts
@@ -19,6 +21,7 @@ on:
       - src/proxy.ts
       - next.config.ts
       - tests/e2e/account.spec.ts
+      - tests/e2e/google-stub.mjs
       - tests/e2e/seed.ts
       - playwright.config.ts
       - package-lock.json

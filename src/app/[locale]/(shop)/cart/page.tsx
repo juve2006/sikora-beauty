@@ -37,8 +37,8 @@ const CartPage = async ({ params }: Props) => {
       <CartList
         contact={
           customer && {
-            firstName: customer.firstName,
-            lastName: customer.lastName,
+            firstName: customer.firstName ?? '',
+            lastName: customer.lastName ?? '',
             phone: customer.phone ?? undefined,
           }
         }

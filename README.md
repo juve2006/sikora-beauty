@@ -63,7 +63,7 @@ phone number, an email and a password and gets a letter in the language they reg
 asks for that password, which confirms the email. They sign in by number or by email and stay on the
 page; in «Кабінет» they change their name and phone, see their orders as the manager moves them along, and
 find the checkout filled in. Nobody proves a number; a confirmed account keeps it, and the owner
-changes or clears one in the admin. The Google button does not work yet. Ordering without an account works as before, and nothing links an
+changes or clears one in the admin. A shopper can also register and sign in with Google, and comes back to the same page; where Google hosts the address, it opens the account already there. Ordering without an account works as before, and nothing links an
 earlier order. A forgotten password gets a letter too, staff's as well: the admin's own link leads to this form. The owner and the cosmetologist sign in
 by email through the same form and land in the admin; a shopper's session opens nothing of it. Accounts wait
 in the admin under «Продажі → Покупці»: both roles read them, the owner changes or deletes them, and
@@ -116,6 +116,8 @@ otherwise; whenever Nova Poshta does not answer, the shopper types the settlemen
 An account's letters go by SMTP with the `SMTP_*` variables (`docs/deploy.md`, step 9), which
 Production does not deploy without. Elsewhere nothing is sent or logged: to follow a letter's link,
 take the token from the `customers` table (`_verificationtoken`, `reset_password_token`).
+The Google button needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (`docs/deploy.md`, step 10);
+without them it leads to a message that Google is unavailable, as on a Preview.
 
 `npm run test:e2e` runs the checkout, the care finder, the accounts and the rest in Playwright (360 px and desktop, both languages) on a
 production build — `npm run build` first — against a throwaway database: its migrations,

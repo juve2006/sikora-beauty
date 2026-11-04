@@ -493,6 +493,31 @@ export const profileUpdate = z.object({
   token: turnstileToken,
 });
 
+// What Google says of a person, in the `id_token` of its token endpoint's answer.
+export const googleAnswer = z.object({ id_token: z.string() });
+export const googleIdentity = z.object({
+  iss: z.enum(['https://accounts.google.com', 'accounts.google.com']),
+  aud: z.string(),
+  exp: z.number(),
+  sub: z.string().min(1),
+  email,
+  email_verified: z.literal(true),
+  hd: z.string().optional(),
+  given_name: z.string().optional(),
+  family_name: z.string().optional(),
+});
+// What the browser keeps while it is at Google.
+export const googleTrip = z.object({
+  state: z.string().min(1),
+  verifier: z.string().min(1),
+  from: z.string(),
+});
+// Why Google's way in ended on `/account`.
+export const googleRefusal = z
+  .preprocess(first, z.enum(['failed', 'usePassword', 'unavailable']))
+  .optional()
+  .catch(undefined);
+
 // A form's fields by name, Turnstile's own `cf-turnstile-response` as `token`: the data, or the error
 // keys of each field the shopper typed.
 export const parseAccountForm = <Schema extends z.ZodObject>(

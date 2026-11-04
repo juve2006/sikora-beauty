@@ -31,6 +31,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form, the checkout and a shopper's account                              | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
 | `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                          | the Web client a shopper signs in with Google through                                                                         | Vercel env, Production only, the secret Sensitive; set both or neither; without them the button leads to a message                                                          |
 
 ## Build it from nothing
 
@@ -81,17 +82,24 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    domain's mail. A changed Google password revokes the app password: letters then fail with
    `Account` in the host's log and nobody can register, until a new one is set and Production is
    redeployed.
-10. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
-11. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
+10. **Sign-in with Google.** Google Cloud Console, free: a project → the consent screen, External,
+    status In production, only `openid email profile`, the domain `sikora-beauty.vercel.app` → a
+    client of type Web, redirect URI
+    `https://sikora-beauty.vercel.app/api/customers/google/callback` → `GOOGLE_CLIENT_ID` and
+    `GOOGLE_CLIENT_SECRET` (Sensitive) in Vercel, Production only, then redeploy. No test reaches the
+    real Google: sign in once by hand on that domain. A new domain only needs its redirect URI and
+    domain added to the same client, and `SITE_URL` names it; accounts stay.
+11. **First deploy.** Push to `master` (or redeploy the latest Production deployment in Vercel).
+12. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
     create the first user with a password from the password manager. From then on `/admin` shows
     the login page.
-12. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
+13. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
     the first search synonyms (only while there are none), once: copy
     `DATABASE_URL_UNPOOLED` (Production) from Vercel → Settings → Environment Variables, then
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
     The seed signs nothing, so a throwaway secret will do, and the URL never enters the shell
     history. It prints how many records it created; run again, it creates none.
-13. **Products from cosmetika.com.ua** (after the seed: it needs the brands). As the owner,
+14. **Products from cosmetika.com.ua** (after the seed: it needs the brands). As the owner,
     `/admin` → Інструменти → Імпорт → «Перевірити» → «Імпортувати нові». The page sends a few
     products at a time and must stay open; the photos go to Blob. Interrupted, «Перевірити» shows
     what is left; run again, it creates none.

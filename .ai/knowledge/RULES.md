@@ -57,8 +57,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `req.user` alone. (adr-20261103-customer-accounts; checked by: Vitest in `tests/access.test.ts`,
   with a shopper who has staff's id, and `tests/e2e/account.spec.ts`)
 - An email is confirmed only by the account's password on the letter's page; opening the link
-  changes nothing. (adr-20261103-customer-accounts; checked by: `tests/account.test.ts`,
-  `tests/e2e/account.spec.ts`)
+  changes nothing. The one exception is an account Google creates, on the address Google has just
+  said is verified. (adr-20261103-customer-accounts, adr-20261104-google-sign-in; checked by:
+  `tests/account.test.ts`, `tests/e2e/account.spec.ts`)
+- Google's word opens an account somebody already has only where Google hosts the address
+  (`@gmail.com` or `hd`). An account it signed in before is found by `googleId`, never by the
+  address, and Google gives only a `customers` session, whoever holds the address among staff.
+  (adr-20261104-google-sign-in; checked by: `tests/google.test.ts`, `tests/e2e/account.spec.ts`)
 - An order is tied to an account only at checkout, by the session, never by email.
   (adr-20261103-customer-accounts; checked by: Vitest in `tests/orders.test.ts`)
 - A phone number is at most one account's, written as `+380…`, and only a confirmed account keeps it:
@@ -113,7 +118,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   and GraphQL builds its schema from another. (adr-20261103-customer-accounts; checked by:
   `tests/access.test.ts`, `tests/e2e/account.spec.ts`)
 - A GET has no side effect on an account: Chromium's `Critical-CH` restart and mail scanners open a
-  link by themselves. (adr-20261103-customer-accounts; checked by: `tests/e2e/account.spec.ts`)
+  link by themselves. The one exception is Google's callback, which does nothing without the state
+  cookie its own browser got on leaving for Google, and whose code works once.
+  (adr-20261103-customer-accounts, adr-20261104-google-sign-in; checked by:
+  `tests/e2e/account.spec.ts`)
 - On `users` and `customers` Payload writes a row whole, from a snapshot, so reading and then writing
   is not atomic. A write to one column there is one `payload.db.updateOne` with `atomic: true`, and an
   operation that changes a password or sessions carries a mark in `markAccessWrites`, or

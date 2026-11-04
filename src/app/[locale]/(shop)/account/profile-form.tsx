@@ -48,7 +48,7 @@ const ProfileForm = ({
         autoComplete="given-name"
         maxLength={50}
         required
-        defaultValue={customer.firstName}
+        defaultValue={customer.firstName ?? ''}
         errors={errors.firstName}
       />
       <AccountField
@@ -57,7 +57,7 @@ const ProfileForm = ({
         autoComplete="family-name"
         maxLength={50}
         required
-        defaultValue={customer.lastName}
+        defaultValue={customer.lastName ?? ''}
         errors={errors.lastName}
       />
       <AccountField
