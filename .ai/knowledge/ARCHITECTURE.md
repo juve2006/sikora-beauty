@@ -276,8 +276,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Development host** — Vercel Hobby + Neon; Production behind the site password, Previews behind
   Vercel Authentication (adr-20261029-site-password). Vercel's GitHub App
   deploys every push: `master` → Production (migrations, then the build), other branches →
-  Preview (build only, same database); CI runs on pull requests and is not a gate before the
-  deploy (adr-20261028-vercel-git-deploys). Photos in one Vercel Blob store shared by every
+  Preview (build only, same database); CI runs on pull requests and all of e2e again on a push to
+  `master`, and neither is a gate before the deploy (adr-20261028-vercel-git-deploys). Photos in one Vercel Blob store shared by every
   environment (adr-20261028-media-on-vercel-blob).
 
 ## Intended — not built yet

@@ -1,7 +1,8 @@
-name: Races
+name: Accounts
 
-# The tests marked @race take half of e2e, so they run only when what they exercise changes: the
-# accounts, their schema, or the Payload and Drizzle underneath, which is why a lockfile counts.
+# tests/e2e/account.spec.ts is two thirds of e2e, so a pull request runs it only when the accounts
+# change, or the Payload and Drizzle underneath, which is why a lockfile counts. A merge runs all of
+# e2e (RULES.md).
 on:
   pull_request:
     paths:
@@ -9,32 +10,30 @@ on:
       - src/collections/users.ts
       - src/lib/access.ts
       - src/lib/auth-writes.ts
-      - src/lib/constants/**
       - src/lib/email.ts
       - src/lib/turnstile.ts
-      - src/lib/validators.ts
       - src/lib/actions/account.actions.ts
       - src/lib/actions/customer.actions.ts
       - src/components/shared/account/**
       - src/app/*/*/account/**
-      - src/migrations/**
-      - src/payload.config.ts
       - src/proxy.ts
       - next.config.ts
       - tests/e2e/account.spec.ts
       - tests/e2e/seed.ts
       - playwright.config.ts
-      - package.json
       - package-lock.json
       - .nvmrc
-      - .github/workflows/races.yml
+      - .github/workflows/accounts.yml
+  push:
+    branches:
+      - master
 
 permissions:
   contents: read
 
 jobs:
   # The same steps as `e2e` in ci.yml: a change to one belongs in both.
-  races:
+  accounts:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -71,4 +70,7 @@ jobs:
         env:
           NODE_ENV: production
       - run: npm run build
-      - run: npm run test:e2e -- --grep @race
+      - if: github.event_name == 'pull_request'
+        run: npm run test:e2e -- tests/e2e/account.spec.ts
+      - if: github.event_name == 'push'
+        run: npm run test:e2e
