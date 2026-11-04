@@ -159,8 +159,8 @@ jobs:
         env:
           NODE_ENV: production
       - run: npm run build
-      # @race has its own workflow, races.yml.
-      - run: npm run test:e2e -- --grep-invert @race
+      # The accounts have their own workflow, accounts.yml.
+      - run: npm run test:e2e -- --grep-invert account.spec
 
   i18n:
     runs-on: ubuntu-latest

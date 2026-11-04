@@ -161,7 +161,7 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - One roadmap item is one task and one pull request, with a Backend and a Frontend section.
   (spec `sikora-beauty`; checked by: review)
 - A pull request merges into `master` only with green CI (`.github/workflows/ci.yml`, and
-  `races.yml` when it runs). (spec
+  `accounts.yml` when it runs). (spec
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
 - A shopper's personal data — name, phone, address, what they wrote — never reaches a log: a
@@ -177,9 +177,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A pull request's description is updated whenever a push changes what the pull request does.
   (developer, 2026-10-28; checked by: review)
 - A new check joins `ci.yml` as a job of its own, in the pull request that brings the code it
-  checks. (spec `sikora-beauty`; checked by: review) A slow race test on accounts is marked `@race`
-  instead and runs in `races.yml`, whose `paths` name what such a test exercises: a new file it
-  depends on joins them. (developer, 2026-11-03; checked by: review)
+  checks. (spec `sikora-beauty`; checked by: review) The exception is `tests/e2e/account.spec.ts`,
+  two thirds of e2e's tests: it runs in `accounts.yml`, on a pull request only when `paths` names
+  what changed, and a new file the spec exercises joins them. `payload.config`, `constants` and
+  `validators` stay out by the developer's choice. Every push to `master` runs
+  all of e2e there, so a break outside `paths` shows after the merge, with its deploy already going:
+  accepted behind the site password, to weigh again at the launch. (developer, 2026-11-03; checked
+  by: review)
 - CI fails on a high or critical advisory (`npm audit --audit-level=high`). One reached through a
   package that pins the vulnerable version is lifted by an entry in `overrides` in `package.json`:
   `dompurify` (pinned at 3.4.8 by `monaco-editor` in `@payloadcms/ui`) and `graphql-scalars`

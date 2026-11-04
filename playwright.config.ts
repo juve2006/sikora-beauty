@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // The checkout, the care finder and the accounts end to end (tests/e2e): `npm run build`, then `npm run test:e2e`, with DATABASE_URL
 // and PAYLOAD_SECRET of a throwaway database that has its migrations, `seed:catalog` and
-// tests/e2e/seed.ts — CI's `e2e` job does all of it. The orders it places stay there.
+// tests/e2e/seed.ts — CI's `e2e` and `accounts` jobs do all of it. The orders it places stay there.
 export default defineConfig({
   testDir: 'tests/e2e',
   // One production server and one database for every test.
