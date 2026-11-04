@@ -10,7 +10,7 @@ paths:
   - src/lib/cosmetika.ts
   - src/collections/import-endpoints.ts
 summary: Why the import lists products from wp/v2 and reads each price and gallery from the product's page, now that cosmetika's Store API answers 403.
-reviewed_at: 2026-11-03
+reviewed_at: 2026-11-04
 ---
 # The import reads cosmetika.com.ua's public addresses, as its Store API is closed
 
@@ -59,7 +59,9 @@ the products without that API. Source: task `import-public-pages`, the developer
 ## Consequences
 
 - `offerOf` rests on the store's JSON-LD and gallery markup. When they change, a product fails with
-  «ціну не прочитано» or a photo goes missing, and `cosmetika.ts` and its tests change with them.
+  «ціну не прочитано» or «фото не прочитано», and `cosmetika.ts` and its tests change with them. A
+  product the store really shows without a photo fails the same way on every run, and is added by
+  hand: a product created without photos would stay so, as a run again skips an existing slug.
 - One product costs one more request: 128 pages over a whole import, five per request.
 - cosmetika holds no INCI and no volume in the name for any of Dr. Spiller's 84 products (read
   2026-11-03), so those come from the brand or a distributor, or stay empty.

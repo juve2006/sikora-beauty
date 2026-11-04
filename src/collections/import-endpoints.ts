@@ -20,8 +20,16 @@ import { planPrices, toCsv } from '@/lib/prices';
 
 const forbidden = () =>
   Response.json({ error: 'Лише для власника' }, { status: 403 });
-const failure = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
+// What reaches the owner is in Ukrainian: fetch says only «fetch failed» and keeps the reason in its
+// `cause`, and a timeout's message is English.
+const failure = (error: unknown) => {
+  if (!(error instanceof Error)) return String(error);
+  if (error.name === 'TimeoutError') return 'час очікування вичерпано';
+  if (error.message !== 'fetch failed') return error.message;
+  return (error.cause as Error | undefined)?.message === 'unexpected redirect'
+    ? 'адреса переспрямовує на іншу'
+    : 'немає зв’язку';
+};
 const unreachable = (error: unknown) =>
   Response.json(
     { error: `cosmetika.com.ua: ${failure(error)}` },
@@ -215,6 +223,12 @@ export const importEndpoints: Endpoint[] = [
       } catch (error) {
         return unreachable(error);
       }
+      // brandOf drops an item whose terms it cannot read, so a changed answer would read «Нових: 0».
+      const ours = items.filter(brandOf);
+      if (!ours.length)
+        return unreachable(
+          new Error('у відповіді немає товарів наших брендів'),
+        );
       const products: {
         id: number;
         name: string;
@@ -222,7 +236,7 @@ export const importEndpoints: Endpoint[] = [
         warnings: string[];
       }[] = [];
       const errors: { id: unknown; message: string }[] = [];
-      for (const item of items.filter(brandOf)) {
+      for (const item of ours) {
         const parsed = cosmetikaProduct.safeParse(item);
         if (!parsed.success) {
           errors.push({
