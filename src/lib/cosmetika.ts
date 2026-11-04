@@ -234,6 +234,7 @@ export function offerOf(html: string): ImportedOffer {
   const images = [...html.matchAll(/data-large_image="([^"]+)"/g)].map(
     ([, src]) => decode(src),
   );
+  if (!images.length) throw new Error('фото не прочитано');
   if (!images.every((src) => cosmetikaUrl.safeParse(src).success))
     throw new Error('незрозуміла адреса фото');
   return {

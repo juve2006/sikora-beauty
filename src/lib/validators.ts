@@ -85,10 +85,10 @@ export const listingParams = z.object({
 });
 
 // An address on cosmetika.com.ua: the server fetches it, so an answer never sends the server elsewhere.
-export const cosmetikaUrl = z.url({
-  protocol: /^https$/,
-  hostname: /^www\.cosmetika\.com\.ua$/,
-});
+// The slash ends the host, so no port, user or longer name gets past it.
+export const cosmetikaUrl = z
+  .string()
+  .startsWith('https://www.cosmetika.com.ua/');
 
 // A cosmetika.com.ua product: only the fields the import reads; the rest of the answer is ignored.
 export const cosmetikaProduct = z.object({

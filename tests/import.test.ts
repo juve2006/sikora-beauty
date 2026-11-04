@@ -188,7 +188,14 @@ describe('cosmetika import', () => {
         }),
       ).images,
     ).toEqual([photo, `${photo}?a=1&b=2`]);
-    expect(offerOf(productPage({ photos: [] })).images).toEqual([]);
+  });
+
+  // A gallery the markup no longer gives must not make a product without photos: a run again would
+  // skip it for good, as its slug exists.
+  it('fails a page whose gallery it cannot find', () => {
+    expect(() => offerOf(productPage({ photos: [] }))).toThrow(
+      'фото не прочитано',
+    );
   });
 
   it('takes a sale’s price, not the list price beside it', () => {
@@ -241,6 +248,10 @@ describe('cosmetika import', () => {
       ['https://elsewhere.example/a.webp'],
       ['http://www.cosmetika.com.ua/a.webp'],
       ['http://169.254.169.254/latest/meta-data/'],
+      ['https://www.cosmetika.com.ua:8443/a.webp'],
+      ['https://www.cosmetika.com.ua.elsewhere.example/a.webp'],
+      ['https://www.cosmetika.com.ua@elsewhere.example/a.webp'],
+      ['https://www.cosmetika.com.ua\\@elsewhere.example/a.webp'],
       ['not a url'],
     ])
       expect(() => offerOf(productPage({ photos }))).toThrow(
@@ -596,6 +607,75 @@ describe('the import page', () => {
       expect(response.status).toBe(502);
       expect(await response.json()).toEqual({
         error: 'cosmetika.com.ua: незрозуміла відповідь',
+      });
+    }
+    vi.unstubAllGlobals();
+  });
+
+  it('stops with a message when the list holds none of our brands', async () => {
+    const plan = importEndpoints.find(
+      (endpoint) => endpoint.path === '/cosmetika' && endpoint.method === 'get',
+    )!;
+    const payload = {
+      find: async () => ({
+        docs: ['dr-spiller', 'institutum', 'braderm'].map((slug, id) => ({
+          slug,
+          id,
+        })),
+      }),
+    };
+    for (const list of [
+      [{ ...source, _embedded: undefined }],
+      [{ ...source, _embedded: { 'wp:term': [{ code: 'rest_forbidden' }] } }],
+      [{ ...source, _embedded: terms('Інший бренд', 'Обличчя') }],
+      [],
+    ]) {
+      vi.stubGlobal('fetch', async () => Response.json(list));
+      const response = await plan.handler({
+        user: { collection: 'users', role: 'owner' },
+        payload,
+      } as unknown as PayloadRequest);
+      expect(response.status).toBe(502);
+      expect(await response.json()).toEqual({
+        error: 'cosmetika.com.ua: у відповіді немає товарів наших брендів',
+      });
+    }
+    vi.unstubAllGlobals();
+  });
+
+  // The shapes Node's own fetch throws, read off a local server: its message says only «fetch failed».
+  it('names a refused redirect, a lost connection and a timeout in Ukrainian', async () => {
+    for (const [thrown, message] of [
+      [
+        new TypeError('fetch failed', {
+          cause: new Error('unexpected redirect'),
+        }),
+        'адреса переспрямовує на іншу',
+      ],
+      [new TypeError('fetch failed'), 'немає зв’язку'],
+      [
+        new DOMException(
+          'The operation was aborted due to timeout',
+          'TimeoutError',
+        ),
+        'час очікування вичерпано',
+      ],
+    ] as const) {
+      vi.stubGlobal('fetch', async (url: string) => {
+        if (url.includes('/wp-json/')) return Response.json([source]);
+        throw thrown;
+      });
+      const { req } = portion(0);
+      const { results } = await (await importHandler(req)).json();
+      expect(results[0]).toMatchObject({ status: 'failed', message });
+
+      vi.stubGlobal('fetch', async () => {
+        throw thrown;
+      });
+      const response = await importHandler(portion(0).req);
+      expect(response.status).toBe(502);
+      expect(await response.json()).toEqual({
+        error: `cosmetika.com.ua: ${message}`,
       });
     }
     vi.unstubAllGlobals();
