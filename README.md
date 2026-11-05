@@ -26,7 +26,8 @@ product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price,
 its texts, delivery and payment, related products and «Додати в кошик». The
 header's menu reads the zones with their categories and the skin concerns from the catalog, beside
 links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
-signed in to the admin; the footer repeats the catalog's links beside a shopper's, with the contacts
+signed in to the admin; the footer repeats the catalog's links beside a shopper's, among them payment
+and delivery with returns, the terms of use (the public offer) and the privacy policy, with the contacts
 the owner fills in at «Сторінки → Контакти», showing only what is filled in; far down any page, in
 the store and in the admin, an arrow leads back up, and the store's header stays in view;
 `/catalog/<zone>` and `/catalog/<category>` list published products,
@@ -100,7 +101,7 @@ Locally Payload creates the tables itself (`push`). A change to a collection als
 migration for the deployed database: `npm run payload -- migrate:create <name>`.
 
 `npm run seed:catalog` (after `npm run dev` has created the tables) adds the zones, categories,
-skin vocabularies, brands, the home and about pages, the first search synonyms while there are
+skin vocabularies, brands, the home, about, payment and delivery, terms and privacy pages, the first search synonyms while there are
 none, and a draft of the care finder's questions and steps, off, while it has none; it never
 changes what exists. Uploaded photos go to `./media`
 unless `BLOB_READ_WRITE_TOKEN` is set (`.env.example`). «Заповнити з AI» needs

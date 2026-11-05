@@ -57,8 +57,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   - Footer: `SiteFooter` (`src/components/shared/footer/`, from the same layout) takes the header's
     `getMenu` and `isFinderOn`, and `getContacts` (`contacts.actions.ts`) reads the global `contacts`,
     «Сторінки → Контакти», which both roles keep. What is left empty is not shown, and with nothing
-    filled in the column goes, so the store never needs a contact it does not have. Links to the
-    privacy, delivery and returns pages join once those pages exist. The block is in the primary
+    filled in the column goes, so the store never needs a contact it does not have. The shopper's
+    column links `/delivery` (returns inside it), `/terms` (the public offer) and `/privacy`, pages
+    from the admin in sisters.co.ua's shape, which the checkout's consent line links too. The block is in the primary
     colour and renames `--foreground`, `--muted-foreground` and `--ring` for what is inside, so `Logo`
     and a focus ring read on it without a variant of their own.
   - The way back up: `BackToTop` (`src/components/shared/back-to-top/`, from the same layout) and the

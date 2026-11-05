@@ -37,6 +37,9 @@
   },
   "Footer": {
     "shoppers": "For shoppers",
+    "delivery": "Payment and delivery",
+    "terms": "Terms of use",
+    "privacy": "Privacy policy",
     "contacts": "Contacts",
     "instagram": "Instagram",
     "copyright": "© {year} Sikora Beauty. All rights reserved."
@@ -254,7 +257,7 @@
     "linkHint": "The manager sends a payment link once they confirm your order.",
     "comment": "Comment",
     "optional": "optional",
-    "consent": "By placing the order you agree that we keep your name, phone and delivery address to fulfil it.",
+    "consent": "By placing the order you accept the <terms>terms of use</terms> and agree that we keep your name, phone and delivery address to fulfil it. More in the <privacy>privacy policy</privacy>.",
     "submit": "Place order",
     "sending": "Sending…",
     "call": "A manager will call you to confirm the order.",

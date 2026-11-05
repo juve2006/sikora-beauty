@@ -84,6 +84,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
    redeployed.
 10. **Sign-in with Google.** Google Cloud Console, free: a project → the consent screen, External,
     status In production, only `openid email profile`, the domain `sikora-beauty.vercel.app` → a
+    home page and the privacy link `/privacy` on the Branding page, without which «Publish app» stays
+    grey (the page comes from step 13, so publish after it; no logo, which can ask for a review) → a
     client of type Web, redirect URI
     `https://sikora-beauty.vercel.app/api/customers/google/callback` → `GOOGLE_CLIENT_ID` and
     `GOOGLE_CLIENT_SECRET` (Sensitive) in Vercel, Production only, then redeploy. No test reaches the
@@ -93,8 +95,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 12. **First admin.** Open the production URL, give the site password (any user name) → `/admin` →
     create the first user with a password from the password manager. From then on `/admin` shows
     the login page.
-13. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home and about pages and
-    the first search synonyms (only while there are none), once: copy
+13. **Catalog seed.** Zones, categories, skin vocabularies, brands, the home, about, payment and
+    delivery, terms and privacy pages and the first search synonyms (only while there are none),
+    once: copy
     `DATABASE_URL_UNPOOLED` (Production) from Vercel → Settings → Environment Variables, then
     `DATABASE_URL="$(pbpaste)" PAYLOAD_SECRET="$(openssl rand -hex 32)" npm run seed:catalog`.
     The seed signs nothing, so a throwaway secret will do, and the URL never enters the shell

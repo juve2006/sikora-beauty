@@ -133,4 +133,13 @@ test('the footer leads to the catalog and to a shopper’s pages', async ({
   await expect(page).toHaveURL(/\/cart$/);
   await footer.getByRole('link', { name: uk.Nav.brands }).click();
   await expect(page).toHaveURL(/\/brands$/);
+  for (const [path, name] of [
+    [/\/delivery$/, uk.Footer.delivery],
+    [/\/terms$/, uk.Footer.terms],
+    [/\/privacy$/, uk.Footer.privacy],
+  ] as const) {
+    await footer.getByRole('link', { name }).click();
+    await expect(page).toHaveURL(path);
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
+  }
 });
