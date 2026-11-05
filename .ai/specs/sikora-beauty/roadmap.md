@@ -126,7 +126,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     certificate); a Hetzner VPS with Coolify, its panel and API only over HTTPS, a firewall that
     admits only Cloudflare to 80/443; the Docker image (a `docker` CI job) pushed to GHCR and
     deployed by `deploy.yml` through the Coolify API, waiting for the result; migrations on start
-    (`prodMigrations`) behind a health check; Cloudflare Access in front of `/admin`; the first
+    (`prodMigrations`) behind a health check; Cloudflare Access in front of `/admin`; a rate limit
+    at Cloudflare on sign-in and password reset (F17, F35 and F36 of customer-accounts); the first
     admin created from env, production refusing to start with an empty users collection; data
     moved from Neon; the site password set in Coolify, and `src/env.ts` requiring it there, not
     only when `VERCEL_ENV` is `production`
@@ -150,7 +151,7 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
 - [ ] fog: Merchant Center and Shopping — whether a new store passes moderation is unknown
-- [ ] `customer-accounts-findings` — the six findings customer-accounts left open are decided one
+- [x] `customer-accounts-findings` — the six findings customer-accounts left open are decided one
   by one, at the end of this phase by the developer's decision of 2026-11-03: F17, F21, F28, F33,
   F35, F36 (after: customer-accounts — they are its findings)
 

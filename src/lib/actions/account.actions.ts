@@ -5,7 +5,6 @@ import { logout } from '@payloadcms/next/auth';
 import { cookies } from 'next/headers';
 import { after } from 'next/server';
 import {
-  AuthenticationError,
   commitTransaction,
   createLocalReq,
   getPayload,
@@ -22,6 +21,7 @@ import { currentCustomer, sessionUser } from '@/lib/actions/customer.actions';
 import { LETTER_INTERVAL } from '@/lib/constants';
 import { verifyLetter } from '@/lib/email';
 import { verifyTurnstile } from '@/lib/turnstile';
+import { whatFailed } from '@/lib/utils';
 import {
   emailRequest,
   parseAccountForm,
@@ -34,18 +34,8 @@ import {
 import type { AccountState } from '@/types';
 import type { Customer } from '@/payload-types';
 
-// Only what went wrong: a failed query carries its params, the database's detail the failing row,
-// and a mail server's refusal the address. A mail error's code says as much without them.
 const failed = (action: string, error: unknown): AccountState => {
-  const { code, message, cause } = error as {
-    code?: unknown;
-    message?: string;
-    cause?: { message?: string };
-  };
-  console.error(
-    `Account ${action}:`,
-    code ?? cause?.message ?? message?.split('\n')[0],
-  );
+  console.error(`Account ${action}:`, whatFailed(error));
   return { status: 'failed' };
 };
 
@@ -193,8 +183,8 @@ const confirm = async (
 // in as staff (adr-20261103-customer-accounts). `loginOperation`, not `payload.login`, which takes
 // the token away for `removeTokenFromResponses`; and the cookie written here, as Payload's own
 // `login` helper counts its term in milliseconds. With a letter's token, the right password confirms
-// the email: the store's only way to confirm one (`/account/verify`). Payload's REST and GraphQL
-// `verify` stay, as only the mailbox has the token. A number is a shopper's, and leads to their email:
+// the email: the store's only way to confirm one (`/account/verify`). Payload's REST `verify` stays,
+// as only the mailbox has the token. A number is a shopper's, and leads to their email:
 // staff's row is never asked, or typing a shopper's number would count wrong passwords against an
 // address they share. An unknown number answers as a wrong password does. Numbers can be walked, one
 // password across all of them, and the lock is per account, so a number passes Turnstile first; an
@@ -266,7 +256,9 @@ export async function signIn(
         await signInTo(slug);
         return { status: slug === 'users' ? 'staff' : 'customer' };
       } catch (error) {
-        // The right password of an account not confirmed says more than a locked twin.
+        // The right password of an account not confirmed says more than a locked twin. A wrong one is
+        // known by its status: the guard's refusal comes from another copy of Payload on a production
+        // build, where `instanceof` does not hold.
         if (error instanceof UnverifiedEmail) {
           if (waiting && (await confirm(payload, waiting))) {
             await signInTo('customers');
@@ -275,7 +267,7 @@ export async function signIn(
           answer = { status: 'unverified', email: credentials.email };
         } else if (error instanceof LockedAuth) {
           if (answer.status === 'wrong') answer = { status: 'locked' };
-        } else if (!(error instanceof AuthenticationError)) throw error;
+        } else if ((error as { status?: number }).status !== 401) throw error;
       }
     }
     return answer;

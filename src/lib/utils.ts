@@ -1,5 +1,20 @@
 export { cn } from 'cn';
 
+// What of an error may reach a log, only what went wrong: a failed query carries its params, the
+// database's detail the failing row, a mail server's refusal the address and Google's answer a
+// shopper's data. A mail error's code says as much without them. A number is no such code: a timeout's
+// `DOMException` has 23 there, and its message says what failed.
+export function whatFailed(error: unknown) {
+  const { code, message, cause } = error as {
+    code?: unknown;
+    message?: string;
+    cause?: { message?: string };
+  };
+  return typeof code === 'string'
+    ? code
+    : (cause?.message ?? message?.split('\n')[0]);
+}
+
 // A moment as the admin shows it (`admin.dateFormat`): 03.11.2026 20:50, in every language, at the
 // store's time.
 const dateTime = new Intl.DateTimeFormat('uk-UA', {
