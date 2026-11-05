@@ -21,7 +21,7 @@ const TextBlock = ({ block }: { block: BlockOf<'text'> }) => {
             src={photo.url}
             alt={photo.alt}
             fill
-            sizes="(min-width: 1024px) 400px, 100vw"
+            sizes="(min-width: 1024px) 760px, 100vw"
             className="object-cover"
           />
         </div>

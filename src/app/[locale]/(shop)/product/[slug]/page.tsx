@@ -103,7 +103,7 @@ const ProductPage = async ({ params }: Props) => {
 
   return (
     <>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
+      <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
         <div className="grid gap-8 pt-2 lg:grid-cols-2 lg:gap-12 lg:pt-8">
           <ProductGallery photos={photos(product.images)} />
 

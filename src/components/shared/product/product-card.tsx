@@ -31,7 +31,7 @@ const ProductCard = ({
               alt={product.photo.alt}
               fill
               loading={eager ? 'eager' : 'lazy'}
-              sizes="(min-width: 1024px) 240px, 50vw"
+              sizes="(min-width: 1024px) 340px, 50vw"
               className="object-contain"
             />
           </div>

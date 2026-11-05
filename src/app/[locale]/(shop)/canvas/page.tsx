@@ -282,7 +282,7 @@ const CanvasPage = async ({ params }: Props) => {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto w-full max-w-page px-4 pb-16 sm:px-6">
         <div className="pt-8 pb-10">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             {t('title')}

@@ -36,7 +36,7 @@ const Listing = ({
   const filters = { facets: result.facets, params, basePath };
   const cleared = `${basePath}${listingSearch(params, { type: [], condition: [], concern: [], brand: [] })}`;
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
       <div className="flex flex-col gap-1 pt-2 lg:pt-8">
         {above && <div className="text-sm text-muted-foreground">{above}</div>}
         <h1 className="text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl">
@@ -79,10 +79,10 @@ const Listing = ({
             </div>
           )}
           {result.products.length > 0 ? (
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 xl:grid-cols-4">
               {result.products.map((product, index) => (
                 <li key={product.id}>
-                  <ProductCard product={product.card} eager={index < 3} />
+                  <ProductCard product={product.card} eager={index < 4} />
                 </li>
               ))}
             </ul>

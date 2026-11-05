@@ -15,7 +15,7 @@ type Props = {
 
 // A page's blocks in the admin's order, under the page's own heading unless a banner opens it.
 const PageBlocks = ({ title, description, blocks, locale }: Props) => (
-  <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
+  <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
     {blocks[0]?.blockType !== 'hero' && (
       <div className="pt-10 sm:pt-16">
         <h1 className="text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">

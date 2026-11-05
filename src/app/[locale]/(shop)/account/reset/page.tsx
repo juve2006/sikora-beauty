@@ -33,7 +33,7 @@ const ResetPage = async ({ params, searchParams }: Props) => {
   const parsed = accountToken.safeParse(token);
   const t = await getTranslations('Account');
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
       <h1 className="pt-2 text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl lg:pt-8">
         {t('resetTitle')}
       </h1>

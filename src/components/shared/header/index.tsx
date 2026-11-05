@@ -29,7 +29,7 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
   const consultation = await getTranslations('Consultation');
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-2 gap-y-2 px-4 py-4 sm:gap-x-6 sm:px-6">
+      <div className="mx-auto flex w-full max-w-page flex-wrap items-center gap-x-2 gap-y-2 px-4 py-4 sm:gap-x-6 sm:px-6">
         <MobileMenu menu={menu} finder={finder} className="lg:hidden" />
         <Logo size="sm" />
         <MainMenu

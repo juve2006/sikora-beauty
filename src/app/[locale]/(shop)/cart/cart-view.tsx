@@ -80,7 +80,7 @@ const CartView = ({
           </Button>
         </div>
       ) : (
-        <>
+        <div className="max-w-5xl">
           <ul className="mt-4 divide-y border-y">
             {items.map(({ line, card }) => (
               <CartLine
@@ -110,7 +110,7 @@ const CartView = ({
           )}
           {orderable.length > 0 &&
             checkout?.({ lines: orderable.map(({ line }) => line), total })}
-        </>
+        </div>
       )}
     </>
   );
