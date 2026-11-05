@@ -15,7 +15,7 @@ paths:
   - src/lib/actions/account.actions.ts
   - src/lib/actions/customer.actions.ts
 summary: Shoppers are a Payload collection of their own, a session no longer means staff, email is confirmed by letter and password, and only a marked operation writes the columns that decide who may get in
-reviewed_at: 2026-11-04
+reviewed_at: 2026-11-05
 ---
 # A shopper's account is a row of its own Payload collection, `customers`, and a session no longer means staff
 
@@ -112,9 +112,11 @@ said it was changed.
     signs in again;
   - all those numbers come from one local process. The in-memory letter queue and the pool on Vercel
     are learned on Production.
-- A refused sign-in sometimes says «try again in a minute» instead of «wrong password»: `instanceof`
-  across Payload's copies is unreliable on a production build, so compare by `status` or `name`.
-- Sessions have no cap: each sign-in adds a row that lives 30 days.
+- `instanceof` across Payload's copies is unreliable on a production build: `signIn` tells a refused
+  sign-in by its `status`, or it would say «try again in a minute» instead of «wrong password».
+- Sessions have no cap: each sign-in adds a row that lives 30 days. This, and a flood of reset requests
+  or password changes delaying a real reset, is left to a rate limit at Cloudflare on sign-in and
+  password reset when the store moves there (roadmap `production host`, the developer, 2026-11-05).
 - Gmail allows about 500 letters a day, and an app password is less than Google recommends. Both go
   with the domain.
 - The privacy page must name accounts and Gmail (roadmap item `launch readiness`).

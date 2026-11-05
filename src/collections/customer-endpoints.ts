@@ -27,6 +27,7 @@ import {
   localPath,
   readGoogleIdentity,
 } from '@/lib/google';
+import { whatFailed } from '@/lib/utils';
 import { googleTrip } from '@/lib/validators';
 import type { Customer } from '@/payload-types';
 
@@ -230,20 +231,7 @@ export const customerEndpoints: Endpoint[] = [
           await openSession(req.payload, account),
         );
       } catch (error) {
-        // Only what went wrong: a failed query carries its params, and Google's answer a shopper's data.
-        const {
-          code: errorCode,
-          cause,
-          message,
-        } = error as {
-          code?: unknown;
-          message?: string;
-          cause?: { message?: string };
-        };
-        console.error(
-          'Google sign-in:',
-          errorCode ?? cause?.message ?? message?.split('\n')[0],
-        );
+        console.error('Google sign-in:', whatFailed(error));
         return refused('failed');
       }
     },

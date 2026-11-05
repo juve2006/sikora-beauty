@@ -325,6 +325,34 @@ describe('signIn', () => {
     expect(set).not.toHaveBeenCalled();
   });
 
+  // What `src/lib/auth-writes.ts` throws on a production build, where it reaches signIn from another
+  // copy of Payload and `instanceof` does not hold.
+  it('says the same for a refusal from another copy of Payload, and logs nothing', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    login.mockRejectedValue(
+      Object.assign(new Error('The email or password is incorrect.'), {
+        status: 401,
+      }),
+    );
+    expect(await signIn(idle, form(credentials))).toEqual({ status: 'wrong' });
+    expect(log).not.toHaveBeenCalled();
+  });
+
+  it('logs what a timeout says, not the number it carries', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    login.mockRejectedValue(
+      new DOMException(
+        'The operation was aborted due to timeout',
+        'TimeoutError',
+      ),
+    );
+    expect(await signIn(idle, form(credentials))).toEqual({ status: 'failed' });
+    expect(log).toHaveBeenCalledWith(
+      'Account sign-in:',
+      'The operation was aborted due to timeout',
+    );
+  });
+
   it('says when the attempts ran out', async () => {
     login.mockImplementation(async ({ collection }) => {
       throw collection === payload.collections.customers
