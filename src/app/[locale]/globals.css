@@ -52,6 +52,7 @@
 }
 
 @theme inline {
+  --container-page: 90rem;
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
   --color-background: var(--background);

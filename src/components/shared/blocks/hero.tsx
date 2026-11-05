@@ -38,7 +38,7 @@ const Hero = ({ block, first }: { block: BlockOf<'hero'>; first: boolean }) => {
             alt={photo.alt}
             fill
             priority={first}
-            sizes="(min-width: 1024px) 480px, 100vw"
+            sizes="(min-width: 1024px) 680px, 100vw"
             className="object-cover"
           />
         </div>

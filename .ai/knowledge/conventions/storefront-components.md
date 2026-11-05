@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-11-03
+reviewed_at: 2026-11-05
 ---
 # Storefront components take their look from the theme tokens
 
@@ -59,6 +59,12 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
   shown, not answered: what a form does on an action's answer — focus its first invalid field,
   leave the page — runs only for a state the action returned, or `/canvas` scrolls to that
   specimen (task `cart-review-fixes`).
+- The storefront's column is one token, `--container-page` in `globals.css`, taken as `max-w-page`;
+  a page or a block takes that and no width of its own. It is 1440 px, the column of the Sisters store
+  the developer took as the reference (task `page-width`). What is read or filled in stays narrower
+  inside it, on its left edge: `max-w-prose` and the like for text, `max-w-xl` for a form, `max-w-5xl`
+  for two forms side by side and for a cart's rows, whose price would otherwise sit too far from its
+  name. A photo's `sizes` follows the widest cell it can get.
 - A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
   uses, in that page's route folder (`/canvas` does not count). Either is a kebab-case file holding
   one component, `const Name = (…) => {…};` and `export default Name;`

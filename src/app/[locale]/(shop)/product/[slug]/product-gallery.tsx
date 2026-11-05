@@ -21,7 +21,7 @@ const ProductGallery = ({ photos }: { photos: Photo[] }) => {
           src={photo.url}
           alt={photo.alt}
           fill
-          sizes="(min-width: 1024px) 480px, 100vw"
+          sizes="(min-width: 1024px) 680px, 100vw"
           fetchPriority={current === 0 ? 'high' : undefined}
           className="object-contain"
         />

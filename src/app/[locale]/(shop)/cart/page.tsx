@@ -30,7 +30,7 @@ const CartPage = async ({ params }: Props) => {
   const t = await getTranslations('Cart');
   const customer = await currentCustomer();
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
       <h1 className="pt-2 text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl lg:pt-8">
         {t('title')}
       </h1>
