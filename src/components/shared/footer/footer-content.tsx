@@ -108,6 +108,9 @@ const FooterContent = ({
             </FooterLink>
             <FooterLink href="/favorites">{favorites('title')}</FooterLink>
             <FooterLink href="/cart">{cart('title')}</FooterLink>
+            <FooterLink href="/delivery">{t('delivery')}</FooterLink>
+            <FooterLink href="/terms">{t('terms')}</FooterLink>
+            <FooterLink href="/privacy">{t('privacy')}</FooterLink>
           </Column>
           {anyContact && (
             <Column title={t('contacts')} className="col-span-2 lg:col-span-1">

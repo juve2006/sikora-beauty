@@ -18,7 +18,7 @@ import { dropOrdered } from '@/lib/cart';
 import { PAYMENTS } from '@/lib/constants';
 import { formatHryvnias } from '@/lib/utils';
 import { parseOrderForm } from '@/lib/validators';
-import { useRouter } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import type {
   CartLine,
   DeliveryAnswer,
@@ -248,7 +248,21 @@ const CheckoutForm = ({
             {t(state.status)}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">{t('consent')}</p>
+        {/* In a new tab: leaving would lose what is typed in the form. */}
+        <p className="text-xs text-muted-foreground">
+          {t.rich('consent', {
+            terms: (text) => (
+              <Link href="/terms" target="_blank" className="underline">
+                {text}
+              </Link>
+            ),
+            privacy: (text) => (
+              <Link href="/privacy" target="_blank" className="underline">
+                {text}
+              </Link>
+            ),
+          })}
+        </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button
             type="submit"

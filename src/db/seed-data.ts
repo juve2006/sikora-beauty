@@ -206,6 +206,184 @@ export const pages = [
       },
     ],
   },
+  // The shopper's pages, in the shape of sisters.co.ua's: returns inside payment and delivery, the
+  // public offer as the terms of use. Drafts no lawyer has read, with the seller's details in brackets
+  // for the owner to fill in, until `launch readiness` opens the store.
+  {
+    slug: 'delivery',
+    uk: 'Оплата та доставка',
+    en: 'Payment and delivery',
+    blocks: [
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Оплата',
+          text: 'Ціни на сайті вказані в гривнях.\n\nПри отриманні: оплачуєте замовлення у відділенні Нової Пошти, коли забираєте посилку. Комісію за переказ коштів встановлює Нова Пошта.\n\nКарткою за посиланням: менеджер надішле посилання на оплату, коли підтвердить замовлення. Дані вашої картки магазин не бачить і не зберігає.',
+        },
+        en: {
+          title: 'Payment',
+          text: 'Prices on the site are in hryvnias.\n\nOn receipt: you pay for the order at the Nova Poshta branch when you collect the parcel. Nova Poshta sets the fee for the money transfer.\n\nBy card through a link: the manager sends you a payment link once they confirm the order. The store neither sees nor keeps your card details.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Доставка',
+          text: 'Доставляємо Новою Поштою у відділення або поштомат по всій Україні. Вартість доставки визначають тарифи Нової Пошти, її ви оплачуєте при отриманні.\n\nПісля оформлення менеджер зателефонує, щоб підтвердити замовлення й доставку. Відправляємо після підтвердження. Якщо товар під замовлення, строк відправлення вказаний на його сторінці.\n\nЗабираючи посилку, перевірте її у відділенні. Якщо бачите пошкодження, зверніться до працівника Нової Пошти й повідомте нам.',
+        },
+        en: {
+          title: 'Delivery',
+          text: 'We deliver by Nova Poshta to a branch or parcel locker across Ukraine. Nova Poshta’s rates set the delivery cost, which you pay on receipt.\n\nAfter you place an order, the manager calls to confirm the order and delivery. We send it once it is confirmed. If a product is made to order, its page states when it ships.\n\nWhen you collect the parcel, check it at the branch. If you see damage, speak to the Nova Poshta staff and let us know.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Повернення та обмін',
+          text: 'Запечатаний товар: упродовж 2 днів з дня отримання можна повернути або обміняти товар у цілій заводській упаковці, без слідів використання. Доставку повернення оплачує покупець.\n\nРозпакований товар належної якості ми не приймаємо: так дозволяє законодавство України, і це питання гігієни.\n\nБрак або помилка магазину: якщо товар пошкоджений, прострочений, неякісний або не той, що ви замовили, ми замінимо його або повернемо гроші. Доставку в цьому разі оплачує магазин.\n\nСкасування: замовлення можна скасувати, поки його не відправлено.\n\nЯк повернути: зв’яжіться з нами за контактами внизу сторінки й назвіть номер замовлення. Гроші повертаємо після того, як отримаємо й перевіримо товар.',
+        },
+        en: {
+          title: 'Returns and exchanges',
+          text: 'Sealed products: within 2 days of receipt you can return or exchange a product in its intact factory packaging, with no signs of use. The shopper pays for the return delivery.\n\nWe do not take back opened products of proper quality: Ukrainian law allows this, and it is a matter of hygiene.\n\nDefects and the store’s mistakes: if a product is damaged, expired, faulty or not what you ordered, we replace it or refund you. In that case the store pays for the delivery.\n\nCancelling: you can cancel an order until it is sent.\n\nHow to return: contact us through the details at the bottom of the page and give the order number. We refund you once we have received and checked the product.',
+        },
+      },
+    ],
+  },
+  {
+    slug: 'terms',
+    uk: 'Умови використання сайту',
+    en: 'Terms of use',
+    blocks: [
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Публічна оферта',
+          text: 'Ці умови є публічною офертою: пропозицією укласти договір купівлі-продажу на однакових умовах з кожним покупцем. Оформлюючи замовлення, ви приймаєте їх.\n\nПродавець: ФОП Сікора Ярина Романівна, РНОКПП [вписати], адреса [вписати]. Контакти вказані внизу сторінки.',
+        },
+        en: {
+          title: 'Public offer',
+          text: 'These terms are a public offer: a proposal to conclude a sales contract on the same conditions with every shopper. By placing an order you accept them.\n\nSeller: sole proprietor Yaryna Romanivna Sikora, tax number [to fill in], address [to fill in]. The contacts are at the bottom of the page.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Терміни',
+          text: 'Продавець: особа, названа вище.\n\nПокупець: людина, яка оформлює замовлення на сайті.\n\nТовар: косметичний засіб із каталогу сайту.\n\nЗамовлення: запит покупця на купівлю вибраних товарів, надісланий через сайт.',
+        },
+        en: {
+          title: 'Definitions',
+          text: 'Seller: the person named above.\n\nShopper: a person who places an order on the site.\n\nProduct: a cosmetic product from the site’s catalog.\n\nOrder: a shopper’s request to buy the chosen products, sent through the site.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Замовлення і ціна',
+          text: 'Договір укладено, коли менеджер підтвердив замовлення. Якщо товару немає або на сайті помилка в ціні, менеджер скаже про це до відправлення, і ви вирішите, чи лишати замовлення.\n\nДіє ціна на момент оформлення замовлення.\n\nОплату, доставку й повернення описано на сторінці «Оплата та доставка».',
+        },
+        en: {
+          title: 'Orders and prices',
+          text: 'The contract is concluded when the manager confirms the order. If a product is unavailable or the site shows a wrong price, the manager tells you before sending, and you decide whether to keep the order.\n\nThe price at the moment of placing the order applies.\n\nPayment, delivery and returns are described on the “Payment and delivery” page.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Обов’язки сторін',
+          text: 'Продавець передає товар належної якості. Термін придатності вказаний на упаковці.\n\nПокупець дає правильні дані для доставки, оплачує замовлення й перевіряє посилку при отриманні.',
+        },
+        en: {
+          title: 'Obligations of the parties',
+          text: 'The seller hands over a product of proper quality. Its expiry date is on the packaging.\n\nThe shopper gives correct delivery details, pays for the order and checks the parcel on receipt.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Інші положення',
+          text: 'Оформлення упаковки може відрізнятися від фото на сайті, і це не вважається браком.\n\nПоради косметолога й підбір догляду не замінюють консультацію лікаря. Перед застосуванням прочитайте склад і застереження.\n\nТексти й зображення сайту не можна використовувати без згоди продавця, крім випадків, дозволених законом.\n\nСторони не відповідають за невиконання умов через обставини непереборної сили. Суперечки вирішуємо переговорами, а якщо не вдалося, то за законодавством України.\n\nПро те, як ми поводимося з вашими даними, читайте в політиці конфіденційності. Ми можемо змінювати ці умови: до вже оформленого замовлення застосовуються умови, чинні на момент його оформлення.\n\nОновлено 05.11.2026.',
+        },
+        en: {
+          title: 'Other provisions',
+          text: 'Packaging design may differ from the photos on the site, which is not considered a defect.\n\nThe cosmetologist’s advice and the care finder do not replace a doctor’s consultation. Read the ingredients and warnings before use.\n\nThe site’s texts and images may not be used without the seller’s consent, except where the law allows it.\n\nThe parties are not liable for failing to meet these terms because of force majeure. We settle disputes by negotiation and, failing that, under the law of Ukraine.\n\nThe privacy policy describes how we treat your data. We may change these terms: an order already placed stays under the terms in force when it was placed.\n\nUpdated 05.11.2026.',
+        },
+      },
+    ],
+  },
+  {
+    slug: 'privacy',
+    uk: 'Політика конфіденційності',
+    en: 'Privacy policy',
+    blocks: [
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Хто ми',
+          text: 'Цей сайт веде магазин Sikora Beauty, продавець ФОП Сікора Ярина Романівна. З питаннями про свої дані звертайтеся за контактами внизу сторінки.',
+        },
+        en: {
+          title: 'Who we are',
+          text: 'This site is run by the Sikora Beauty store; the seller is sole proprietor Yaryna Romanivna Sikora. For questions about your data, use the contacts at the bottom of the page.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Які дані ми збираємо і навіщо',
+          text: "Замовлення: ім'я, прізвище, телефон, населений пункт і відділення Нової Пошти, коментар і склад замовлення. Вони потрібні, щоб виконати й доставити замовлення.\n\nЗапит на консультацію: ім'я, телефон, ваше повідомлення, а також товар і відповіді з підбору догляду, якщо вони були. Вони потрібні, щоб зв'язатися з вами.\n\nАкаунт: ім'я, прізвище, пошта, телефон, мова сайту й історія замовлень. Вони потрібні, щоб вести ваш кабінет. Для входу ви використовуєте пошту або номер телефону. Пароль ми зберігаємо лише у вигляді хешу, тож прочитати його не можемо.",
+        },
+        en: {
+          title: 'What we collect and why',
+          text: 'Orders: first and last name, phone, town and Nova Poshta branch, comment and the order’s contents. We need them to fulfil and deliver the order.\n\nConsultation requests: name, phone, your message, and the product and care finder answers if there were any. We need them to contact you.\n\nAccounts: first and last name, email, phone, the site’s language and order history. We need them to run your account. You sign in with your email or phone number. We keep your password only as a hash, so we cannot read it.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Вхід через Google',
+          text: "Якщо ви входите через Google, ми отримуємо від Google ваше ім'я, прізвище, адресу пошти й ідентифікатор акаунта Google. Вони потрібні лише для того, щоб створити акаунт і впустити вас. Ми не отримуємо ваш пароль від Google, не читаємо вашу пошту й нічого не публікуємо від вашого імені.",
+        },
+        en: {
+          title: 'Signing in with Google',
+          text: 'If you sign in with Google, Google gives us your first and last name, email address and Google account identifier. We use them only to create your account and sign you in. We do not receive your Google password, do not read your mail and do not post anything on your behalf.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Кому ми передаємо дані',
+          text: 'Telegram: нові замовлення й запити на консультацію надходять у групу магазину.\n\nНова Пошта: дані одержувача, коли ми відправляємо посилку.\n\nGoogle (Gmail): надсилає листи вашого акаунта, зокрема для підтвердження пошти й відновлення пароля.\n\nVercel і Neon: хостинг сайту й база даних.\n\nCloudflare Turnstile: може перевіряти, що форму надсилає людина.\n\nЦі сервіси можуть обробляти дані за межами України. Ми не продаємо ваші дані.',
+        },
+        en: {
+          title: 'Who we share data with',
+          text: 'Telegram: new orders and consultation requests arrive in the store’s group.\n\nNova Poshta: the recipient’s details, when we send a parcel.\n\nGoogle (Gmail): sends your account’s letters, including email confirmation and password reset.\n\nVercel and Neon: the site’s hosting and database.\n\nCloudflare Turnstile: may check that a form is sent by a person.\n\nThese services may process data outside Ukraine. We do not sell your data.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Cookie і дані у браузері',
+          text: "Cookie потрібні лише для того, щоб ви лишалися в акаунті після входу, щоб завершити вхід через Google і щоб запам'ятати мову. Кошик, обране й тема зберігаються у вашому браузері, а не в нас.\n\nАналітики й реклами на сайті зараз немає. Якщо вони з'являться, ми попросимо вашу згоду й оновимо цю сторінку.",
+        },
+        en: {
+          title: 'Cookies and data in your browser',
+          text: 'We use cookies only to keep you signed in, to complete a Google sign-in and to remember your language. Your cart, favourites and theme are kept in your browser, not with us.\n\nThe site has no analytics or advertising at the moment. If that changes, we will ask for your consent and update this page.',
+        },
+      },
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Скільки ми зберігаємо дані та ваші права',
+          text: 'Окремого строку зберігання немає: дані лишаються в нас, доки ви не попросите їх видалити. Ви можете попросити показати, виправити або видалити свої дані, скориставшись контактами внизу сторінки. Дані профілю можна змінити й самостійно в кабінеті.\n\nНа ваш запит ми видаляємо акаунт, запити на консультацію й повідомлення в Telegram. Записи замовлень після видалення акаунта лишаються в нашому обліку.\n\nЦі права дає Закон України «Про захист персональних даних». Скаргу можна подати Уповноваженому Верховної Ради України з прав людини.\n\nОновлено 05.11.2026.',
+        },
+        en: {
+          title: 'How long we keep data and your rights',
+          text: 'There is no fixed retention period: data stays with us until you ask us to delete it. You can ask us to show, correct or delete your data through the contacts at the bottom of the page. You can also change your profile yourself in your account.\n\nOn request we delete your account, consultation requests and the messages in Telegram. Order records stay in our books after an account is deleted.\n\nThese rights come from the Law of Ukraine on Personal Data Protection. You can file a complaint with the Ukrainian Parliament Commissioner for Human Rights.\n\nUpdated 05.11.2026.',
+        },
+      },
+    ],
+  },
 ];
 
 // Search's first synonyms: what search cannot reach by transliteration or a typo alone — a brand as

@@ -120,6 +120,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
     admin for a signed-in owner or cosmetologist, checked in the browser (`/api/users/me`) so the
     pages stay cached (the developer, 2026-10-30)
 - [ ] production host — the store runs on its own server and domain (after: walking skeleton — moves the same application)
+  - Order: last, after everything else and the client's feedback, with `backups and restore` and
+    the opening of the store that depend on it (the developer, 2026-11-05)
   - Backend: the store's domain on Cloudflare (DNS; TLS full strict with an Origin CA
     certificate); a Hetzner VPS with Coolify, its panel and API only over HTTPS, a firewall that
     admits only Cloudflare to 80/443; the Docker image (a `docker` CI job) pushed to GHCR and
@@ -140,7 +142,11 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Frontend: offer, privacy (it names Telegram, where orders and requests go:
     adr-20261102-orders-and-answers-in-telegram, and accounts and Gmail, which sends their letters:
     adr-20261103-customer-accounts), delivery and payment, returns pages in both
-    languages; consent banner
+    languages (drafts exist ahead of the rest, task `shopper-pages`: returns inside payment and
+    delivery and the offer as the terms of use, as on sisters.co.ua; a lawyer reads them and the
+    seller's details are filled in before the store opens, and the 2 days for returning a sealed
+    product, the developer's choice after Sisters', are checked against the 14 days law 3153-IX
+    gives a distance sale once it is in force); consent banner
     (Consent Mode), GA4 and Ads; a `lighthouse` CI job with a mobile budget for the home, catalog
     and product pages
 - [ ] fog: Merchant Center and Shopping — whether a new store passes moderation is unknown
@@ -193,9 +199,10 @@ been dropped on purpose.
 1. walking-skeleton
 2. admin-roles; design-direction; catalog-model
 3. product-page; catalog-listing; catalog-import; search; consultation-request
-4. brands-and-collections; content-drafts; favorites; cart-and-checkout; production host
-5. header, home and about; care-finder; backups and restore
-6. launch readiness; mono payment; np waybill
+4. brands-and-collections; content-drafts; favorites; cart-and-checkout
+5. header, home and about; care-finder
+6. mono payment; np waybill
+7. production host; backups and restore; launch readiness
 
 <!--
 Rules (jig-idea §8):
