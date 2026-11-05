@@ -175,6 +175,11 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - A shopper's personal data — name, phone, address, what they wrote — never reaches a log: a
   failed query is logged without its params or the database's detail, which carry the row. (tasks `consultation-request`, `cart-and-checkout`; checked by: Vitest in
   `tests/consultation.test.ts` and `tests/orders.test.ts`, review)
+- What leaves for Sentry is a list, not what is taken out of everything else: `keepWhatFailed`
+  (`src/lib/sentry.ts`) keeps what failed and where, and nothing that passes no `beforeSend` is sent:
+  no breadcrumbs, sessions, tracing or replay. Every server `console.error` becomes an event, which is
+  one more reason for the rule above. (adr-20261105-errors-in-sentry; checked by:
+  `tests/sentry.test.ts`, review)
 - Secrets never enter the repository; they live in the host's environment (Vercel during
   development, Coolify in production), in GitHub Actions secrets when a workflow deploys, and in a
   password manager. (adr-20261028-hetzner-coolify-hosting; checked by: gitleaks in CI, review)

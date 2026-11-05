@@ -271,6 +271,12 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   and orders, each kept within Telegram's limit with its link to the admin
   (adr-20261102-orders-and-answers-in-telegram). It knows the types of what it tells and how money
   is written, and no domain's code.
+- **Errors** — Sentry, only where `NEXT_PUBLIC_SENTRY_DSN` is set, which is Production
+  (adr-20261105-errors-in-sentry). `src/instrumentation.ts` on the server: `onRequestError` for a failed
+  render, `captureConsoleIntegration` for what a server action caught and logged. Payload answers its
+  own errors, so `hooks.afterError` in `payload.config` reports those from 500 up.
+  `src/instrumentation-client.ts` and `src/app/global-error.tsx` in the browser, on `@sentry/browser`.
+  All pass `keepWhatFailed` (`src/lib/sentry.ts`).
 - **Configuration** — `src/payload.config.ts` reads the environment through `src/lib/env.ts` (Zod;
   an error names variables, never values). Content localization `uk`/`en`, `uk` default and
   fallback.

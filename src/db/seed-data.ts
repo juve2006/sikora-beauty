@@ -353,11 +353,11 @@ export const pages = [
         uk: {
           blockType: 'text',
           title: 'Кому ми передаємо дані',
-          text: 'Telegram: нові замовлення й запити на консультацію надходять у групу магазину.\n\nНова Пошта: дані одержувача, коли ми відправляємо посилку.\n\nGoogle (Gmail): надсилає листи вашого акаунта, зокрема для підтвердження пошти й відновлення пароля.\n\nVercel і Neon: хостинг сайту й база даних.\n\nCloudflare Turnstile: може перевіряти, що форму надсилає людина.\n\nЦі сервіси можуть обробляти дані за межами України. Ми не продаємо ваші дані.',
+          text: 'Telegram: нові замовлення й запити на консультацію надходять у групу магазину.\n\nНова Пошта: дані одержувача, коли ми відправляємо посилку.\n\nGoogle (Gmail): надсилає листи вашого акаунта, зокрема для підтвердження пошти й відновлення пароля.\n\nVercel і Neon: хостинг сайту й база даних.\n\nCloudflare Turnstile: може перевіряти, що форму надсилає людина.\n\nSentry: технічні дані про збої на сайті, без вашого імені, телефону чи адреси.\n\nЦі сервіси можуть обробляти дані за межами України. Ми не продаємо ваші дані.',
         },
         en: {
           title: 'Who we share data with',
-          text: 'Telegram: new orders and consultation requests arrive in the store’s group.\n\nNova Poshta: the recipient’s details, when we send a parcel.\n\nGoogle (Gmail): sends your account’s letters, including email confirmation and password reset.\n\nVercel and Neon: the site’s hosting and database.\n\nCloudflare Turnstile: may check that a form is sent by a person.\n\nThese services may process data outside Ukraine. We do not sell your data.',
+          text: 'Telegram: new orders and consultation requests arrive in the store’s group.\n\nNova Poshta: the recipient’s details, when we send a parcel.\n\nGoogle (Gmail): sends your account’s letters, including email confirmation and password reset.\n\nVercel and Neon: the site’s hosting and database.\n\nCloudflare Turnstile: may check that a form is sent by a person.\n\nSentry: technical data about site failures, without your name, phone or address.\n\nThese services may process data outside Ukraine. We do not sell your data.',
         },
       },
       {

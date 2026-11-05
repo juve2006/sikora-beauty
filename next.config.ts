@@ -1,4 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs/config'
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 import path from 'path'
@@ -44,4 +45,19 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false })
+// Only for readable stacks: source maps go to Sentry and are deleted from the build, and without the
+// token (locally, in CI, on a Preview) none are made.
+const config = withSentryConfig(withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false }), {
+  org: 'sikora-bw',
+  project: 'sikora-beauty',
+  silent: true,
+  telemetry: false,
+  widenClientFileUpload: true,
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+})
+
+// It also tags every dynamic page with Sentry's trace id, public key and release, for tracing this site
+// does not do.
+delete config.experimental?.clientTraceMetadata
+
+export default config

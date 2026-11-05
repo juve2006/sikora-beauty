@@ -42,6 +42,10 @@ const schema = z
     SMTP_USER: z.string().optional(),
     SMTP_PASSWORD: z.string().optional(),
     SMTP_FROM: z.string().optional(),
+    // Errors in Sentry (src/lib/sentry.ts); without the DSN nothing is sent. The token only uploads
+    // source maps during a build.
+    NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
+    SENTRY_AUTH_TOKEN: z.string().optional(),
   })
   // Without the token the Blob adapter turns itself off and photos go to a disk Vercel throws
   // away; on Vercel that must fail the build instead. Locally the disk is fine.

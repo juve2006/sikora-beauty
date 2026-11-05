@@ -70,7 +70,9 @@ by email through the same form and land in the admin; a shopper's session opens 
 in the admin under «Продажі → Покупці»: both roles read them, the owner changes or deletes them, and
 a deleted shopper's orders stay.
 `/canvas` shows every storefront component in every variant and
-state; on a deployment only the owner and the cosmetologist see it. Vercel deploys every push: `master` to Production, every other branch and pull request to a
+state; on a deployment only the owner and the cosmetologist see it. A failure on the server or in a
+browser reaches Sentry with what failed and where, never a shopper's data or a secret (`docs/deploy.md`,
+step 15). Vercel deploys every push: `master` to Production, every other branch and pull request to a
 Preview. Production asks for the site password, shared with the owner and the cosmetologist; a
 Preview is visible only to the developer. Nothing is sold yet.
 

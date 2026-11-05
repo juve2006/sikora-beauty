@@ -30,6 +30,8 @@
     "@payloadcms/storage-vercel-blob": "3.92.1",
     "@payloadcms/translations": "3.92.1",
     "@payloadcms/ui": "3.92.1",
+    "@sentry/browser": "11.10.0",
+    "@sentry/nextjs": "11.10.0",
     "class-variance-authority": "0.7.1",
     "cn": "0.5.0",
     "graphql": "^16.14.2",
