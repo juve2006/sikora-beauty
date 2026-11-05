@@ -30,11 +30,13 @@ const failure = (error: unknown) => {
     ? 'адреса переспрямовує на іншу'
     : 'немає зв’язку';
 };
-const unreachable = (error: unknown) =>
-  Response.json(
+const unreachable = (error: unknown) => {
+  console.error('Import: cosmetika.com.ua:', failure(error));
+  return Response.json(
     { error: `cosmetika.com.ua: ${failure(error)}` },
     { status: 502 },
   );
+};
 
 // A request to cosmetika that hangs must not use up the function's time, and a redirect must not
 // lead the server off the store.
@@ -162,6 +164,7 @@ async function importOne(
         overrideAccess: false,
       });
     }
+    console.error('Import: a product:', failure(error));
     return { status: 'failed' as const, message: failure(error) };
   }
 }
@@ -367,6 +370,7 @@ export const importEndpoints: Endpoint[] = [
         if (ownTransaction) await commitTransaction(req);
       } catch (error) {
         if (ownTransaction) await killTransaction(req);
+        console.error('Import: prices:', failure(error));
         return Response.json(
           { ...plan, error: `Жодну ціну не змінено: ${failure(error)}` },
           { status: 500 },

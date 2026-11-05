@@ -136,8 +136,8 @@ the admin; a consultation request reaches the cosmetologist; Google Ads counts t
   - Backend: a daily backup to R2, a tested restore, a runbook, secrets in a password manager
   - Frontend: —
 - [ ] launch readiness — the site is open (after: cart and checkout — the conversion measures a purchase; header, home and about — public navigation; production host — the store opens there; backups and restore — no launch without a tested restore)
-  - Backend: sitemap with both locales, robots, Sentry, uptime monitoring, a purchase event with
-    value; open the store to shoppers on the production host: the site password removed
+  - Backend: sitemap with both locales, robots, uptime monitoring (Sentry itself came earlier, in
+    sentry-monitoring; its free plan has one uptime monitor), a purchase event with value; open the store to shoppers on the production host: the site password removed
     (`src/proxy.ts`, `src/env.ts`); `SITE_URL` from the host's own address, as a letter's link
     falls back to localhost off Vercel; mail from the store's domain instead of its Gmail
   - Frontend: offer, privacy (it names Telegram, where orders and requests go:

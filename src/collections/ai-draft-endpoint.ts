@@ -60,6 +60,7 @@ export const aiDraftEndpoint: Endpoint = {
         );
       return Response.json(response.parsed_output);
     } catch (error) {
+      console.error('AI draft:', failure(error));
       return answer(`AI: ${failure(error)}`, 502);
     }
   },

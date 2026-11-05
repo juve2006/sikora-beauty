@@ -16,6 +16,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | Photos      | Vercel Blob store `sikora-beauty-media`, public, `fra1`                                                                    | one store for Production, Preview and Development (adr-20261028-media-on-vercel-blob)                                                                             |
 | Migrations  | `npm run vercel-build` (`vercel.json` `buildCommand`)                                                                      | Production only: `payload migrate` over the direct connection, then `next build`; Preview only builds                                                             |
 | Checks      | GitHub Actions CI on every pull request                                                                                    | not a gate before the deploy: merge only a pull request with green CI                                                                                             |
+| Errors      | Sentry, free plan, organization `sikora-bw`, project `sikora-beauty`                                                       | the server and the browser; only what `src/lib/sentry.ts` lists leaves, and nothing starts without the DSN                                                        |
 | Access      | the site password (`src/proxy.ts`) on the production domain; Vercel Authentication, scope Standard Protection, on the rest | the owner and the cosmetologist reach Production with the password, then sign in to `/admin`; only the Vercel account owner reaches a Preview or a deployment URL |
 
 ## Secrets and settings
@@ -32,6 +33,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                          | the Web client a shopper signs in with Google through                                                                         | Vercel env, Production only, the secret Sensitive; set both or neither; without them the button leads to a message                                                          |
+| `NEXT_PUBLIC_SENTRY_DSN`                                            | where failures are sent; public, the browser holds it                                                                         | Vercel env, Production only; read at build, so a change needs a Redeploy; without it nothing starts and nothing is sent                                                     |
+| `SENTRY_AUTH_TOKEN`                                                 | an Organization Auth Token, for uploading source maps                                                                         | Vercel env, Production only, Sensitive; without it no maps are made and a browser's stack stays unreadable                                                                  |
 
 ## Build it from nothing
 
@@ -106,6 +109,13 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     `/admin` → Інструменти → Імпорт → «Перевірити» → «Імпортувати нові». The page sends a few
     products at a time and must stay open; the photos go to Blob. Interrupted, «Перевірити» shows
     what is left; run again, it creates none.
+15. **Errors in Sentry.** sentry.io, free plan: Create Project → Next.js, named `sikora-beauty`, in the
+    organization `sikora-bw` (`next.config.ts` names both). Skip the onboarding's
+    `npx @sentry/agent-plugin`: it only installs a plugin into a coding assistant. Project Settings →
+    Security & Privacy → **Prevent Storing of IP Addresses**, as Sentry sees a browser's address by
+    itself. An Organization Auth Token for source maps. In Vercel, Production only:
+    `NEXT_PUBLIC_SENTRY_DSN` (Project Settings → Client Keys) and `SENTRY_AUTH_TOKEN` (Sensitive), then
+    redeploy. Without the token everything works but a browser's stack is unreadable. A server failure has no stack in Sentry at all: its file and line are in Vercel's logs.
 
 ## Check it
 
@@ -119,6 +129,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
   sign-in form, and the account's password there confirms the email and leads to the home page.
   Signed in, an order shows in «Кабінет» and in `/admin` → Замовлення, with its «Покупець». The owner signs in at the same form and lands in
   `/admin`; a shopper's session at `/admin` lands in their own account.
+- Sentry, in the browser's console on the production URL: `setTimeout(() => { throw new Error('Sentry
+test') })` shows as a browser event; `fetch('/api/customers/login', { method: 'POST', headers: {
+'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'a\u0000@example.org', password:
+'x' }) })` answers 500, writes nothing and shows as a server event.
 - To change the password: a new `SITE_PASSWORD` in Vercel, then redeploy Production.
 - Before an Instant Rollback or Promote to a Production deployment older than the site password
   (built before `adr-20261029-site-password`), switch Deployment Protection to All Deployments:

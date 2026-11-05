@@ -14,7 +14,7 @@ paths:
   - src/lib/actions/consultation.actions.ts
   - docs/deploy.md
 summary: A new order and a request's care finder answers reach the one Telegram group whole, address included, in after() from the saved record; a failed send only logs, and a message keeps within Telegram's limit with its admin link
-reviewed_at: 2026-11-02
+reviewed_at: 2026-11-05
 ---
 # A new order and a request's care finder answers reach the Telegram group whole, after the shopper's answer
 
@@ -80,8 +80,8 @@ developer's decisions at its gate of 2026-11-02.
   them.
 - The consent lines under the forms say what is kept and do not name Telegram. The privacy page
   that `launch readiness` writes names it; its wording needs checking before the store opens.
-- A lost message shows only in the host's log (`Telegram:`) until Sentry arrives; the order waits
-  in the admin as «Нове» either way.
+- A lost message shows in the host's log and in Sentry (`Telegram:`,
+  adr-20261105-errors-in-sentry); the order waits in the admin as «Нове» either way.
 - A group that Telegram upgrades to a supergroup gets a new id, and sends fail until
   `TELEGRAM_CHAT_ID` is changed and Production redeployed.
 - Test orders on Production reach the group too, once the variables are set.

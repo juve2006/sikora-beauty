@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import { uk } from '@payloadcms/translations/languages/uk';
+import { captureException } from '@sentry/nextjs';
 import path from 'path';
 import { buildConfig } from 'payload';
 import { fileURLToPath } from 'url';
@@ -41,6 +42,17 @@ export default buildConfig({
   collections,
   email: emailAdapter(env),
   globals: [CareFinder, Contacts],
+  hooks: {
+    // Payload answers its own errors, so `onRequestError` never hears of them. A refusal, under 500,
+    // is no failure.
+    afterError: [
+      ({ error }) => {
+        if (((error as { status?: number }).status ?? 500) >= 500) {
+          captureException(error);
+        }
+      },
+    ],
+  },
   i18n: {
     supportedLanguages: { uk },
     fallbackLanguage: 'uk',
