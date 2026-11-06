@@ -1,6 +1,10 @@
-import { ORDER_STATUSES, VOLUME_UNIT_LABELS } from '@/lib/constants';
+import {
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+  VOLUME_UNIT_LABELS,
+} from '@/lib/constants';
 import type { Product } from '@/payload-types';
-import type { CartLine, OrderStatus } from '@/types';
+import type { CartLine, OrderStatus, PaymentStatus } from '@/types';
 
 // An order's arithmetic and its way through, apart from Payload so a test reads them alone.
 
@@ -61,3 +65,12 @@ export function canMoveStatus(from: OrderStatus, to: OrderStatus) {
   if (to === 'cancelled') return true;
   return forward.indexOf(to) > forward.indexOf(from);
 }
+
+// Paid ahead, by a transfer, only when every line is in stock: a made-to-order line may not come,
+// and its money would go back by hand (adr-20261028-two-step-launch).
+export const canPrepay = (lines: { availability?: string | null }[]) =>
+  lines.every(({ availability }) => availability === 'in_stock');
+
+// Whether an order is paid only moves forward too: a mistaken mark is told in the note.
+export const canMovePayment = (from: PaymentStatus, to: PaymentStatus) =>
+  PAYMENT_STATUSES.indexOf(to) >= PAYMENT_STATUSES.indexOf(from);

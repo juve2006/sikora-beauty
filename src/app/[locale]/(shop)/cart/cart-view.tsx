@@ -7,6 +7,7 @@ import CartLine from './cart-line';
 import ProductPrice from '@/components/shared/product/product-price';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
+import { canPrepay } from '@/lib/orders';
 import type { CardProduct, CartLine as Line } from '@/types';
 
 export type CartStatus = 'loading' | 'done' | 'failed';
@@ -21,8 +22,13 @@ type Props = {
   onRetry?: () => void;
   onQuantity?: (id: number, qty: number) => void;
   onRemove?: (id: number) => void;
-  // The checkout, given what can be ordered and the sum the shopper is shown.
-  checkout?: (order: { lines: Line[]; total: number }) => ReactNode;
+  // The checkout, given what can be ordered, the sum the shopper is shown, and whether all of it is
+  // in stock, so it may be paid ahead.
+  checkout?: (order: {
+    lines: Line[];
+    total: number;
+    prepay: boolean;
+  }) => ReactNode;
 };
 
 // What the cart page shows: the lines, the newest first, and their sum; the checkout under them
@@ -109,7 +115,11 @@ const CartView = ({
             <p className="mt-4 max-w-prose">{t('nothingToOrder')}</p>
           )}
           {orderable.length > 0 &&
-            checkout?.({ lines: orderable.map(({ line }) => line), total })}
+            checkout?.({
+              lines: orderable.map(({ line }) => line),
+              total,
+              prepay: canPrepay(orderable.map(({ card }) => card)),
+            })}
         </div>
       )}
     </>

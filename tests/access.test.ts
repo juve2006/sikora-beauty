@@ -27,6 +27,7 @@ import { collections } from '@/collections';
 import { resetLetterThroughStore, Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
 import { Contacts } from '@/globals/contacts';
+import { PaymentDetails } from '@/globals/payment-details';
 import { closeOwnCollections, hasRole, isOwner, isStaff } from '@/lib/access';
 
 const owner = { id: 1, collection: 'users', role: 'owner' };
@@ -289,6 +290,21 @@ describe('orders', () => {
     ]).toEqual([true, true, false, false]);
   });
 
+  it('a role marks it paid', () => {
+    expect(
+      (field(Orders.fields, 'paymentStatus') as { access?: unknown }).access,
+    ).toBeUndefined();
+  });
+
+  // The thank-you page's secret: REST and GraphQL read it for nobody, staff included.
+  it('nobody reads or changes the secret the thank-you page finds it by', () => {
+    const { read, update } = fieldAccess(Orders.fields, 'returnToken');
+    for (const access of [read, update])
+      expect(
+        [owner, cosmetologist, shopper, null].map((user) => run(access, user)),
+      ).toEqual([false, false, false, false]);
+  });
+
   it('only the owner deletes one', () => {
     expect(roles('delete')).toEqual([true, false, false]);
   });
@@ -331,6 +347,19 @@ describe.each([
     expect(
       [owner, cosmetologist, null].map((user) => run(update, user)),
     ).toEqual([true, true, false]);
+  });
+});
+
+// Where shoppers send money: a cosmetologist's account taken over must not redirect it.
+describe('the payment details', () => {
+  it('only the owner changes them, which the thank-you page reads for anyone', () => {
+    const { read, update } = PaymentDetails.access!;
+    expect([owner, cosmetologist, null].map((user) => run(read, user))).toEqual(
+      [true, true, true],
+    );
+    expect(
+      [owner, cosmetologist, null].map((user) => run(update, user)),
+    ).toEqual([true, false, false]);
   });
 });
 

@@ -115,10 +115,12 @@ export interface Config {
   globals: {
     'care-finder': CareFinder;
     contacts: Contact;
+    'payment-details': PaymentDetail;
   };
   globalsSelect: {
     'care-finder': CareFinderSelect<false> | CareFinderSelect<true>;
     contacts: ContactsSelect<false> | ContactsSelect<true>;
+    'payment-details': PaymentDetailsSelect<false> | PaymentDetailsSelect<true>;
   };
   locale: 'uk' | 'en';
   widgets: {
@@ -468,10 +470,12 @@ export interface Order {
   warehouse: string;
   settlementRef?: string | null;
   warehouseRef?: string | null;
-  payment: 'cod' | 'link';
+  payment: 'cod' | 'link' | 'transfer';
   comment?: string | null;
   locale?: ('uk' | 'en') | null;
   status: 'new' | 'confirmed' | 'shipped' | 'completed' | 'cancelled';
+  paymentStatus: 'awaiting' | 'paid';
+  returnToken?: string | null;
   managerNote?: string | null;
   customer?: (number | null) | Customer;
   updatedAt: string;
@@ -914,6 +918,8 @@ export interface OrdersSelect<T extends boolean = true> {
   comment?: T;
   locale?: T;
   status?: T;
+  paymentStatus?: T;
+  returnToken?: T;
   managerNote?: T;
   customer?: T;
   updatedAt?: T;
@@ -1070,6 +1076,18 @@ export interface Contact {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-details".
+ */
+export interface PaymentDetail {
+  id: number;
+  recipient?: string | null;
+  iban?: string | null;
+  code?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "care-finder_select".
  */
 export interface CareFinderSelect<T extends boolean = true> {
@@ -1112,6 +1130,18 @@ export interface ContactsSelect<T extends boolean = true> {
   instagram?: T;
   hours?: T;
   address?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-details_select".
+ */
+export interface PaymentDetailsSelect<T extends boolean = true> {
+  recipient?: T;
+  iban?: T;
+  code?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

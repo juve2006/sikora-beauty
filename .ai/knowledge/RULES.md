@@ -19,16 +19,27 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - An order's status only moves forward; a repeated or late event leaves a reached status as it
   is. (adr-20261028-own-orders-collection; checked by: `canMoveStatus` in the `beforeChange` hook
   on `orders`, Vitest in `tests/orders.test.ts`)
+- Whether an order is paid only moves forward, `awaiting` → `paid`, apart from its status: a
+  mistaken mark is told in the manager's note, never taken back. (adr-20261106-transfer-to-the-store-account;
+  checked by: `canMovePayment` in the `beforeChange` hook `keepPaymentForward`, Vitest in
+  `tests/orders.test.ts`)
 - An order is created only by `placeOrder`, after the form's Zod schema, Turnstile and repricing:
   no role creates one through REST or GraphQL, and no role changes what the shopper sent or the
-  snapshot — only the status and the manager's note. An admin role reads every order, and a shopper
-  only their own, without the manager's note; only the owner deletes one.
-  (adr-20261101-cart-and-checkout, adr-20261103-customer-accounts; checked by: Vitest in
-  `tests/access.test.ts` and `tests/orders.test.ts`)
+  snapshot — only the status, the payment status and the manager's note. An admin role reads every
+  order, and a shopper only their own, without the manager's note; nobody reads its return token,
+  which only the thank-you page looks an order up by; only the owner deletes one.
+  (adr-20261101-cart-and-checkout, adr-20261103-customer-accounts,
+  adr-20261106-transfer-to-the-store-account; checked by: Vitest in `tests/access.test.ts` and
+  `tests/orders.test.ts`)
+- The store's payment details are read by anyone and changed only by the owner: an account taken
+  over must not redirect the money. (adr-20261106-transfer-to-the-store-account; checked by: Vitest
+  in `tests/access.test.ts`)
 - A monobank webhook has no effect before its signature is verified. (adr-20261028-monobank-and-cash-on-delivery;
   checked by: Vitest with a valid and a forged signature)
-- Online card payment is offered only when every order line is in stock.
-  (adr-20261028-two-step-launch; checked by: Vitest on checkout)
+- Paying ahead — a transfer to the store's account, and online card payment — is offered only when
+  every order line is in stock, and `placeOrder` refuses it otherwise. (adr-20261028-two-step-launch,
+  adr-20261106-transfer-to-the-store-account; checked by: Vitest on `canPrepay` and `placeOrder` in
+  `tests/orders.test.ts`, the e2e test with a made-to-order line)
 - INCI is never generated; every INCI has a recorded source. (adr-20261028-reviewed-ai-content-drafts;
   checked by: a required source field, review)
 - A product is visible on the storefront only after a person with an admin role publishes it; an
@@ -100,8 +111,11 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
-  control by default, so without it a page would show drafts. (task `catalog-model`; checked by:
-  review)
+  control by default, so without it a page would show drafts. One read skips it, explicitly:
+  `getPlacedOrder`, the thank-you page's order by its return token, which selects the order's
+  number, sum, payment and statuses and nothing a shopper typed. (task `catalog-model`,
+  adr-20261106-transfer-to-the-store-account; checked by: review, Vitest in
+  `tests/payment-details.test.ts`)
 - Every collection states its own `create`, `update` and `delete` access per role, from
   `src/lib/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
   A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:

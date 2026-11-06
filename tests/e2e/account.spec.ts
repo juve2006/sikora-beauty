@@ -170,8 +170,13 @@ const orderSerum = async (page: Page, m: typeof uk, prefix: string) => {
 const place = async (page: Page, m: typeof uk) => {
   await page.getByRole('radio', { name: m.Checkout.cod }).check();
   await page.getByRole('button', { name: m.Checkout.submit }).click();
-  await expect(page).toHaveURL(/\/cart\/thanks\?order=\d+$/);
-  return Number(new URL(page.url()).searchParams.get('order'));
+  // The address carries the order's secret; the database, its number.
+  await expect(page).toHaveURL(/\/cart\/thanks\?t=[\w-]{22}$/);
+  const { rows } = await database.query(
+    'select id from orders where return_token = $1',
+    [new URL(page.url()).searchParams.get('t')],
+  );
+  return Number(rows[0].id);
 };
 
 // Below `lg` the admin's link is in the menu sheet.

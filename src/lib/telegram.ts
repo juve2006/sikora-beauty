@@ -44,7 +44,11 @@ export const consultationMessage = (
     siteUrl,
   );
 
-const paymentLabels = { cod: 'післяплата', link: 'посилання на оплату' };
+const paymentLabels = {
+  cod: 'післяплата',
+  link: 'посилання на оплату',
+  transfer: 'переказ на рахунок',
+};
 
 const orderLine = ({
   name,

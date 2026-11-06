@@ -118,6 +118,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     included, needs both again. An Organization Auth Token for source maps. In Vercel, Production only:
     `NEXT_PUBLIC_SENTRY_DSN` (Project Settings → Client Keys) and `SENTRY_AUTH_TOKEN` (Sensitive), then
     redeploy. Without the token everything works but a browser's stack is unreadable. A server failure has no stack in Sentry at all: its file and line are in Vercel's logs.
+16. **Payment details** (the owner, after the deploy that brings them). `/admin` → Продажі →
+    Реквізити для оплати: the ФОП's name as the bank has it, the account's IBAN and the RNOKPP, from
+    the bank's statement. Until all three are filled in, the checkout offers no transfer. Only the
+    owner can change them.
 
 ## Check it
 
@@ -126,7 +130,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 - With it: `/` is Ukrainian, `/en` English, `/admin` the Ukrainian Payload login.
 - A request sent from «Консультація» shows in `/admin` → Запити and in the Telegram group.
 - An order placed at `/cart` shows in `/admin` → Замовлення with its number from `/cart/thanks`,
-  and in the Telegram group.
+  and in the Telegram group. With every item in stock and the payment details filled in, «Переказ
+  на рахунок» is offered, and its `/cart/thanks` shows the details; «Скопіювати» puts the IBAN
+  without spaces on the clipboard.
 - At `/account`, a new account gets its letter, in the language it registered in; its link opens the
   sign-in form, and the account's password there confirms the email and leads to the home page.
   Signed in, an order shows in «Кабінет» and in `/admin` → Замовлення, with its «Покупець». The owner signs in at the same form and lands in

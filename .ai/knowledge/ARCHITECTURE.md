@@ -112,7 +112,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   collections, one per file in `src/collections/` and listed in its `index.ts`: `users` (Payload
   auth), `customers` (Accounts, below), the catalog's, `consultation-requests`, `pages`, `search-synonyms`, `search-misses` and
   `orders`. Payload globals, one per file in `src/globals/` and listed in `payload.config`'s
-  `globals`: `care-finder`, `contacts`.
+  `globals`: `care-finder`, `contacts`, `payment-details`.
   Every row of `users` is an owner or a cosmetologist; a shopper is a row of `customers`, and no
   rule takes them for staff. `src/lib/access.ts` holds who may do what, and every collection takes
   its access from there (adr-20261029-admin-roles, adr-20261103-customer-accounts).
@@ -218,10 +218,16 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   `CheckoutForm` under it. The form and the server action `placeOrder` (`order.actions.ts`) check
   the same `orderRequest`; then Turnstile, then `priceOrder` (`src/lib/orders.ts`, pure) reprices
   from the database and answers `changed` when the total is not the one shown, or the order is
-  created. `/cart/thanks?order=N` shows the number from the URL only. The `orders` collection
-  (admin group «Продажі»): no role creates one through the API, the snapshot and what the shopper
-  sent are read-only, the status moves forward only (`canMoveStatus`) and the manager's note is
-  free. Telegram is told in `after()`, from the saved order
+  created with a return token it answers. A transfer to the store's account
+  (adr-20261106-transfer-to-the-store-account) is offered when the global `payment-details`
+  («Продажі → Реквізити для оплати», the owner's) is filled in — the `/cart` page reads it with
+  `getPaymentDetails` (`payment.actions.ts`, `server-only`) — and `CartView` finds every line in
+  stock (`canPrepay`); `placeOrder` checks both again. `/cart/thanks?t=<token>` reads the order's
+  number, sum and payment by its token (`getPlacedOrder`) and, for a transfer neither paid nor
+  cancelled, shows the details with copy buttons; without a known token it names no order. The `orders` collection (admin group
+  «Продажі»): no role creates one through the API, the snapshot and what the shopper sent are
+  read-only, the status and the payment status move forward only (`canMoveStatus`,
+  `canMovePayment`), the return token is read by nobody, and the manager's note is free. Telegram is told in `after()`, from the saved order
   (adr-20261102-orders-and-answers-in-telegram). Playwright (`tests/e2e/`, the CI job `e2e`) orders
   through the real pages against a Nova Poshta stub.
 - **Care finder** — questions that lead to a routine (adr-20261101-care-finder-answers-to-terms).
@@ -323,9 +329,11 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
   catalog.
 - **Search** (`src/lib/search.ts`, `search.actions.ts`, `suggest.actions.ts`, `search-synonyms`,
   `search-misses`) — built (above). Depends on catalog.
-- **Orders** (`src/collections/orders.ts`, `src/lib/orders.ts`, `order.actions.ts`) — cart
-  repricing, checkout, the `orders` collection and its statuses are built (above). Depends on
-  catalog.
+- **Orders** (`src/collections/orders.ts`, `src/lib/orders.ts`, `order.actions.ts`,
+  `src/globals/payment-details.ts`, `payment.actions.ts`) — cart repricing, checkout, the `orders`
+  collection, its statuses and payment status, and the store's payment details a transfer goes to
+  are built (above). Depends on catalog. The payment details are orders' own, as a transfer is no
+  provider's: `placeOrder` reads them.
 - **Accounts** (`src/collections/customers.ts`, `src/collections/customer-endpoints.ts`,
   `account.actions.ts`, `customer.actions.ts`, `src/lib/auth-writes.ts`, `src/lib/email.ts`,
   `src/lib/google.ts`) — built (above). It meets orders in one field,
@@ -357,8 +365,11 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
    request.
 2. **Order (launch step 1).** Cart in localStorage → checkout server action → Zod → reprice from
    the database → an `orders` record with a snapshot → Telegram to the owner → manager
-   confirmation → cash on delivery or a payment link (adr-20261028-two-step-launch). Built up to
-   Telegram; the confirmation and the link are the manager's, by hand.
+   confirmation → cash on delivery or a payment link (adr-20261028-two-step-launch). An order wholly
+   in stock may instead be paid ahead by a transfer to the store's account, whose details the
+   thank-you page shows at once; the manager's call then follows the payment and confirms the
+   dispatch (adr-20261106-transfer-to-the-store-account). Built up to Telegram; the confirmation,
+   the link and marking a transfer paid are the manager's, by hand.
 3. **Card payment (launch step 2).** Order fully in stock → a monobank invoice → redirect →
    signed webhook → verify → idempotent forward-only status change → Checkbox issues the fiscal
    receipt on monobank's side; a cron reconciles invoices without a webhook.

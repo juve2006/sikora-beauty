@@ -4,6 +4,7 @@ import type {
   AVAILABILITIES,
   FACET_KEYS,
   ORDER_STATUSES,
+  PAYMENT_STATUSES,
   PAYMENTS,
   SORTS,
   VOLUME_UNITS,
@@ -53,7 +54,9 @@ export type OrderField =
 export type OrderState =
   | { status: 'idle' | 'failed' | 'changed' }
   | { status: 'invalid'; errors: Partial<Record<OrderField, string[]>> }
-  | { status: 'placed'; number: number };
+  | { status: 'placed'; number: number; token: string };
+// Where a shopper who chose a transfer sends the money.
+export type PaymentDetails = { recipient: string; iban: string; code: string };
 // What an account's forms show after a submit: the error keys of each field the shopper typed, or
 // how it went. One state for them all: each form answers the ones its action returns.
 export type AccountField =
@@ -83,6 +86,7 @@ export type DeliveryAnswer =
 export type Availability = (typeof AVAILABILITIES)[number];
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type Payment = (typeof PAYMENTS)[number];
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 export type VolumeUnit = (typeof VOLUME_UNITS)[number];
 export type FacetKey = (typeof FACET_KEYS)[number];
 export type Sort = (typeof SORTS)[number];

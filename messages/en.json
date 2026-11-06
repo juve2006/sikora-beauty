@@ -70,7 +70,7 @@
     "related": "Goes well with",
     "deliveryTitle": "Delivery and payment",
     "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine, at Nova Poshta’s rates — you pay for delivery when you collect the parcel.",
-    "payment": "Pay on delivery or by card — a manager sends the link once they confirm your order."
+    "payment": "Pay on delivery, by bank transfer, or by card — a manager sends the link once they confirm your order."
   },
   "Catalog": {
     "count": "{count, plural, one {# product} other {# products}}",
@@ -255,6 +255,9 @@
     "codHint": "At the Nova Poshta branch, when you collect the parcel.",
     "link": "By card via a link",
     "linkHint": "The manager sends a payment link once they confirm your order.",
+    "transfer": "Bank transfer",
+    "transferHint": "We show the account details right after you order — pay from any bank.",
+    "transferInStock": "Bank transfer — when every item is in stock.",
     "comment": "Comment",
     "optional": "optional",
     "consent": "By placing the order you accept the <terms>terms of use</terms> and agree that we keep your name, phone and delivery address to fulfil it. More in the <privacy>privacy policy</privacy>.",
@@ -273,7 +276,17 @@
     "thanks": "Thank you!",
     "placed": "Order No. {number} received",
     "placedNoNumber": "Order received",
-    "placedText": "A manager will call you soon to confirm the order and delivery."
+    "placedText": "A manager will call you soon to confirm the order and delivery.",
+    "transferTitle": "Payment details",
+    "transferText": "Pay from any bank. A manager will see the payment and call you to confirm the dispatch.",
+    "recipient": "Recipient",
+    "iban": "IBAN",
+    "code": "EDRPOU / tax number",
+    "amount": "Amount",
+    "purpose": "Payment purpose",
+    "purposeText": "Оплата замовлення №{number}",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "Finder": {
     "title": "Skincare finder",

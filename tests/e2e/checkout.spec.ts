@@ -15,7 +15,7 @@ const product = 'Сироватка E2E';
 
 const order = async (id: number) => {
   const { rows } = await database.query(
-    'select total, settlement, settlement_ref, warehouse_ref, payment, locale from orders where id = $1',
+    'select total, settlement, settlement_ref, warehouse_ref, payment, payment_status, locale from orders where id = $1',
     [id],
   );
   const lines = await database.query(
@@ -45,18 +45,27 @@ const addSerum = async (page: Page, prefix: string, m: typeof uk) => {
   await expect(page).toHaveURL(/\/cart$/);
 };
 
-const fillContacts = async (page: Page, m: typeof uk) => {
+const fillContacts = async (
+  page: Page,
+  m: typeof uk,
+  payment: 'cod' | 'transfer' = 'cod',
+) => {
   await page.getByLabel(m.Checkout.firstName).fill('Олена');
   await page.getByLabel(m.Checkout.lastName).fill('Тестова');
   await page.getByLabel(m.Checkout.phone).fill('067 123 45 67');
-  await page.getByRole('radio', { name: m.Checkout.cod }).check();
+  await page.getByRole('radio', { name: m.Checkout[payment] }).check();
 };
 
-// The thanks page's order number, once the order is placed.
+// The order the thanks page names, once it is placed: the address carries its secret, and the
+// page's heading its number.
 const placed = async (page: Page, m: typeof uk) => {
   await page.getByRole('button', { name: m.Checkout.submit }).click();
-  await expect(page).toHaveURL(/\/cart\/thanks\?order=\d+$/);
-  const id = Number(new URL(page.url()).searchParams.get('order'));
+  await expect(page).toHaveURL(/\/cart\/thanks\?t=[\w-]{22}$/);
+  const { rows } = await database.query(
+    'select id from orders where return_token = $1',
+    [new URL(page.url()).searchParams.get('t')],
+  );
+  const id = Number(rows[0].id);
   await expect(page.locator('h1')).toContainText(String(id));
   return id;
 };
@@ -101,6 +110,74 @@ for (const [locale, m, prefix] of [
     });
   });
 }
+
+// A transfer (task `transfer-payment`): offered for an order wholly in stock, and the thanks page
+// gives the store's account, each detail copied for the shopper's banking app.
+for (const [locale, m, prefix] of [
+  ['uk', uk, ''],
+  ['en', en, '/en'],
+] as const) {
+  test(`pays by a transfer to the store's account (${locale})`, async ({
+    page,
+    context,
+  }) => {
+    await addSerum(page, prefix, m);
+    await page.getByLabel(m.Checkout.settlement).fill('Бров');
+    await page.getByRole('button', { name: /Бровари/ }).click();
+    await page.getByRole('button', { name: /Відділення №1/ }).click();
+    await fillContacts(page, m, 'transfer');
+    const id = await placed(page, m);
+
+    expect(await order(id)).toMatchObject({
+      payment: 'transfer',
+      payment_status: 'awaiting',
+    });
+    const details = page.getByRole('region', {
+      name: m.Checkout.transferTitle,
+    });
+    await expect(details).toContainText('ФОП Тестова Олена Петрівна');
+    await expect(details).toContainText('UA21 3223 1300 0002 6007 2335 6600 1');
+    await expect(details).toContainText('1234567890');
+    await expect(details).toContainText(`Оплата замовлення №${id}`);
+    await expect(page.getByText(m.Checkout.placedText)).toHaveCount(0);
+    // Nothing wider than the screen: the IBAN wraps on a phone.
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
+
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    const copy = details.getByRole('button', {
+      name: new RegExp(`: ${m.Checkout.iban}$`),
+    });
+    await copy.click();
+    await expect(copy).toContainText(m.Checkout.copied);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'UA213223130000026007233566001',
+    );
+  });
+}
+
+test('offers no transfer while a line is made to order', async ({ page }) => {
+  await page.goto('/product/e2e-cream');
+  await page.getByRole('button', { name: uk.Product.addToCart }).click();
+  await page.getByRole('link', { name: uk.Product.goToCart }).click();
+  await expect(
+    page.getByRole('radio', { name: uk.Checkout.cod }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('radio', { name: uk.Checkout.transfer }),
+  ).toHaveCount(0);
+  await expect(page.getByText(uk.Checkout.transferInStock)).toBeVisible();
+});
+
+test('names no order by an address without its secret', async ({ page }) => {
+  for (const query of ['?order=1', `?t=${'x'.repeat(22)}`]) {
+    await page.goto(`/cart/thanks${query}`);
+    await expect(page.locator('h1')).toHaveText(
+      `${uk.Checkout.thanks} ${uk.Checkout.placedNoNumber}`,
+    );
+  }
+});
 
 test('orders with the branch typed by hand when Nova Poshta is down', async ({
   page,
