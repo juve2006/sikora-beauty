@@ -11,7 +11,7 @@ import {
   signOut,
   updateProfile,
 } from '@/lib/actions/account.actions';
-import { myOrders, waitingToken } from '@/lib/actions/customer.actions';
+import { myOrders, waitingLetter } from '@/lib/actions/customer.actions';
 import {
   CUSTOMER_SESSION_SECONDS,
   CUSTOMER_ORDERS,
@@ -1142,22 +1142,34 @@ describe('resetPassword', () => {
   });
 });
 
-describe('waitingToken', () => {
+describe('waitingLetter', () => {
   const token = 'a1'.repeat(20);
 
-  it('gives back a token an account waits for, and only reads', async () => {
-    payload.count.mockResolvedValue({ totalDocs: 1 });
-    expect(await waitingToken(token)).toBe(token);
+  it('gives back a waiting token with its address alone, and only reads', async () => {
+    payload.find.mockResolvedValue({
+      docs: [{ id: 7, email: 'olena@example.com' }],
+    });
+    expect(await waitingLetter(token)).toEqual({
+      token,
+      email: 'olena@example.com',
+    });
+    expect(payload.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'customers',
+        where: { _verificationToken: { equals: token } },
+        select: { email: true },
+      }),
+    );
     expect(payload.verifyEmail).not.toHaveBeenCalled();
     expect(payload.update).not.toHaveBeenCalled();
   });
 
   it('says no to a used token and asks nothing for a forged one', async () => {
-    payload.count.mockResolvedValue({ totalDocs: 0 });
-    expect(await waitingToken(token)).toBeNull();
-    payload.count.mockClear();
-    expect(await waitingToken("' or 1=1")).toBeNull();
-    expect(payload.count).not.toHaveBeenCalled();
+    payload.find.mockResolvedValue({ docs: [] });
+    expect(await waitingLetter(token)).toBeNull();
+    payload.find.mockClear();
+    expect(await waitingLetter("' or 1=1")).toBeNull();
+    expect(payload.find).not.toHaveBeenCalled();
   });
 });
 

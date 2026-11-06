@@ -118,13 +118,15 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
-  control by default, so without it a page would show drafts. Two reads skip it, explicitly, both
-  by an order's return token: `getPlacedOrder`, the thank-you page's, which selects the order's
-  number, sum, payment, statuses and whether it has a monobank invoice, and nothing a shopper typed;
-  and `payByCard`, which selects the sum, the lines, the payment, its status, the invoice and the
-  language to make mono's invoice. (task `catalog-model`,
-  adr-20261106-transfer-to-the-store-account, adr-20261106-card-payment-on-monobanks-page; checked
-  by: review, Vitest in `tests/payment-details.test.ts` and `tests/monobank.test.ts`)
+  control by default, so without it a page would show drafts. Three reads skip it, explicitly, each
+  by a token only its holder has. Two go by an order's return token: `getPlacedOrder`, the thank-you
+  page's, which selects the order's number, sum, payment, statuses and whether it has a monobank
+  invoice, and nothing a shopper typed; and `payByCard`, which selects the sum, the lines, the
+  payment, its status, the invoice and the language to make mono's invoice. `waitingLetter`, the
+  letter's page's, goes by an account's letter token and selects only the email the letter went to,
+  to fill it in. (task `catalog-model`, adr-20261106-transfer-to-the-store-account,
+  adr-20261106-card-payment-on-monobanks-page, task `verify-letter-password`; checked by: review,
+  Vitest in `tests/payment-details.test.ts`, `tests/monobank.test.ts` and `tests/account.test.ts`)
 - Every collection states its own `create`, `update` and `delete` access per role, from
   `src/lib/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
   A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:

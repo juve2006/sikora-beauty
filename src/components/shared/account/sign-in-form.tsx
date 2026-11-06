@@ -15,14 +15,19 @@ import type { AccountState } from '@/types';
 import { Button } from '@/components/ui/button';
 
 type Props = {
-  // A letter's token: the right password then confirms the email too.
+  // A letter's token and the address it went to: the right password then confirms the email too.
   token?: string;
+  email?: string;
   // In the dialog: a shopper stays where they are, and a link out closes it.
   onSignedIn?: () => void;
   onLeave?: () => void;
-  // /canvas only: a state to start from, the form while it sends, and by email from the start.
+  // A letter's page: a shopper goes on to their account. Not read off the token, which the page
+  // re-rendered for the new session no longer has.
+  toAccount?: boolean;
+  // /canvas only: a state to start from and the form while it sends.
   initialState?: AccountState;
   sending?: boolean;
+  // By email from the start: /canvas and a letter's page.
   byEmail?: boolean;
 };
 
@@ -30,8 +35,10 @@ const Fields = ({
   by,
   onSwitch,
   token,
+  email,
   onSignedIn,
   onLeave,
+  toAccount = false,
   initialState,
   sending = false,
 }: Props & { by: 'phone' | 'email'; onSwitch: () => void }) => {
@@ -45,7 +52,7 @@ const Fields = ({
     onAnswer: ({ status }) => {
       if (status === 'customer') {
         if (onSignedIn) onSignedIn();
-        else router.replace('/');
+        else router.replace(toAccount ? '/account' : '/');
       }
       if (status === 'staff') router.replace('/account');
     },
@@ -73,6 +80,7 @@ const Fields = ({
             name="email"
             type="email"
             autoComplete="email"
+            defaultValue={email}
             maxLength={254}
             required
             errors={errors.email}
@@ -133,8 +141,8 @@ const Fields = ({
 };
 
 // One form for everyone, wherever it is, by phone or by email: staff have no number, so they sign in by
-// email. A shopper goes to the home page, or stays on their page in the dialog; staff go to `/account`,
-// which sends the owner and the cosmetologist on to the admin. Switching the way starts the fields
+// email. A shopper goes to the home page, to their account from a letter, or stays on their page in the
+// dialog; staff go to `/account`, which sends the owner and the cosmetologist on to the admin. Switching the way starts the fields
 // over: an answer about a number says nothing of an email.
 const SignInForm = ({ byEmail = false, ...props }: Props) => {
   const [by, setBy] = useState<'phone' | 'email'>(byEmail ? 'email' : 'phone');
