@@ -31,6 +31,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                            | the bot that posts orders and consultation requests, and the group it posts to                                                | Vercel env, Production only, the token Sensitive; without them an order or a request is only saved                                                                          |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form, the checkout and a shopper's account                              | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
 | `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
+| `MONO_TOKEN` | monobank acquiring's token: a test one from api.monobank.ua, then the seller's ФОП account's own | Vercel env, Production only, Sensitive; optional — without it the checkout offers no card; the live one only after `mono-reconcile` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                          | the Web client a shopper signs in with Google through                                                                         | Vercel env, Production only, the secret Sensitive; set both or neither; without them the button leads to a message                                                          |
 | `NEXT_PUBLIC_SENTRY_DSN`                                            | where failures are sent; public, the browser holds it                                                                         | Vercel env, Production only; read at build, so a change needs a Redeploy; without it nothing starts and nothing is sent                                                     |
@@ -122,6 +123,14 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     Реквізити для оплати: the ФОП's name as the bank has it, the account's IBAN and the RNOKPP, from
     the bank's statement. Until all three are filled in, the checkout offers no transfer. Only the
     owner can change them.
+17. **Card payment through monobank.** A test token first: api.monobank.ua, signed in with the mono
+    app → password manager → `MONO_TOKEN`, Production only, Sensitive → redeploy. Not on a Preview:
+    Vercel Authentication refuses mono's webhook. A test payment takes any card number that passes
+    the Luhn check and moves no money. The live token, from the seller's ФОП account at mono,
+    replaces it without code — only after `mono-reconcile`, as a webhook that never comes leaves a
+    paid order «Очікує» until then. With the live token: Checkbox turned on in mono's cabinet, which
+    issues the fiscal receipt from the invoice's basket; the card's paragraph on «Оплата та
+    доставка» and monobank's line on «Конфіденційність», as `src/db/seed-data.ts` has them.
 
 ## Check it
 
@@ -132,7 +141,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 - An order placed at `/cart` shows in `/admin` → Замовлення with its number from `/cart/thanks`,
   and in the Telegram group. With every item in stock and the payment details filled in, «Переказ
   на рахунок» is offered, and its `/cart/thanks` shows the details; «Скопіювати» puts the IBAN
-  without spaces on the clipboard.
+  without spaces on the clipboard. With `MONO_TOKEN` set, «Карткою на сайті» is offered too and
+  asks for an email; the order opens mono's page with its sum, and a paid test card comes back to
+  «Оплату отримано», the order «Оплачено» in `/admin` and «Оплачено карткою» in the Telegram group.
 - At `/account`, a new account gets its letter, in the language it registered in; its link opens the
   sign-in form, and the account's password there confirms the email and leads to the home page.
   Signed in, an order shows in «Кабінет» and in `/admin` → Замовлення, with its «Покупець». The owner signs in at the same form and lands in

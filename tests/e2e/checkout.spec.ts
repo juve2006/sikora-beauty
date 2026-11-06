@@ -48,7 +48,7 @@ const addSerum = async (page: Page, prefix: string, m: typeof uk) => {
 const fillContacts = async (
   page: Page,
   m: typeof uk,
-  payment: 'cod' | 'transfer' = 'cod',
+  payment: 'cod' | 'transfer' | 'card' = 'cod',
 ) => {
   await page.getByLabel(m.Checkout.firstName).fill('Олена');
   await page.getByLabel(m.Checkout.lastName).fill('Тестова');
@@ -56,10 +56,19 @@ const fillContacts = async (
   await page.getByRole('radio', { name: m.Checkout[payment] }).check();
 };
 
+// The cart as this browser keeps it (src/lib/cart.ts), not the header's link: the footer has one named
+// «Кошик» whatever the cart holds.
+const cartInBrowser = (page: Page) =>
+  page.evaluate(() => localStorage.getItem('cart'));
+
 // The order the thanks page names, once it is placed: the address carries its secret, and the
 // page's heading its number.
 const placed = async (page: Page, m: typeof uk) => {
   await page.getByRole('button', { name: m.Checkout.submit }).click();
+  return thanked(page);
+};
+
+const thanked = async (page: Page) => {
   await expect(page).toHaveURL(/\/cart\/thanks\?t=[\w-]{22}$/);
   const { rows } = await database.query(
     'select id from orders where return_token = $1',
@@ -91,10 +100,8 @@ for (const [locale, m, prefix] of [
     await fillContacts(page, m);
     const id = await placed(page, m);
 
-    // The ordered lines left the cart: its link has no count to name.
-    await expect(
-      page.getByRole('link', { name: m.Cart.title, exact: true }).first(),
-    ).toBeVisible();
+    // The ordered lines left the cart.
+    await expect.poll(() => cartInBrowser(page)).toBe('[]');
     const { rows } = await database.query(
       "select id, price from products where slug = 'e2e-serum'",
     );
@@ -157,17 +164,91 @@ for (const [locale, m, prefix] of [
   });
 }
 
-test('offers no transfer while a line is made to order', async ({ page }) => {
+// A card (task `mono-payment`): the order is placed, monobank's page — tests/e2e/mono-stub.mjs —
+// takes the sum the database has, and the thanks say what mono's signed webhook told the order.
+const toMono = async (page: Page, email = 'olena@example.com') => {
+  await addSerum(page, '', uk);
+  await page.getByLabel(uk.Checkout.settlement).fill('Бров');
+  await page.getByRole('button', { name: /Бровари/ }).click();
+  await page.getByRole('button', { name: /Відділення №1/ }).click();
+  await fillContacts(page, uk, 'card');
+  await page.getByLabel(uk.Checkout.email).fill(email);
+  await page.getByRole('button', { name: uk.Checkout.submit }).click();
+  await expect(page).toHaveURL(/^http:\/\/127\.0\.0\.1:4012\/pay\//);
+  const invoice = new URL(page.url()).pathname.split('/')[2];
+  const { rows } = await database.query(
+    'select total, payment_status from orders where mono_invoice_id = $1',
+    [invoice],
+  );
+  expect(rows[0].payment_status).toBe('awaiting');
+  await expect(page.locator('p')).toHaveText(String(rows[0].total));
+  return invoice;
+};
+
+test('pays by card on monobank’s page', async ({ page }) => {
+  await toMono(page);
+  await page.getByRole('link', { name: 'Оплатити' }).click();
+  const id = await thanked(page);
+
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardPaid);
+  expect(await order(id)).toMatchObject({
+    payment: 'card',
+    payment_status: 'paid',
+  });
+  // The ordered lines left the cart as the page went to mono.
+  await expect.poll(() => cartInBrowser(page)).toBe('[]');
+});
+
+test('a card the bank refused is told, and the manager calls', async ({
+  page,
+}) => {
+  await toMono(page);
+  await page.getByRole('link', { name: 'Відмовити' }).click();
+  const id = await thanked(page);
+
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardFailed);
+  expect(await order(id)).toMatchObject({ payment_status: 'failed' });
+});
+
+test('waits for the bank’s word, and a refresh shows it', async ({ page }) => {
+  const invoice = await toMono(page);
+  await page.getByRole('link', { name: 'Пізніше' }).click();
+  await thanked(page);
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardWaiting);
+
+  await fetch(`http://127.0.0.1:4012/send/${invoice}/success`);
+  await page.getByRole('link', { name: uk.Checkout.refresh }).click();
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardPaid);
+});
+
+test('a card mono makes no invoice for becomes a link', async ({ page }) => {
+  await addSerum(page, '', uk);
+  await page.getByLabel(uk.Checkout.settlement).fill('Бров');
+  await page.getByRole('button', { name: /Бровари/ }).click();
+  await page.getByRole('button', { name: /Відділення №1/ }).click();
+  await fillContacts(page, uk, 'card');
+  await page.getByLabel(uk.Checkout.email).fill('down@example.com');
+  const id = await placed(page, uk);
+
+  await expect(page.getByText(uk.Checkout.linkText)).toBeVisible();
+  expect(await order(id)).toMatchObject({
+    payment: 'link',
+    payment_status: 'awaiting',
+  });
+});
+
+test('offers no prepayment while a line is made to order', async ({ page }) => {
   await page.goto('/product/e2e-cream');
   await page.getByRole('button', { name: uk.Product.addToCart }).click();
   await page.getByRole('link', { name: uk.Product.goToCart }).click();
   await expect(
     page.getByRole('radio', { name: uk.Checkout.cod }),
   ).toBeVisible();
+  for (const way of [uk.Checkout.transfer, uk.Checkout.card])
+    await expect(page.getByRole('radio', { name: way })).toHaveCount(0);
   await expect(
-    page.getByRole('radio', { name: uk.Checkout.transfer }),
-  ).toHaveCount(0);
-  await expect(page.getByText(uk.Checkout.transferInStock)).toBeVisible();
+    page.getByText('Переказ і картка на сайті — коли всі товари в наявності.'),
+  ).toBeVisible();
 });
 
 test('names no order by an address without its secret', async ({ page }) => {

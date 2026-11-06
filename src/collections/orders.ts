@@ -26,9 +26,15 @@ const paymentLabels = {
   cod: 'Післяплата',
   link: 'Посилання на оплату',
   transfer: 'Переказ на рахунок',
+  card: 'Карткою на сайті',
 };
 
-const paymentStatusLabels = { awaiting: 'Очікує', paid: 'Оплачено' };
+const paymentStatusLabels = {
+  awaiting: 'Очікує',
+  paid: 'Оплачено',
+  failed: 'Не пройшла',
+  refunded: 'Повернено',
+};
 
 // Money in the admin is hryvnias, stored as integer kopiyky (RULES.md), as a product's price is.
 const money = {
@@ -73,29 +79,26 @@ export const keepStatusForward: CollectionBeforeChangeHook = ({
 };
 
 // Whether it is paid only moves forward too (RULES.md): the manager marks a transfer they see on the
-// account, or a payment by link or on delivery.
+// account, or a payment by link or on delivery. A card's is the payment provider's alone — its
+// webhook writes with `context.paymentProvider` — as only monobank knows whether the card paid.
 export const keepPaymentForward: CollectionBeforeChangeHook = ({
+  context,
   data,
   originalDoc,
   operation,
   req,
 }) => {
-  if (
-    operation === 'update' &&
-    data.paymentStatus &&
-    originalDoc?.paymentStatus &&
-    !canMovePayment(originalDoc.paymentStatus, data.paymentStatus)
-  ) {
+  const from = originalDoc?.paymentStatus;
+  const to = data.paymentStatus;
+  if (operation !== 'update' || !from || !to || from === to) return data;
+  const message = !canMovePayment(from, to)
+    ? 'Позначка оплати не знімається'
+    : originalDoc.payment === 'card' && !context.paymentProvider
+      ? 'Стан оплати карткою змінює лише monobank'
+      : undefined;
+  if (message) {
     throw new ValidationError(
-      {
-        errors: [
-          {
-            label: 'Статус оплати',
-            message: 'Позначка оплати не знімається',
-            path: 'paymentStatus',
-          },
-        ],
-      },
+      { errors: [{ label: 'Статус оплати', message, path: 'paymentStatus' }] },
       req.t,
     );
   }
@@ -306,6 +309,17 @@ export const Orders: CollectionConfig = {
         label: paymentStatusLabels[value],
       })),
       admin: { position: 'sidebar', isClearable: false },
+    },
+    // A card's invoice at monobank, by which its webhook finds the order: written by the server
+    // only, read by staff.
+    {
+      name: 'monoInvoiceId',
+      type: 'text',
+      label: 'Рахунок mono',
+      unique: true,
+      index: true,
+      access: { read: hasRole, update: nobody },
+      admin: { position: 'sidebar' },
     },
     // The thank-you page finds the order by it, never by its number, which anyone could count
     // through: only the browser that placed the order has it, and nobody reads it back.

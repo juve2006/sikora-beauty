@@ -31,6 +31,10 @@ const schema = z
     // that is refused the shopper types the address. The URL is for the e2e tests' stub only.
     NOVA_POSHTA_API_KEY: z.string().optional(),
     NOVA_POSHTA_API_URL: z.url().optional(),
+    // A card paid on the site through monobank; without the token the checkout offers no card. The
+    // URL is for the e2e tests' stub only.
+    MONO_TOKEN: z.string().optional(),
+    MONO_API_URL: z.url().optional(),
     // Signing in with Google; without them its button leads to a message. The URL is for the e2e
     // tests' stub only.
     GOOGLE_CLIENT_ID: z.string().optional(),

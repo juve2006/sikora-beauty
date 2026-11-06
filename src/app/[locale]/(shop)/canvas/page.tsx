@@ -991,6 +991,48 @@ const CanvasPage = async ({ params }: Props) => {
                 />
               </div>
             </Specimen>
+            <Specimen label="a card chosen">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  transfer
+                  card
+                  prepay
+                  payment="card"
+                  contact={{
+                    firstName: 'Олена',
+                    lastName: 'Коваль',
+                    email: 'olena@example.com',
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="a card, its address invalid">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  card
+                  prepay
+                  payment="card"
+                  initialState={{
+                    status: 'invalid',
+                    errors: { email: ['emailInvalid'] },
+                  }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="a transfer and a card, a line made to order">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  transfer
+                  card
+                />
+              </div>
+            </Specimen>
             <Specimen label="invalid">
               <div className="w-full">
                 <CheckoutForm
@@ -1060,6 +1102,26 @@ const CanvasPage = async ({ params }: Props) => {
                     },
                   }}
                 />
+              </div>
+            </Specimen>
+            <Specimen label="a card, paid">
+              <div>
+                <OrderPlaced number={1042} card="paid" />
+              </div>
+            </Specimen>
+            <Specimen label="a card, waiting for the bank">
+              <div>
+                <OrderPlaced number={1042} card="waiting" again="?" />
+              </div>
+            </Specimen>
+            <Specimen label="a card, failed">
+              <div>
+                <OrderPlaced number={1042} card="failed" />
+              </div>
+            </Specimen>
+            <Specimen label="a link">
+              <div>
+                <OrderPlaced number={1042} link />
               </div>
             </Specimen>
             <Specimen label="without">

@@ -27,6 +27,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t('thanks'), robots: { index: false } };
 }
 
+// Where a card stands, as the shopper is back from monobank's page: paid; waiting for the bank's
+// word, as the webhook may come a moment later; or not paid — failed, or never sent to mono, as the
+// browser left before the invoice — and the manager calls. A cancelled or refunded order says no more.
+const cardState = (
+  order: NonNullable<Awaited<ReturnType<typeof getPlacedOrder>>>,
+) => {
+  if (order.cancelled || order.paymentStatus === 'refunded') return undefined;
+  if (order.paymentStatus === 'paid') return 'paid';
+  return order.paymentStatus === 'awaiting' && order.invoiced
+    ? 'waiting'
+    : 'failed';
+};
+
 // Where the checkout leads once the order is placed. The address carries the order's secret, never
 // its number: by the secret the page reads the order's number, sum and payment, and for a transfer
 // still to be paid the store's account. Without it, or with one no order has, the thanks name no order: a number
@@ -45,6 +58,9 @@ const ThanksPage = async ({ params, searchParams }: Props) => {
       <OrderPlaced
         number={order?.number}
         transfer={order && details && { details, total: order.total }}
+        card={order?.payment === 'card' ? cardState(order) : undefined}
+        again={token && `?t=${token}`}
+        link={order?.payment === 'link' && !order.cancelled}
       />
     </main>
   );

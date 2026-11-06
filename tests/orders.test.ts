@@ -5,12 +5,14 @@ import { keepPaymentForward, keepStatusForward } from '@/collections/orders';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { ORDER_STATUSES, TELEGRAM_TEXT_LIMIT } from '@/lib/constants';
 import {
+  basketOrder,
   canMovePayment,
   canMoveStatus,
   canPrepay,
+  nextPayment,
   priceOrder,
 } from '@/lib/orders';
-import { orderMessage } from '@/lib/telegram';
+import { cardMessage, orderMessage } from '@/lib/telegram';
 import { parseOrderForm } from '@/lib/validators';
 
 vi.mock('server-only', () => ({}));
@@ -158,11 +160,85 @@ describe('canMovePayment', () => {
     expect(canMovePayment('awaiting', 'awaiting')).toBe(true);
     expect(canMovePayment('paid', 'paid')).toBe(true);
   });
+
+  it('lets a failed card be paid and a paid one refunded, and nothing else', () => {
+    for (const [from, to] of [
+      ['awaiting', 'failed'],
+      ['failed', 'paid'],
+      ['paid', 'refunded'],
+    ] as const)
+      expect(canMovePayment(from, to), `${from} → ${to}`).toBe(true);
+    for (const [from, to] of [
+      ['failed', 'awaiting'],
+      ['paid', 'failed'],
+      ['awaiting', 'refunded'],
+      ['refunded', 'paid'],
+      ['refunded', 'awaiting'],
+    ] as const)
+      expect(canMovePayment(from, to), `${from} → ${to}`).toBe(false);
+  });
+});
+
+// What monobank's word on an invoice makes of an order's payment.
+describe('nextPayment', () => {
+  it('pays, fails and refunds as the invoice did', () => {
+    expect(nextPayment('awaiting', 'success')).toBe('paid');
+    expect(nextPayment('awaiting', 'failure')).toBe('failed');
+    expect(nextPayment('failed', 'success')).toBe('paid');
+    expect(nextPayment('paid', 'reversed')).toBe('refunded');
+  });
+
+  it('moves nothing on a status on its way, an expired invoice, a repeat or a late event', () => {
+    for (const status of ['created', 'processing', 'hold', 'expired', 'new'])
+      expect(nextPayment('awaiting', status), status).toBeNull();
+    expect(nextPayment('paid', 'success')).toBeNull();
+    expect(nextPayment('paid', 'failure')).toBeNull();
+    expect(nextPayment('refunded', 'success')).toBeNull();
+    expect(nextPayment('awaiting', 'reversed')).toBeNull();
+  });
+});
+
+describe('basketOrder', () => {
+  it("gives each line its product's code, its quantity and its kopiyky", () => {
+    expect(
+      basketOrder([
+        { product: 1, name: 'Крем', price: 124550, quantity: 2 },
+        { product: { id: 2 }, name: 'Тонік', price: 50000, quantity: 1 },
+        { product: null, name: 'Сироватка', price: 89900, quantity: 1 },
+      ] as never),
+    ).toEqual([
+      {
+        name: 'Крем',
+        qty: 2,
+        sum: 124550,
+        total: 249100,
+        code: '1',
+        unit: 'шт',
+      },
+      {
+        name: 'Тонік',
+        qty: 1,
+        sum: 50000,
+        total: 50000,
+        code: '2',
+        unit: 'шт',
+      },
+      {
+        name: 'Сироватка',
+        qty: 1,
+        sum: 89900,
+        total: 89900,
+        code: 'Сироватка',
+        unit: 'шт',
+      },
+    ]);
+  });
 });
 
 describe('keepPaymentForward', () => {
   const save = (paymentStatus: string, from: string, operation = 'update') =>
     keepPaymentForward({
+      context: {},
       data: { paymentStatus },
       originalDoc: { paymentStatus: from },
       operation,
@@ -178,6 +254,24 @@ describe('keepPaymentForward', () => {
     expect(save('awaiting', 'paid', 'create')).toEqual({
       paymentStatus: 'awaiting',
     });
+  });
+
+  // RULES.md: only monobank knows whether a card paid.
+  it("leaves a card's payment to its provider, and forward only even then", () => {
+    const card = (paymentStatus: string, context: object) =>
+      keepPaymentForward({
+        context,
+        data: { paymentStatus },
+        originalDoc: { payment: 'card', paymentStatus: 'awaiting' },
+        operation: 'update',
+        req: { t: (key: string) => key },
+      } as never);
+    expect(() => card('paid', {})).toThrow();
+    expect(card('paid', { paymentProvider: true })).toEqual({
+      paymentStatus: 'paid',
+    });
+    expect(() => card('refunded', { paymentProvider: true })).toThrow();
+    expect(card('awaiting', {})).toEqual({ paymentStatus: 'awaiting' });
   });
 });
 
@@ -266,7 +360,7 @@ describe('the order schema', () => {
           lastName: 'x'.repeat(51),
           phone: '123',
           warehouse: '',
-          payment: 'card',
+          payment: 'crypto',
           comment: 'x'.repeat(501),
         }),
       ).errors,
@@ -389,6 +483,23 @@ describe('the Telegram message', () => {
     expect(message).toContain('Мова: англійська');
     expect(message).toContain('× 1 — 1245,50 грн\n');
     expect(message).toContain('× 1 — 899 грн (під замовлення)\n');
+  });
+
+  it('tells a card paid, failed, or left without its invoice', () => {
+    const site = new URL('https://sikora.example');
+    const order = { id: 42, total: 249100 };
+    expect(cardMessage(order, 'paid', site)).toContain(
+      'Оплачено карткою: замовлення №42, 2491 грн',
+    );
+    expect(cardMessage(order, 'failed', site)).toContain(
+      'Оплата карткою не пройшла: замовлення №42',
+    );
+    expect(cardMessage(order, 'link', site)).toContain(
+      'Рахунок mono не створився: замовлення №42',
+    );
+    expect(cardMessage(order, 'paid', site)).toContain(
+      'https://sikora.example/admin/collections/orders/42',
+    );
   });
 
   it('names a transfer', () => {
@@ -608,6 +719,57 @@ describe('placeOrder', () => {
         status: 'failed',
       });
       expect(payload.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('a card', () => {
+    const card = {
+      ...filled,
+      payment: 'card',
+      email: 'Olena@Example.com',
+      lines: JSON.stringify([{ id: 1, qty: 2 }]),
+      total: '249100',
+    };
+
+    it("is placed when every line is in stock, without the receipt's address", async () => {
+      expect(await placeOrder(idle, form(card))).toMatchObject({
+        status: 'placed',
+      });
+      const data = payload.create.mock.calls.at(-1)?.[0].data;
+      expect(data).toMatchObject({
+        payment: 'card',
+        paymentStatus: 'awaiting',
+      });
+      expect(JSON.stringify(data)).not.toContain('example.com');
+    });
+
+    it('takes no line made to order: the cart changed under it', async () => {
+      expect(
+        await placeOrder(
+          idle,
+          form({ ...filled, payment: 'card', email: 'a@b.ua' }),
+        ),
+      ).toEqual({ status: 'changed' });
+      expect(payload.create).not.toHaveBeenCalled();
+    });
+
+    it("asks for the receipt's address with the other fields' errors", async () => {
+      expect(
+        await placeOrder(idle, form({ ...card, email: '', phone: '1' })),
+      ).toEqual({
+        status: 'invalid',
+        errors: { phone: ['phoneInvalid'], email: ['required'] },
+      });
+      expect(
+        await placeOrder(idle, form({ ...card, email: 'olena@' })),
+      ).toEqual({ status: 'invalid', errors: { email: ['emailInvalid'] } });
+      expect(payload.find).not.toHaveBeenCalled();
+    });
+
+    it('asks no address for another payment', async () => {
+      expect(
+        await placeOrder(idle, form({ ...filled, email: '' })),
+      ).toMatchObject({ status: 'placed' });
     });
   });
 

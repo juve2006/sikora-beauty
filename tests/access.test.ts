@@ -224,6 +224,17 @@ describe('consultation requests', () => {
     },
   );
 
+  // monobank's invoice: staff read it, and only the server writes it.
+  it('a role reads the invoice and nobody changes it', () => {
+    const { read, update } = fieldAccess(Orders.fields, 'monoInvoiceId');
+    expect(
+      [owner, cosmetologist, shopper, null].map((user) => run(read, user)),
+    ).toEqual([true, true, false, false]);
+    expect(
+      [owner, cosmetologist, shopper, null].map((user) => run(update, user)),
+    ).toEqual([false, false, false, false]);
+  });
+
   it('only the owner deletes one', () => {
     expect(roles('delete')).toEqual([true, false, false]);
   });

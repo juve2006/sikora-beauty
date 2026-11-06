@@ -18,9 +18,11 @@ import { parseOrderForm } from '@/lib/validators';
 
 // The one way an order is created (the collection's `create` is closed to everyone): the form's
 // fields, then Turnstile, then the database's prices — never the browser's (RULES.md) — then the
-// record, with the Local API's access skipped, as only this action writes. A transfer is paid ahead,
-// so it takes an order wholly in stock: one whose line has stopped being so is a cart that changed;
-// and the store's account must be filled in, or there is nowhere to pay.
+// record, with the Local API's access skipped, as only this action writes. A transfer and a card are
+// paid ahead, so they take an order wholly in stock: one whose line has stopped being so is a cart
+// that changed; and for a transfer the store's account must be filled in, or there is nowhere to pay.
+// A card's invoice is not made here — payments depend on orders, not the other way (ARCHITECTURE):
+// the checkout asks `payByCard` next, with the receipt's address, which the order does not keep.
 // The answer carries the order's secret, by which the thank-you page finds it. Telegram is told
 // after the answer: an order it does not get still waits in the admin, so the shopper is never told
 // it failed.
@@ -33,7 +35,8 @@ export async function placeOrder(
     return Object.keys(parsed.errors).length > 0
       ? { status: 'invalid', errors: parsed.errors }
       : { status: 'failed' };
-  const { token, lines, total, ...order } = parsed.data;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { token, lines, total, email, ...order } = parsed.data;
   if (!(await verifyTurnstile(token))) return { status: 'failed' };
 
   try {
@@ -67,7 +70,8 @@ export async function placeOrder(
       })),
       total,
     );
-    if (!priced || (order.payment === 'transfer' && !canPrepay(priced.lines)))
+    const prepaid = order.payment === 'transfer' || order.payment === 'card';
+    if (!priced || (prepaid && !canPrepay(priced.lines)))
       return { status: 'changed' };
     // A signed-in shopper's order is theirs by the session, never by what the form says.
     const customer = await currentCustomer();

@@ -91,11 +91,21 @@ export const ORDER_STATUSES = [
   'completed',
   'cancelled',
 ] as const;
-// Cash on delivery, a monobank link the manager sends after confirming, or a transfer to the
-// store's account, which only an order wholly in stock is offered (adr-20261028-two-step-launch).
-export const PAYMENTS = ['cod', 'link', 'transfer'] as const;
-// Whether an order is paid, apart from its status: only forward (RULES.md), the manager marks it.
-export const PAYMENT_STATUSES = ['awaiting', 'paid'] as const;
+// Cash on delivery, a monobank link the manager sends after confirming, a transfer to the store's
+// account, or a card on monobank's page — the last two only for an order wholly in stock
+// (adr-20261028-two-step-launch).
+export const PAYMENTS = ['cod', 'link', 'transfer', 'card'] as const;
+// Whether an order is paid, apart from its status: only forward (RULES.md) — the manager marks it,
+// and monobank's webhook for a card.
+export const PAYMENT_STATUSES = [
+  'awaiting',
+  'paid',
+  'failed',
+  'refunded',
+] as const;
+
+// monobank acquiring's API; MONO_API_URL replaces it for the e2e tests' stub.
+export const MONO_API = 'https://api.monobank.ua';
 
 // Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.
 export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';

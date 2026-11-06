@@ -28,6 +28,7 @@ export default defineConfig({
   webServer: [
     { command: 'node tests/e2e/novaposhta-stub.mjs', port: 4010 },
     { command: 'node tests/e2e/google-stub.mjs', port: 4011 },
+    { command: 'node tests/e2e/mono-stub.mjs', port: 4012 },
     {
       command: 'npm start -- -p 3200',
       port: 3200,
@@ -36,6 +37,8 @@ export default defineConfig({
         GOOGLE_CLIENT_ID: 'e2e-client',
         GOOGLE_CLIENT_SECRET: 'e2e-secret',
         GOOGLE_STUB_URL: 'http://127.0.0.1:4011/',
+        MONO_TOKEN: 'e2e-mono',
+        MONO_API_URL: 'http://127.0.0.1:4012/',
         // SITE_URL: Google's way back has to name this server.
         PORT: '3200',
       },
