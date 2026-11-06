@@ -39,16 +39,23 @@ export const myOrders = async (customer: Customer) => {
   return docs;
 };
 
-// A letter's token, if an account still waits for it; a used or forged one is null. Only reads:
-// Chromium may request a first visit twice (`Critical-CH`) and a mail scanner opens links by itself,
-// so opening the link confirms nothing. `signIn` does, with the account's password.
-export const waitingToken = async (token: unknown) => {
+// A letter's token and the address it went to, if an account still waits for it; a used or forged
+// one is null. Only reads: Chromium may request a first visit twice (`Critical-CH`) and a mail scanner
+// opens links by itself, so opening the link confirms nothing. `signIn` does, with the account's
+// password. The address is there to fill in, and only its mailbox has the token (RULES.md).
+export const waitingLetter = async (token: unknown) => {
   const parsed = accountToken.safeParse(token);
   if (!parsed.success) return null;
   const payload = await getPayload({ config });
-  const { totalDocs } = await payload.count({
+  const {
+    docs: [account],
+  } = await payload.find({
     collection: 'customers',
     where: { _verificationToken: { equals: parsed.data } },
+    select: { email: true },
+    limit: 1,
+    pagination: false,
+    overrideAccess: true,
   });
-  return totalDocs > 0 ? parsed.data : null;
+  return account ? { token: parsed.data, email: account.email } : null;
 };

@@ -70,12 +70,18 @@ const pressSignIn = (page: Page, m: typeof uk, email: string, secret: string) =>
   fillSignIn(signInForm(page, m), m, email, secret);
 
 // A letter's page has the one form, in `main`.
-const pressOnLetter = (
+// The letter's page asks by email, with the letter's address there already: only the password is left.
+const pressOnLetter = async (
   page: Page,
   m: typeof uk,
   email: string,
   secret: string,
-) => fillSignIn(page.getByRole('main'), m, email, secret);
+) => {
+  const letter = page.getByRole('main');
+  await expect(letter.getByLabel(m.Account.email)).toHaveValue(email);
+  await letter.getByLabel(m.Account.password, { exact: true }).fill(secret);
+  await letter.getByRole('button', { name: m.Account.signIn }).click();
+};
 
 const fillForm = async (
   form: Locator,
@@ -136,6 +142,12 @@ const landedSignedIn = async (page: Page, m: typeof uk, prefix: string) => {
   await expect(signOutButton(page, m)).toBeVisible();
 };
 
+// From a letter's page straight into the account.
+const landedInAccount = async (page: Page, m: typeof uk, prefix: string) => {
+  await expect(page).toHaveURL(`${prefix}/account`);
+  await expect(signOutButton(page, m)).toBeVisible();
+};
+
 // A shopper through the forms: the letter's link and their password confirm the email and sign them in.
 const signedIn = async (page: Page, m: typeof uk, prefix: string) => {
   const email = unique();
@@ -146,7 +158,7 @@ const signedIn = async (page: Page, m: typeof uk, prefix: string) => {
   await open(page, `${prefix}/account/verify?token=${token}`);
   await expect(page.getByText(m.Account.verifyAsk)).toBeVisible();
   await pressOnLetter(page, m, email, password);
-  await landedSignedIn(page, m, prefix);
+  await landedInAccount(page, m, prefix);
   return email;
 };
 
@@ -235,8 +247,8 @@ for (const [locale, m, prefix] of [
     await expect(page.getByText(m.Account.verifyAsk)).toBeVisible();
     expect(await column(email, '_verified')).not.toBe(true);
     await pressOnLetter(page, m, email, password);
-    // To the home page, and the header's link now shows the account, not a form kept from before.
-    await expect(page).toHaveURL(prefix || '/');
+    // Into the account, and the header's link now shows it too, not a form kept from before.
+    await expect(page).toHaveURL(`${prefix}/account`);
     await pressAccount(page, m);
     await expect(page).toHaveURL(/\/account$/);
     const signOut = signOutButton(page, m);
@@ -335,7 +347,7 @@ test('an email is taken once confirmed, and only then', async ({ page }) => {
   const token = await column(email, '_verificationtoken');
   await open(page, `/account/verify?token=${token}`);
   await pressOnLetter(page, uk, email, 'second-password');
-  await landedSignedIn(page, uk, '');
+  await landedInAccount(page, uk, '');
   await page.context().clearCookies();
   await open(page, '/account');
   await register(page, uk, email, 'third-password');
@@ -405,7 +417,7 @@ test('whoever registered someone else’s email never gets the account', async (
   await expect(page.getByRole('status')).toContainText(email);
   await open(page, `/account/verify?token=${token}`);
   await pressOnLetter(page, uk, email, theirs);
-  await landedSignedIn(page, uk, '');
+  await landedInAccount(page, uk, '');
   expect(await column(email, '_verified')).toBe(true);
 
   await page.context().clearCookies();
@@ -435,7 +447,7 @@ test('a letter’s link opened in a fresh browser still waits for the password',
   await expect(tab.getByRole('main').getByRole('alert')).toHaveCount(0);
   expect(await column(email, '_verified')).not.toBe(true);
   await pressOnLetter(tab, uk, email, password);
-  await landedSignedIn(tab, uk, '');
+  await landedInAccount(tab, uk, '');
   expect(await column(email, '_verified')).toBe(true);
   await fresh.close();
 });
@@ -1190,7 +1202,7 @@ test('a number is taken once confirmed, and only then', async ({
     `/account/verify?token=${await column(second, '_verificationtoken')}`,
   );
   await pressOnLetter(page, uk, second, password);
-  await landedSignedIn(page, uk, '');
+  await landedInAccount(page, uk, '');
   await page.context().clearCookies();
 
   // Confirmed, it stays: at registration, nothing is made of the attempt.
@@ -1260,8 +1272,10 @@ test('an account not confirmed answers by number as by email, and its letter tak
     page,
     `/account/verify?token=${await column(email, '_verificationtoken')}`,
   );
-  await fillByNumber(page.getByRole('main'), uk, number, password);
-  await landedSignedIn(page, uk, '');
+  const letter = page.getByRole('main');
+  await letter.getByRole('button', { name: uk.Account.byPhone }).click();
+  await fillByNumber(letter, uk, number, password);
+  await landedInAccount(page, uk, '');
   expect(await column(email, '_verified')).toBe(true);
 });
 
