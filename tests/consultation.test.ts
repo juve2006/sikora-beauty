@@ -301,10 +301,7 @@ describe('requestConsultation', () => {
     });
     await Promise.all(later);
     expect(payload.create).toHaveBeenCalled();
-    expect(error).toHaveBeenCalledWith(
-      'Telegram:',
-      new Error('Telegram: chat not found'),
-    );
+    expect(error).toHaveBeenCalledWith('Telegram:', 'Telegram: chat not found');
   });
 
   it('does not take an answer Telegram never gives for a sent message', async () => {
@@ -312,10 +309,7 @@ describe('requestConsultation', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     await requestConsultation(idle, form(filled));
     await Promise.all(later);
-    expect(error).toHaveBeenCalledWith(
-      'Telegram:',
-      new Error('Telegram: HTTP 200'),
-    );
+    expect(error).toHaveBeenCalledWith('Telegram:', 'Telegram: HTTP 200');
   });
 
   it('keeps the shopper’s name and phone out of the log of a failed query', async () => {

@@ -449,7 +449,7 @@ describe('placeOrder', () => {
       });
       await afterTheAnswer();
       expect(error.mock.calls).toEqual([
-        ['Telegram:', new Error('Telegram: chat not found')],
+        ['Telegram:', 'Telegram: chat not found'],
       ]);
     });
 
@@ -461,9 +461,7 @@ describe('placeOrder', () => {
         number: 17,
       });
       await afterTheAnswer();
-      expect(error.mock.calls).toEqual([
-        ['Telegram:', new Error('fetch failed')],
-      ]);
+      expect(error.mock.calls).toEqual([['Telegram:', 'fetch failed']]);
     });
 
     it('tells the group nothing about an order that was not saved', async () => {

@@ -177,7 +177,7 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `tests/consultation.test.ts` and `tests/orders.test.ts`, review)
 - What leaves for Sentry is a list, not what is taken out of everything else: `keepWhatFailed`
   (`src/lib/sentry.ts`) keeps what failed and where, and nothing that passes no `beforeSend` is sent:
-  no breadcrumbs, sessions, tracing or replay. Every server `console.error` becomes an event, which is
+  no breadcrumbs, sessions, tracing or replay. Every server `console.error` but Node's own warnings becomes an event, which is
   one more reason for the rule above. (adr-20261105-errors-in-sentry; checked by:
   `tests/sentry.test.ts`, review)
 - Secrets never enter the repository; they live in the host's environment (Vercel during

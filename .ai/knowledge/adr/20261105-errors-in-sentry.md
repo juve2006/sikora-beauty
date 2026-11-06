@@ -14,7 +14,7 @@ paths:
   - src/app/global-error.tsx
   - tests/sentry.test.ts
 summary: Why failures reach Sentry through a list of what may leave, what is switched off because it bypasses beforeSend, and why the browser uses @sentry/browser
-reviewed_at: 2026-11-05
+reviewed_at: 2026-11-06
 ---
 # Errors reach Sentry through a list of what may leave, and nothing else is sent
 
@@ -57,9 +57,12 @@ What shaped the decision:
   Nor does a request to another service carry Sentry's headers (`tracePropagationTargets: []`), nor a
   page its tags: `withSentryConfig` turns on `clientTraceMetadata`, and `next.config.ts` takes it out.
 - **The server** uses `@sentry/nextjs`: `onRequestError`, and `captureConsoleIntegration` for what is
-  caught and logged, 9 places today and any later. RULES.md already says what a log may hold. Payload's
-  `hooks.afterError` reports a status from 500 up. A custom endpoint that answers a failure itself logs
-  it, like a server action. `beforeSend` also holds the function open: it reads Vercel's request context
+  caught and logged, 9 places today and any later. RULES.md already says what a log may hold. A caught
+  error is logged as its place and `whatFailed`, a text: the integration makes an event of a logged
+  `Error` alone and drops the words before it. Node's own warnings, which it prints through
+  `console.error`, are no failure and stay out (`ignoreErrors`). Payload's `hooks.afterError` reports a
+  status from 500 up, GraphQL's too, which keeps it on the error it wraps. A custom endpoint that
+  answers a failure itself logs it, like a server action. `beforeSend` also holds the function open: it reads Vercel's request context
   and passes `flush` to its `waitUntil`, as the SDK's own `vercelWaitUntil` does nothing outside the edge.
   It sends no stack (`stackParser: () => []`): the SDK's parser takes any line of `error.stack` with "at "
   in it for a frame, a failed query's params are among those lines, the time at the end of a row reads as a
@@ -76,7 +79,9 @@ What shaped the decision:
 - **Nothing starts without `NEXT_PUBLIC_SENTRY_DSN`**, set on Production only. Source maps need
   `SENTRY_AUTH_TOKEN`; without it none are made, and with it they go to Sentry and are deleted from the
   build. Sentry's IP setting is the owner of the account's to set (`docs/deploy.md`, step 15), as Sentry
-  sees a browser's address by itself.
+  sees a browser's address by itself. So is a scrubbing rule for `user.geo`: Sentry adds a browser's
+  city and country from its address when the event arrives, although the SDK sends `infer_ip: never`
+  (seen on Production, 2026-11-05).
 
 ## Alternatives
 

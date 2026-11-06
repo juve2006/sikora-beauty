@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { whatFailed } from '@/lib/utils';
 import { turnstileAnswer } from '@/lib/validators';
 
 // Cloudflare Turnstile's answer for a form's token. Without the secret there is no check — locally,
@@ -21,7 +22,7 @@ export async function verifyTurnstile(token: string | undefined) {
     );
     return turnstileAnswer.parse(await response.json()).success;
   } catch (error) {
-    console.error('Turnstile:', error);
+    console.error('Turnstile:', whatFailed(error));
     return false;
   }
 }
