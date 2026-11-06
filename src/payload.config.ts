@@ -3,7 +3,7 @@ import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import { uk } from '@payloadcms/translations/languages/uk';
 import { captureException } from '@sentry/nextjs';
 import path from 'path';
-import { buildConfig } from 'payload';
+import { buildConfig, defaultLoggerOptions } from 'payload';
 import { fileURLToPath } from 'url';
 
 import { collections } from './collections';
@@ -14,6 +14,7 @@ import { closeOwnCollections } from '@/lib/access';
 import { keepPasswordChanges } from '@/lib/auth-writes';
 import { emailAdapter } from '@/lib/email';
 import { parseEnv } from '@/lib/env';
+import { payloadLoggerOptions } from '@/lib/server-log';
 
 const env = parseEnv(process.env);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -66,6 +67,8 @@ export default buildConfig({
     defaultLocale: 'uk',
     fallback: true,
   },
+  // Payload's usual output, with no value of a failed query in it.
+  logger: { options: payloadLoggerOptions, destination: defaultLoggerOptions },
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(env.BLOB_READ_WRITE_TOKEN),
