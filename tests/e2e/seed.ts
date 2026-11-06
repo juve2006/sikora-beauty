@@ -1,6 +1,6 @@
 // The end-to-end products: one in stock, one made to order, one out of stock, published, and a
-// draft; the serum is for dry skin. The care finder, on, with `seed:catalog`'s draft. The owner,
-// who signs in through the store's own form. Run on a throwaway
+// draft; the serum is for dry skin. The care finder, on, with `seed:catalog`'s draft. The store's
+// account, made up, which a transfer is paid to. The owner, who signs in through the store's own form. Run on a throwaway
 // database after its migrations and `seed:catalog`, which brings the brands, the categories, the
 // skin terms and that draft: `NODE_ENV=production payload run tests/e2e/seed.ts`. Never on a real
 // one.
@@ -80,6 +80,16 @@ for (const product of products) {
 await payload.updateGlobal({
   slug: 'care-finder',
   data: { enabled: true },
+  context,
+});
+// The NBU's sample IBAN, which passes the check; nobody's account.
+await payload.updateGlobal({
+  slug: 'payment-details',
+  data: {
+    recipient: 'ФОП Тестова Олена Петрівна',
+    iban: 'UA213223130000026007233566001',
+    code: '1234567890',
+  },
   context,
 });
 const { totalDocs: users } = await payload.count({ collection: 'users' });

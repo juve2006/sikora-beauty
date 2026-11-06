@@ -10,6 +10,7 @@ import { collections } from './collections';
 import { Users } from '@/collections/users';
 import { CareFinder } from '@/globals/care-finder';
 import { Contacts } from '@/globals/contacts';
+import { PaymentDetails } from '@/globals/payment-details';
 import { closeOwnCollections } from '@/lib/access';
 import { keepPasswordChanges } from '@/lib/auth-writes';
 import { emailAdapter } from '@/lib/email';
@@ -42,7 +43,7 @@ export default buildConfig({
   },
   collections,
   email: emailAdapter(env),
-  globals: [CareFinder, Contacts],
+  globals: [CareFinder, Contacts, PaymentDetails],
   hooks: {
     // Payload answers its own errors, so `onRequestError` never hears of them. A refusal, under 500,
     // is no failure; GraphQL keeps its status on the error it wraps.

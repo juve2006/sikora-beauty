@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Order } from '@/payload-types';
-import { keepStatusForward } from '@/collections/orders';
+import { keepPaymentForward, keepStatusForward } from '@/collections/orders';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { ORDER_STATUSES, TELEGRAM_TEXT_LIMIT } from '@/lib/constants';
-import { canMoveStatus, priceOrder } from '@/lib/orders';
+import {
+  canMovePayment,
+  canMoveStatus,
+  canPrepay,
+  priceOrder,
+} from '@/lib/orders';
 import { orderMessage } from '@/lib/telegram';
 import { parseOrderForm } from '@/lib/validators';
 
@@ -12,7 +17,12 @@ vi.mock('server-only', () => ({}));
 vi.mock('@payload-config', () => ({ default: {} }));
 
 // The action's Payload.
-const payload = { auth: vi.fn(), find: vi.fn(), create: vi.fn() };
+const payload = {
+  auth: vi.fn(),
+  find: vi.fn(),
+  findGlobal: vi.fn(),
+  create: vi.fn(),
+};
 vi.mock('payload', async (original) => ({
   ...(await original<typeof import('payload')>()),
   getPayload: async () => payload,
@@ -123,6 +133,51 @@ describe('canMoveStatus', () => {
   it('takes saving the same status for no move', () => {
     for (const status of ORDER_STATUSES)
       expect(canMoveStatus(status, status)).toBe(true);
+  });
+});
+
+// A transfer is paid ahead: only an order wholly in stock (adr-20261028-two-step-launch).
+describe('canPrepay', () => {
+  it('takes an order whose every line is in stock', () => {
+    expect(canPrepay([cream, cream])).toBe(true);
+  });
+
+  it('refuses one with a line made to order', () => {
+    expect(canPrepay([cream, serum])).toBe(false);
+  });
+});
+
+// RULES.md: whether an order is paid only moves forward.
+describe('canMovePayment', () => {
+  it('marks an order paid, and never takes the mark back', () => {
+    expect(canMovePayment('awaiting', 'paid')).toBe(true);
+    expect(canMovePayment('paid', 'awaiting')).toBe(false);
+  });
+
+  it('takes saving the same mark for no move', () => {
+    expect(canMovePayment('awaiting', 'awaiting')).toBe(true);
+    expect(canMovePayment('paid', 'paid')).toBe(true);
+  });
+});
+
+describe('keepPaymentForward', () => {
+  const save = (paymentStatus: string, from: string, operation = 'update') =>
+    keepPaymentForward({
+      data: { paymentStatus },
+      originalDoc: { paymentStatus: from },
+      operation,
+      req: { t: (key: string) => key },
+    } as never);
+
+  it('lets the mark through and refuses taking it back', () => {
+    expect(save('paid', 'awaiting')).toEqual({ paymentStatus: 'paid' });
+    expect(() => save('awaiting', 'paid')).toThrow();
+  });
+
+  it('leaves a new order alone', () => {
+    expect(save('awaiting', 'paid', 'create')).toEqual({
+      paymentStatus: 'awaiting',
+    });
   });
 });
 
@@ -262,6 +317,7 @@ describe('the Telegram message', () => {
     comment: 'Після 18:00',
     locale: 'uk',
     status: 'new',
+    paymentStatus: 'awaiting',
     updatedAt: '',
     createdAt: '',
     lines: [
@@ -335,6 +391,12 @@ describe('the Telegram message', () => {
     expect(message).toContain('× 1 — 899 грн (під замовлення)\n');
   });
 
+  it('names a transfer', () => {
+    expect(orderMessage({ ...order, payment: 'transfer' }, site)).toContain(
+      'Оплата: переказ на рахунок',
+    );
+  });
+
   it('cuts a long order to what Telegram takes, and keeps the contacts and the link', () => {
     const long = { ...order.lines[0], name: 'Я'.repeat(200) };
     const message = orderMessage(
@@ -373,9 +435,11 @@ describe('placeOrder', () => {
   });
 
   it("places the order at the database's prices, with a snapshot of its lines", async () => {
-    expect(await placeOrder(idle, form(filled))).toEqual({
+    const answer = await placeOrder(idle, form(filled));
+    expect(answer).toEqual({
       status: 'placed',
       number: 17,
+      token: expect.stringMatching(/^[\w-]{22}$/),
     });
     expect(payload.find).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -399,6 +463,8 @@ describe('placeOrder', () => {
         comment: undefined,
         locale: 'en',
         status: 'new',
+        paymentStatus: 'awaiting',
+        returnToken: (answer as { token: string }).token,
         total: 339000,
         lines: [
           expect.objectContaining({ product: 1, price: 124550, quantity: 2 }),
@@ -443,7 +509,7 @@ describe('placeOrder', () => {
         answer({ ok: false, description: 'chat not found' }),
       );
       const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-      expect(await placeOrder(idle, form(filled))).toEqual({
+      expect(await placeOrder(idle, form(filled))).toMatchObject({
         status: 'placed',
         number: 17,
       });
@@ -456,7 +522,7 @@ describe('placeOrder', () => {
     it('answers «placed» when Telegram does not answer', async () => {
       fetch.mockRejectedValueOnce(new Error('fetch failed'));
       const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-      expect(await placeOrder(idle, form(filled))).toEqual({
+      expect(await placeOrder(idle, form(filled))).toMatchObject({
         status: 'placed',
         number: 17,
       });
@@ -496,6 +562,53 @@ describe('placeOrder', () => {
     });
     await placeOrder(idle, form(filled));
     expect(payload.create.mock.calls.at(-1)?.[0].data.customer).toBeUndefined();
+  });
+
+  it('gives each order a secret of its own', async () => {
+    const first = await placeOrder(idle, form(filled));
+    const second = await placeOrder(idle, form(filled));
+    expect(first).not.toEqual(second);
+  });
+
+  describe('a transfer', () => {
+    const transfer = {
+      ...filled,
+      payment: 'transfer',
+      lines: JSON.stringify([{ id: 1, qty: 2 }]),
+      total: '249100',
+    };
+    beforeEach(() => {
+      payload.findGlobal.mockResolvedValue({
+        recipient: 'ФОП Прізвище Імʼя По батькові',
+        iban: 'UA213223130000026007233566001',
+        code: '1234567890',
+      });
+    });
+
+    it('is placed when every line is in stock', async () => {
+      expect(await placeOrder(idle, form(transfer))).toMatchObject({
+        status: 'placed',
+      });
+      expect(payload.create.mock.calls.at(-1)?.[0].data).toMatchObject({
+        payment: 'transfer',
+        paymentStatus: 'awaiting',
+      });
+    });
+
+    it('takes no line made to order: the cart changed under it', async () => {
+      expect(
+        await placeOrder(idle, form({ ...filled, payment: 'transfer' })),
+      ).toEqual({ status: 'changed' });
+      expect(payload.create).not.toHaveBeenCalled();
+    });
+
+    it('fails while the store has no account filled in', async () => {
+      payload.findGlobal.mockResolvedValue({ recipient: 'ФОП', iban: null });
+      expect(await placeOrder(idle, form(transfer))).toEqual({
+        status: 'failed',
+      });
+      expect(payload.create).not.toHaveBeenCalled();
+    });
   });
 
   it('orders nothing when the shopper was shown another sum', async () => {

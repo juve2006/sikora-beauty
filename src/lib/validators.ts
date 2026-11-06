@@ -173,6 +173,20 @@ export const phone = z
   .pipe(z.string().regex(/^(\+?38)?0\d{9}$/, 'phoneInvalid'))
   .transform((value) => `+38${value.slice(-10)}`);
 
+// The store's account for a transfer (ISO 13616): UA, two check digits, the bank's six and the
+// account's nineteen, 29 in all, whose number mod 97 is 1. Spaces as a bank prints them are dropped.
+export const iban = z
+  .string()
+  .transform((value) => value.replace(/\s/g, '').toUpperCase())
+  .pipe(z.string().regex(/^UA\d{27}$/))
+  .refine((value) => {
+    const digits = `${value.slice(4)}3010${value.slice(2, 4)}`; // U = 30, A = 10
+    return BigInt(digits) % 97n === 1n;
+  });
+
+// Whose account it is: a sole proprietor's РНОКПП (10 digits) or a company's ЄДРПОУ (8).
+export const taxCode = z.string().regex(/^(\d{8}|\d{10})$/);
+
 // The store's Instagram in the footer's link: its own https address and nothing else.
 export const instagramUrl = z.url({
   protocol: /^https$/,
@@ -481,6 +495,8 @@ export const accountToken = z.preprocess(
   first,
   z.string().regex(/^[a-f0-9]{40}$/),
 );
+// What `placeOrder` gives the thank-you page's address: 16 random bytes in base64url.
+export const returnToken = z.preprocess(first, z.string().regex(/^[\w-]{22}$/));
 export const passwordReset = z.object({
   token: accountToken,
   password: newPassword,

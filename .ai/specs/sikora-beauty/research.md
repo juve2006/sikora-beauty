@@ -83,3 +83,43 @@ Source: https://www.cosmetika.com.ua/, its public WooCommerce Store API.
   Enterprise.
 
 Prices and plan terms as of October 2026; check before buying.
+
+## Paying ahead: mono, LiqPay, Platon and a transfer
+
+Gathered on 2026-11-06, for the split of `mono payment` (adr-20261106-transfer-to-the-store-account).
+
+- **monobank (plata by mono).** 1.3% a transaction, 2% for a foreign card; payout the next day.
+  A ФОП connects only with a mono ФОП account, confirmed in the mono app; the site must work, be
+  in Ukrainian and show «Про нас», contacts and products with photo, description and price.
+  https://monobank.ua/plata-by-mono, https://monobank.ua/knowledge-base/acquiring/signup
+  - Invoices by JSON with `X-Token`, amounts in kopiyky; statuses `created`, `processing`, `hold`,
+    `success`, `failure`, `reversed`, `expired`. The webhook carries `x-sign`, ECDSA over the
+    SHA-256 of the raw body, with a key from `/api/merchant/pubkey` to be cached; up to three
+    retries, no order guaranteed — the latest `modifiedDate` wins; none for `expired`, so
+    `GET /invoice/status` reconciles. https://monobank.ua/api-docs/acquiring
+  - A test token from https://api.monobank.ua/ takes any Luhn-valid card and moves no money.
+  - With Checkbox linked in the web cabinet, mono issues the receipt from `basketOrder`, each item
+    with its `code`; refunds send `items` for the return receipt.
+- **LiqPay (PrivatBank).** The same 1.3% / 2%; payouts to a ФОП or company account at any bank,
+  but without a Privat account the contract is signed in a branch, payouts come once a day and
+  refunds come out of future payments. The signature is a shared-secret hash whose own docs
+  disagree (SHA3-256 in the text, SHA-1 in the samples and SDKs); callback retries are not
+  documented. https://www.liqpay.ua/uk/tariffs,
+  https://www.liqpay.ua/uk/information/handbook/activation?tab=1
+- **Platon** (PSP behind sisters.co.ua, «Оплата і доставка»). Onboarding through a manager; fees
+  seen only in search snippets, 2.0% and 2.5%, both above mono's. https://sisters.co.ua/oplata-i-dostavka
+- **Comparable shops.** cosmetika.com.ua offers mono and cash on delivery; battlersport.com mono,
+  mono installments and a transfer to the account (`bacs`) — read from their public WooCommerce
+  Store API, `/wp-json/wc/store/v1/cart`.
+- **Fiscal receipts.** Single-tax groups 2 and 3 are not exempt (Tax Code п. 296.10 frees group 1
+  only), and a card payment for goods bought online needs a receipt whatever the payment system
+  (ГУ ДПС у Київській області, 02.06.2025, https://kyivobl.tax.gov.ua/kampaniya-prro/902774.html).
+  A payment only to the ФОП's current account by its IBAN, not to a card, is no settlement
+  operation and needs none (ГУ ДПС у Дніпропетровській області, 20.01.2022,
+  https://dp.tax.gov.ua/media-ark/news-ark/557755.html). The reduced fines for single-tax ФОПs,
+  25% / 50%, ended on 31.07.2025 (Law 265/95-ВР, Section II п. 15). Checkbox: 348 UAH a month a
+  register. The accountant confirms the group and cash on delivery's receipts.
+- **A personal account.** NBU Instruction 162 forbids taking a business's payments on a personal
+  account: a transfer goes to the ФОП's IBAN.
+- Hence: mono for cards, once the seller opens a mono ФОП account; a transfer to her Privat ФОП
+  account meanwhile and after; no second card provider — neither fee nor card coverage asks for one.

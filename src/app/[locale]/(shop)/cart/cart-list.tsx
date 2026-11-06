@@ -16,7 +16,13 @@ const nothing = () => () => {};
 // the first answer, a line another tab adds and the cart the order found changed are asked for
 // behind the shown lines, so the form keeps what was typed, and a line that does not come is told
 // above them with a retry.
-const CartList = ({ contact }: { contact?: OrderContact | null }) => {
+const CartList = ({
+  contact,
+  transfer,
+}: {
+  contact?: OrderContact | null;
+  transfer?: boolean;
+}) => {
   const locale = useLocale();
   const lines = useCart();
   const ids = lines.map(({ id }) => id);
@@ -87,6 +93,7 @@ const CartList = ({ contact }: { contact?: OrderContact | null }) => {
         <CheckoutForm
           {...order}
           contact={contact}
+          transfer={transfer}
           onChanged={() => {
             setStale(true);
             setAttempt((count) => count + 1);

@@ -972,6 +972,25 @@ const CanvasPage = async ({ params }: Props) => {
                 <CheckoutForm lines={[{ id: 1, qty: 2 }]} total={249100} />
               </div>
             </Specimen>
+            <Specimen label="with a transfer">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  transfer
+                  prepay
+                />
+              </div>
+            </Specimen>
+            <Specimen label="a transfer, a line made to order">
+              <div className="w-full">
+                <CheckoutForm
+                  lines={[{ id: 1, qty: 2 }]}
+                  total={249100}
+                  transfer
+                />
+              </div>
+            </Specimen>
             <Specimen label="invalid">
               <div className="w-full">
                 <CheckoutForm
@@ -1026,6 +1045,21 @@ const CanvasPage = async ({ params }: Props) => {
             <Specimen label="with a number">
               <div>
                 <OrderPlaced number={1042} />
+              </div>
+            </Specimen>
+            <Specimen label="a transfer">
+              <div>
+                <OrderPlaced
+                  number={1042}
+                  transfer={{
+                    total: 249150,
+                    details: {
+                      recipient: 'ФОП Прізвище Імʼя По батькові',
+                      iban: 'UA213223130000026007233566001',
+                      code: '1234567890',
+                    },
+                  }}
+                />
               </div>
             </Specimen>
             <Specimen label="without">

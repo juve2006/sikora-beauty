@@ -6,8 +6,13 @@ import {
 
 import { availabilityLabels } from './products';
 import { hasRole, isOwner, nobody, staffOrBuyer } from '@/lib/access';
-import { AVAILABILITIES, ORDER_STATUSES, PAYMENTS } from '@/lib/constants';
-import { canMoveStatus } from '@/lib/orders';
+import {
+  AVAILABILITIES,
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+  PAYMENTS,
+} from '@/lib/constants';
+import { canMovePayment, canMoveStatus } from '@/lib/orders';
 
 const statusLabels = {
   new: 'Нове',
@@ -20,7 +25,10 @@ const statusLabels = {
 const paymentLabels = {
   cod: 'Післяплата',
   link: 'Посилання на оплату',
+  transfer: 'Переказ на рахунок',
 };
+
+const paymentStatusLabels = { awaiting: 'Очікує', paid: 'Оплачено' };
 
 // Money in the admin is hryvnias, stored as integer kopiyky (RULES.md), as a product's price is.
 const money = {
@@ -64,6 +72,36 @@ export const keepStatusForward: CollectionBeforeChangeHook = ({
   return data;
 };
 
+// Whether it is paid only moves forward too (RULES.md): the manager marks a transfer they see on the
+// account, or a payment by link or on delivery.
+export const keepPaymentForward: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
+  if (
+    operation === 'update' &&
+    data.paymentStatus &&
+    originalDoc?.paymentStatus &&
+    !canMovePayment(originalDoc.paymentStatus, data.paymentStatus)
+  ) {
+    throw new ValidationError(
+      {
+        errors: [
+          {
+            label: 'Статус оплати',
+            message: 'Позначка оплати не знімається',
+            path: 'paymentStatus',
+          },
+        ],
+      },
+      req.t,
+    );
+  }
+  return data;
+};
+
 // A shopper's order, waiting for the manager's confirmation (adr-20261028-two-step-launch). Their
 // name, phone and NP warehouse are personal data: only an admin role and the shopper who ordered
 // signed in read them, nobody creates an order through the API — `placeOrder` does, after Zod,
@@ -81,6 +119,7 @@ export const Orders: CollectionConfig = {
       'phone',
       'total',
       'payment',
+      'paymentStatus',
       'status',
     ],
   },
@@ -91,7 +130,7 @@ export const Orders: CollectionConfig = {
     update: hasRole,
     delete: isOwner,
   },
-  hooks: { beforeChange: [keepStatusForward] },
+  hooks: { beforeChange: [keepStatusForward, keepPaymentForward] },
   fields: [
     {
       name: 'lines',
@@ -255,6 +294,28 @@ export const Orders: CollectionConfig = {
         label: statusLabels[value],
       })),
       admin: { position: 'sidebar', isClearable: false },
+    },
+    {
+      name: 'paymentStatus',
+      type: 'select',
+      label: 'Статус оплати',
+      required: true,
+      defaultValue: 'awaiting',
+      options: PAYMENT_STATUSES.map((value) => ({
+        value,
+        label: paymentStatusLabels[value],
+      })),
+      admin: { position: 'sidebar', isClearable: false },
+    },
+    // The thank-you page finds the order by it, never by its number, which anyone could count
+    // through: only the browser that placed the order has it, and nobody reads it back.
+    {
+      name: 'returnToken',
+      type: 'text',
+      unique: true,
+      index: true,
+      access: { read: nobody, update: nobody },
+      admin: { hidden: true },
     },
     // Staff's own: a shopper reads their order through the API too.
     {

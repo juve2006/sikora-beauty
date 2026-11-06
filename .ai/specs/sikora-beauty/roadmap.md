@@ -170,14 +170,27 @@ cosmetologist edits the questions and rules in the admin.
 
 ## Phase 4 — Online payment and waybills from the admin
 
-Goal: a shopper pays by card on the site, a manager creates a waybill in one click. Done when: the
-first real mono payment with a Checkbox receipt; a repeated or late webhook makes no duplicate; a
-waybill is created from an order and the delivery status updates.
+Goal: a shopper pays ahead on the site — by a transfer to the store's account or by card — and a
+manager creates a waybill in one click. Done when: the first real transfer and the first real mono
+payment with a Checkbox receipt; a repeated or late webhook makes no duplicate; a waybill is created
+from an order and the delivery status updates. The payment items were split in three on
+2026-11-06, when mono was chosen and the seller's mono account was still to be opened
+(adr-20261106-transfer-to-the-store-account).
 
-- [ ] mono payment — card payment on the site (after: cart and checkout — pays for its orders)
+- [x] `transfer-payment` — a transfer to the store's account (after: cart and checkout — pays for
+  its orders)
+  - Backend: the store's payment details in the admin, a payment status apart from the order's,
+    forward only, marked by a manager; only when every item is in stock
+  - Frontend: "transfer to the account" at checkout, the details with copy buttons on the thank-you
+    page, found by the order's secret
+- [ ] `mono-payment` — card payment on the site (after: transfer payment — shares its payment
+  status and thank-you page)
   - Backend: mono invoice, webhook with signature check and Zod, idempotency, forward-only
-    statuses, reconciliation by cron, a WAF exception; only when every item is in stock
+    statuses, a WAF exception; only when every item is in stock
   - Frontend: "pay by card", return from mono, "paid" and "failed" states
+- [ ] `mono-reconcile` — invoices without a webhook settle themselves (after: mono payment —
+  reconciles its invoices)
+  - Backend: a daily cron reads the invoices still open and moves them forward
 - [ ] np waybill — waybills from the admin (after: cart and checkout — creates waybills for its orders)
   - Backend: waybill through the Nova Poshta API, cash on delivery, tracking by cron, refusals
     visible on the order
@@ -202,8 +215,10 @@ been dropped on purpose.
 3. product-page; catalog-listing; catalog-import; search; consultation-request
 4. brands-and-collections; content-drafts; favorites; cart-and-checkout
 5. header, home and about; care-finder
-6. mono payment; np waybill
-7. production host; backups and restore; launch readiness
+6. transfer-payment; np waybill
+7. mono-payment
+8. mono-reconcile
+9. production host; backups and restore; launch readiness
 
 <!--
 Rules (jig-idea §8):

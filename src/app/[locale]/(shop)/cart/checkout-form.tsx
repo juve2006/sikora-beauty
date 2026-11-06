@@ -37,6 +37,9 @@ type Props = {
   total: number;
   // A signed-in shopper's name and phone, to start from.
   contact?: OrderContact | null;
+  // A transfer is offered when the store's account is filled in and every line is in stock.
+  transfer?: boolean;
+  prepay?: boolean;
   // The cart changed under the order: its cards are read again.
   onChanged?: () => void;
   // /canvas only: a state to start from, the form while it sends, and the delivery search's answer.
@@ -77,6 +80,8 @@ const CheckoutForm = ({
   lines,
   total,
   contact,
+  transfer = false,
+  prepay = false,
   onChanged,
   initialState = { status: 'idle' },
   sending = false,
@@ -103,7 +108,7 @@ const CheckoutForm = ({
     const ordered = lines.map(({ id }) => id);
     router.replace({
       pathname: '/cart/thanks',
-      query: { order: state.number },
+      query: { t: state.token },
     });
     // The ordered lines leave the cart as the page is left: sooner, it would empty under the form.
     return () => dropOrdered(ordered);
@@ -196,7 +201,9 @@ const CheckoutForm = ({
           aria-describedby={errors.payment ? `${id}-payment-error` : undefined}
         >
           <legend className="mb-3 font-medium">{t('payment')}</legend>
-          {PAYMENTS.map((payment) => (
+          {PAYMENTS.filter(
+            (payment) => payment !== 'transfer' || (transfer && prepay),
+          ).map((payment) => (
             <label
               key={payment}
               className="flex cursor-pointer gap-3 rounded-lg border p-3 has-checked:border-primary has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
@@ -219,6 +226,11 @@ const CheckoutForm = ({
               </span>
             </label>
           ))}
+          {transfer && !prepay && (
+            <p className="text-sm text-muted-foreground">
+              {t('transferInStock')}
+            </p>
+          )}
           {error('payment')}
         </fieldset>
 

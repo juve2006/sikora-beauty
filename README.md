@@ -45,11 +45,13 @@ shopper's favorites — in their browser, no account — counted on «Обран
 shows them with today's prices, the newest first, and drops a product taken off the store.
 The cart is kept the same way, counted on the bag in the header; `/cart` shows it with today's
 prices and takes a guest's order under it: name, phone, a Nova Poshta settlement and branch found
-as they type (typed by hand when Nova Poshta does not answer), cash on delivery or a payment link
-from the manager. The server prices the order again — a price changed meanwhile asks the shopper to
-check the cart — and keeps its lines as they were sold; it waits in the admin under «Продажі →
-Замовлення», where the manager moves its status forward and keeps a note, and `/cart/thanks` shows
-its number. The order reaches the same Telegram group as a request, a message with the contacts,
+as they type (typed by hand when Nova Poshta does not answer), cash on delivery, a payment link
+from the manager or, when every item is in stock and the owner has filled in «Продажі → Реквізити
+для оплати», a transfer to the store's account. The server prices the order again — a price changed
+meanwhile asks the shopper to check the cart — and keeps its lines as they were sold; it waits in the
+admin under «Продажі → Замовлення», where the manager moves its status forward, marks it paid and
+keeps a note. `/cart/thanks` finds the order by a secret its checkout was given and shows its
+number — for a transfer, the account to pay, each detail with a copy button. The order reaches the same Telegram group as a request, a message with the contacts,
 the address and the lines, and a link to it in the admin.
 «Підбір догляду» (`/care-finder`) asks the shopper about their skin, one question a screen, and
 builds a routine — cleansing, toning, serum, cream, SPF — of up to two products in stock a step,

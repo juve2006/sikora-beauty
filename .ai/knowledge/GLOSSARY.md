@@ -212,7 +212,9 @@ Use in: source code, documentation.
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment
 method and a forward-only status. Collection `orders`, «Замовлення»; its number is its id; status
 `new`, `confirmed`, `shipped`, `completed` or `cancelled` — «Нове», «Підтверджене», «Відправлене»,
-«Виконане», «Скасоване»; payment `cod` or `link` — «Післяплата», «Посилання на оплату».
+«Виконане», «Скасоване»; payment `cod`, `link` or `transfer` — «Післяплата», «Посилання на оплату»,
+«Переказ на рахунок»; payment status `awaiting` or `paid` — «Очікує», «Оплачено», forward only and
+apart from the status.
 
 Informal synonyms: замовлення.
 Use in: source code, schema, API, documentation.
@@ -239,6 +241,31 @@ A monobank invoice link the manager sends to a shopper after confirmation, in la
 
 Informal synonyms: посилання на оплату.
 Use in: source code, schema, API, documentation.
+
+## Transfer
+
+A shopper's payment ahead to the store's account by its IBAN, from any bank, for an order wholly in
+stock; the manager marks the order paid on seeing it. Order payment `transfer`, «Переказ на
+рахунок».
+
+Informal synonyms: переказ, оплата за реквізитами, банківський переказ, bacs.
+Use in: source code, schema, documentation.
+
+## Payment Details
+
+The store's account a transfer goes to: the recipient, the IBAN and the RNOKPP or EDRPOU. Global
+`payment-details`, «Реквізити для оплати»; the owner keeps it.
+
+Informal synonyms: реквізити, рахунок магазину.
+Use in: source code, schema, documentation.
+
+## Return Token
+
+An order's secret, answered to the browser that placed it, by which the thank-you page
+`/cart/thanks?t=` finds the order. Field `returnToken` of `orders`; nobody reads it through the API.
+
+Informal synonyms: токен замовлення.
+Use in: source code, schema, documentation.
 
 ## Cash On Delivery
 
