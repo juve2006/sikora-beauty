@@ -113,7 +113,8 @@ What shaped the decision:
   the same text read as one. Without a stack the SDK's `Dedupe` also drops a failure whose first error has
   the same text as the one right before it, on any route, so a run of one failure shows as one event until
   another comes between; that spares the plan's monthly events. What nobody catches has its stack in the
-  host's logs; what is caught and logged names its place in its first words.
+  host's logs, its frames without a failed query's values (`src/lib/server-log.ts`, RULES.md); what is
+  caught and logged names its place in its first words.
 - A failure in the browser in the moments before the SDK starts is not reported.
 - A frame outside the site's own scripts (`<anonymous>`, a browser extension) is left out of the stack.
 - On the server, an error whose `message` is no text is lost: `@sentry/nextjs`'s own processor calls

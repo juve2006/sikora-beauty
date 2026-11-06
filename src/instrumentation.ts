@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { keepWhatFailed, sentryOptions } from '@/lib/sentry';
+import { keepRowsOutOfConsole } from '@/lib/server-log';
 
 type VercelContext = {
   get?: () => { waitUntil?: (task: Promise<unknown>) => void } | undefined;
@@ -8,7 +9,11 @@ type VercelContext = {
 
 // Node only: `proxy.ts` runs there on Next 16, and no route asks for the edge.
 export function register() {
-  if (process.env.NEXT_RUNTIME !== 'nodejs' || !sentryOptions.dsn) return;
+  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+  // Before Sentry, which wraps the console too: it still sees the error itself and keeps what its list
+  // allows, and the host's log gets it without a failed query's values.
+  keepRowsOutOfConsole();
+  if (!sentryOptions.dsn) return;
   Sentry.init({
     ...sentryOptions,
     // No stack from the server: its parser reads the lines of a message too, a failed query's params are

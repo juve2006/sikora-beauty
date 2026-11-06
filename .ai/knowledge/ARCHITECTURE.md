@@ -276,7 +276,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   render, `captureConsoleIntegration` for what a server action caught and logged. Payload answers its
   own errors, so `hooks.afterError` in `payload.config` reports those from 500 up.
   `src/instrumentation-client.ts` and `src/app/global-error.tsx` in the browser, on `@sentry/browser`.
-  All pass `keepWhatFailed` (`src/lib/sentry.ts`).
+  All pass `keepWhatFailed` (`src/lib/sentry.ts`). The host's own log, with or without Sentry, gets an
+  error through `src/lib/server-log.ts`: Payload's logger options and the console wrapped in
+  `register()` (adr-20261106-values-out-of-server-logs).
 - **Configuration** — `src/payload.config.ts` reads the environment through `src/lib/env.ts` (Zod;
   an error names variables, never values). Content localization `uk`/`en`, `uk` default and
   fallback.

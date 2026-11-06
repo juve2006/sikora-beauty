@@ -173,8 +173,11 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `sikora-beauty`; checked by: the CI status — not enforced by GitHub on a private repository
   without GitHub Pro)
 - A shopper's personal data — name, phone, address, what they wrote — never reaches a log: a
-  failed query is logged without its params or the database's detail, which carry the row. (tasks `consultation-request`, `cart-and-checkout`; checked by: Vitest in
-  `tests/consultation.test.ts` and `tests/orders.test.ts`, review)
+  failed query is logged without its params or the database's detail, which carry the row. Payload's
+  logger and Next's `console.error` print an error whole, so `src/lib/server-log.ts` leaves them its
+  first line, the database's code and its frames. (tasks `consultation-request`, `cart-and-checkout`,
+  `server-logs-params`; checked by: Vitest in `tests/consultation.test.ts`, `tests/orders.test.ts`
+  and `tests/server-log.test.ts`, review)
 - What leaves for Sentry is a list, not what is taken out of everything else: `keepWhatFailed`
   (`src/lib/sentry.ts`) keeps what failed and where, and nothing that passes no `beforeSend` is sent:
   no breadcrumbs, sessions, tracing or replay. Every server `console.error` but Node's own warnings becomes an event, which is
