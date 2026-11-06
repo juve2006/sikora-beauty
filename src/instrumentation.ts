@@ -25,6 +25,9 @@ export function register() {
         disableIncomingRequestSpans: true,
       }),
     ],
+    // Node prints its own warnings through `console.error`, "(node:8) Warning: …" on every cold start.
+    // They are no failure; the host's log keeps them.
+    ignoreErrors: [/^\(node:\d+\) /],
     // Vercel freezes a function once it answers, with the event still on its way. The SDK's own
     // `vercelWaitUntil` holds it only on the edge, so the context is read here the way it reads it.
     // Off Vercel there is none, and nothing waits.

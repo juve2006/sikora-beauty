@@ -11,6 +11,7 @@ import { priceOrder } from '@/lib/orders';
 import { brandName } from '@/lib/product-page';
 import { orderMessage, sendTelegram } from '@/lib/telegram';
 import { verifyTurnstile } from '@/lib/turnstile';
+import { whatFailed } from '@/lib/utils';
 import { parseOrderForm } from '@/lib/validators';
 
 // The one way an order is created (the collection's `create` is closed to everyone): the form's
@@ -68,7 +69,7 @@ export async function placeOrder(
     });
     after(() =>
       sendTelegram(orderMessage(placed, SITE_URL)).catch((error) =>
-        console.error('Telegram:', error),
+        console.error('Telegram:', whatFailed(error)),
       ),
     );
     return { status: 'placed', number: placed.id };

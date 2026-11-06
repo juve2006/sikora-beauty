@@ -44,10 +44,14 @@ export default buildConfig({
   globals: [CareFinder, Contacts],
   hooks: {
     // Payload answers its own errors, so `onRequestError` never hears of them. A refusal, under 500,
-    // is no failure.
+    // is no failure; GraphQL keeps its status on the error it wraps.
     afterError: [
       ({ error }) => {
-        if (((error as { status?: number }).status ?? 500) >= 500) {
+        const { status, originalError } = error as {
+          status?: number;
+          originalError?: { status?: number };
+        };
+        if ((status ?? originalError?.status ?? 500) >= 500) {
           captureException(error);
         }
       },

@@ -113,7 +113,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     organization `sikora-bw` (`next.config.ts` names both). Skip the onboarding's
     `npx @sentry/agent-plugin`: it only installs a plugin into a coding assistant. Project Settings →
     Security & Privacy → **Prevent Storing of IP Addresses**, as Sentry sees a browser's address by
-    itself. An Organization Auth Token for source maps. In Vercel, Production only:
+    itself, and under Advanced Data Scrubbing the rule **Remove**, **Anything**, from `$user.geo.**`:
+    Sentry adds a browser's city and country from that address. A new project, the store's own
+    included, needs both again. An Organization Auth Token for source maps. In Vercel, Production only:
     `NEXT_PUBLIC_SENTRY_DSN` (Project Settings → Client Keys) and `SENTRY_AUTH_TOKEN` (Sensitive), then
     redeploy. Without the token everything works but a browser's stack is unreadable. A server failure has no stack in Sentry at all: its file and line are in Vercel's logs.
 
@@ -130,7 +132,7 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
   Signed in, an order shows in «Кабінет» and in `/admin` → Замовлення, with its «Покупець». The owner signs in at the same form and lands in
   `/admin`; a shopper's session at `/admin` lands in their own account.
 - Sentry, in the browser's console on the production URL: `setTimeout(() => { throw new Error('Sentry
-test') })` shows as a browser event; `fetch('/api/customers/login', { method: 'POST', headers: {
+test') })` shows as a browser event with no city under its user; `fetch('/api/customers/login', { method: 'POST', headers: {
 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'a\u0000@example.org', password:
 'x' }) })` answers 500, writes nothing and shows as a server event.
 - To change the password: a new `SITE_PASSWORD` in Vercel, then redeploy Production.

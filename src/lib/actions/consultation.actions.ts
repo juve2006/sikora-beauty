@@ -10,6 +10,7 @@ import { SITE_URL } from '@/lib/constants';
 import { answersText } from '@/lib/finder';
 import { consultationMessage, sendTelegram } from '@/lib/telegram';
 import { verifyTurnstile } from '@/lib/turnstile';
+import { whatFailed } from '@/lib/utils';
 import { parseConsultationForm } from '@/lib/validators';
 
 // The one way a consultation request is created (the collection's `create` is closed to everyone):
@@ -62,7 +63,7 @@ export async function requestConsultation(
           { ...request, id, productName: product?.name, finderAnswers },
           SITE_URL,
         ),
-      ).catch((error) => console.error('Telegram:', error)),
+      ).catch((error) => console.error('Telegram:', whatFailed(error))),
     );
     return { status: 'sent' };
   } catch (error) {

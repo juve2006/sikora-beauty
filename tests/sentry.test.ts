@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { register } from '@/instrumentation';
 import { keepWhatFailed, sentryOptions } from '@/lib/sentry';
+import { whatFailed } from '@/lib/utils';
 
 const dsn = 'https://key@o1.ingest.de.sentry.io/1';
 const sent = vi.hoisted(() => [] as string[]);
@@ -357,6 +358,31 @@ describe('on the server, as `register` starts it', () => {
     for (const secret of secrets) expect(sent.join()).not.toContain(secret);
   });
 
+  it('names what failed when a caught error is logged', async () => {
+    register();
+    console.error(
+      'Telegram:',
+      whatFailed(
+        new TypeError('fetch failed', { cause: new Error('timeout') }),
+      ),
+    );
+    await Sentry.flush(1000);
+
+    expect(sent.join()).toContain('Telegram: timeout');
+  });
+
+  // Node prints its warnings through `console.error`; they are no failure and stay in the host's log.
+  it("leaves Node's own warnings out", async () => {
+    register();
+    console.error('(node:8) Warning: SECURITY WARNING: The SSL modes');
+    console.error('(node:8) [DEP0040] DeprecationWarning: punycode');
+    console.error('Order: a failure');
+    await Sentry.flush(1000);
+
+    expect(sent.join()).toContain('Order: a failure');
+    expect(sent.join()).not.toContain('Warning');
+  });
+
   // A row of `orders` ends in its times, which the SDK's parser reads as a line and a column, and it
   // decodes what it takes for a file's name.
   it.each([
@@ -458,6 +484,12 @@ describe('Payload, as its config reports', () => {
     }) => void;
 
     hook({ error: Object.assign(new Error('refused'), { status: 403 }) });
+    // GraphQL wraps the refusal and keeps its status on the error it wraps.
+    hook({
+      error: Object.assign(new Error('refused'), {
+        originalError: Object.assign(new Error('refused'), { status: 403 }),
+      }),
+    });
     expect(captureException).not.toHaveBeenCalled();
 
     for (const error of [
