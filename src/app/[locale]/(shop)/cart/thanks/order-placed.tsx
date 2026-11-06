@@ -9,11 +9,18 @@ type Props = {
   number?: number;
   // A transfer's: the store's account and the sum to send.
   transfer?: { details: PaymentDetails; total: number };
+  // A card's, back from monobank: paid, waiting for the bank, or not paid; and where the page is,
+  // to look again while it waits.
+  card?: 'paid' | 'waiting' | 'failed';
+  again?: string;
+  // A payment by a link the manager sends — chosen, or what a card became without its invoice.
+  link?: boolean;
 };
 
 // The thanks for an order: its number when the page found the order, and what happens next — for a
-// transfer, where to send the money, each detail with its own copy button.
-const OrderPlaced = ({ number, transfer }: Props) => {
+// transfer, where to send the money, each detail with its own copy button; for a card, whether it
+// paid.
+const OrderPlaced = ({ number, transfer, card, again, link }: Props) => {
   const t = useTranslations('Checkout');
   const c = useTranslations('Cart');
   const p = useTranslations('Product');
@@ -66,13 +73,32 @@ const OrderPlaced = ({ number, transfer }: Props) => {
           </dl>
         </section>
       ) : (
-        <p className="mt-4 max-w-prose text-muted-foreground">
-          {t('placedText')}
-        </p>
+        <div
+          role={card ? 'status' : undefined}
+          className="mt-4 flex max-w-prose flex-col gap-2 text-muted-foreground"
+        >
+          <p>
+            {card
+              ? {
+                  paid: t('cardPaid'),
+                  waiting: t('cardWaiting'),
+                  failed: t('cardFailed'),
+                }[card]
+              : t('placedText')}
+          </p>
+          {link && <p>{t('linkText')}</p>}
+        </div>
       )}
-      <Button asChild variant="outline" className="mt-6">
-        <Link href="/brands">{c('brands')}</Link>
-      </Button>
+      <div className="mt-6 flex flex-wrap gap-3">
+        {card === 'waiting' && again && (
+          <Button asChild>
+            <a href={again}>{t('refresh')}</a>
+          </Button>
+        )}
+        <Button asChild variant="outline">
+          <Link href="/brands">{c('brands')}</Link>
+        </Button>
+      </div>
     </>
   );
 };

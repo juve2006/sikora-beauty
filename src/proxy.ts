@@ -20,9 +20,14 @@ function hasPassword(request: NextRequest, password: string) {
   );
 }
 
+// monobank's webhook carries no password, only its signature, which the endpoint checks before it
+// reads anything (src/lib/monobank.ts): exactly this method and path pass the gate.
+const isMonoWebhook = (request: NextRequest) =>
+  request.method === 'POST' && request.nextUrl.pathname === '/api/mono/webhook';
+
 export default function proxy(request: NextRequest) {
   const password = process.env.SITE_PASSWORD;
-  if (password && !hasPassword(request, password)) {
+  if (password && !isMonoWebhook(request) && !hasPassword(request, password)) {
     return new NextResponse('Sikora Beauty is not open yet.', {
       status: 401,
       headers: { 'WWW-Authenticate': 'Basic realm="Sikora Beauty"' },

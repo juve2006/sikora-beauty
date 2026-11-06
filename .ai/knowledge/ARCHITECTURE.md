@@ -15,7 +15,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 
 - **Storefront** — `src/app/[locale]/` is its own root layout, beside `(payload)` and not
   above it: Payload's admin breaks under a `[locale]` segment (payload#10675). `src/proxy.ts`
-  first asks for the site password until the launch (adr-20261029-site-password), then
+  first asks for the site password until the launch (adr-20261029-site-password) — of every request
+  but monobank's webhook (adr-20261106-card-payment-on-monobanks-page) — then
   (next-intl) routes `uk` at `/` and `en` at `/en` and skips `/admin`, `/api`, `_next` and
   files. It never picks a language from the browser or a cookie: with detection on, `/`
   redirected an English browser to `/en` and the switcher could not get back; `src/i18n/request.ts` takes the locale from `next/root-params`; strings in
@@ -222,9 +223,12 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   (adr-20261106-transfer-to-the-store-account) is offered when the global `payment-details`
   («Продажі → Реквізити для оплати», the owner's) is filled in — the `/cart` page reads it with
   `getPaymentDetails` (`payment.actions.ts`, `server-only`) — and `CartView` finds every line in
-  stock (`canPrepay`); `placeOrder` checks both again. `/cart/thanks?t=<token>` reads the order's
+  stock (`canPrepay`); `placeOrder` checks both again. A card on monobank's page is offered on the
+  same terms while `MONO_TOKEN` is set; the form then asks for the receipt's address and, once the
+  order is placed, pays it through Payments (below). `/cart/thanks?t=<token>` reads the order's
   number, sum and payment by its token (`getPlacedOrder`) and, for a transfer neither paid nor
-  cancelled, shows the details with copy buttons; without a known token it names no order. The `orders` collection (admin group
+  cancelled, shows the details with copy buttons; for a card, whether it paid, waits for the bank
+  or failed; without a known token it names no order. The `orders` collection (admin group
   «Продажі»): no role creates one through the API, the snapshot and what the shopper sent are
   read-only, the status and the payment status move forward only (`canMoveStatus`,
   `canMovePayment`), the return token is read by nobody, and the manager's note is free. Telegram is told in `after()`, from the saved order
@@ -272,6 +276,17 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   `findSettlements` and `findWarehouses` (`delivery.actions.ts`, an answer cached 12 hours), which
   call `src/lib/novaposhta.ts` (`server-only`). `NOVA_POSHTA_API_KEY` is optional; any failure
   turns the two fields into plain text ones. Waybills and tracking are not built.
+- **Payments** — a card paid on monobank acquiring's page right after the order
+  (adr-20261106-card-payment-on-monobanks-page). The checkout calls the server action `payByCard`
+  (`card.actions.ts`) with the order's return token: `src/lib/monobank.ts` makes the invoice for the
+  database's sum with the basket for Checkbox's receipt, the order keeps `monoInvoiceId`, and the
+  browser goes to mono; no invoice turns the payment into a link the manager sends. mono's webhook,
+  `POST /api/mono/webhook`, is a root endpoint of Payload from the same module, registered in
+  `payload.config` — the one request past the site password: its signature first, then
+  `nextPayment` (`src/lib/orders.ts`) moves the order's payment status, written with
+  `context.paymentProvider`, which `keepPaymentForward` asks of a card. `MONO_TOKEN` is optional;
+  e2e points `MONO_API_URL` at `tests/e2e/mono-stub.mjs`. Reconciliation is not built
+  (`mono-reconcile`).
 - **Notify** — `src/lib/telegram.ts`: plain-text messages to the owner's Telegram group
   (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`; without them nothing is sent): consultation requests
   and orders, each kept within Telegram's limit with its link to the admin
@@ -338,8 +353,10 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
   `account.actions.ts`, `customer.actions.ts`, `src/lib/auth-writes.ts`, `src/lib/email.ts`,
   `src/lib/google.ts`) — built (above). It meets orders in one field,
   `orders.customer`: `placeOrder` fills it from `currentCustomer`, `myOrders` reads it.
-- **Payments** (`src/lib/monobank.ts`) — monobank invoices, webhook, reconciliation
-  (adr-20261028-monobank-and-cash-on-delivery). Depends on orders.
+- **Payments** (`src/lib/monobank.ts`, `card.actions.ts`) — monobank invoices and the webhook are
+  built (above); reconciliation is not (adr-20261028-monobank-and-cash-on-delivery). Depends on
+  orders: it reads and writes orders, and orders only know that a payment provider moves a card's
+  payment status.
 - **Delivery** (`src/lib/novaposhta.ts`, `delivery.actions.ts`) — the search of settlements and NP
   warehouses is built (above); waybills and tracking are not. Depends on orders.
 - **Care finder** (`src/globals/care-finder.ts`, `src/lib/finder.ts`, `finder.actions.ts`) —
@@ -372,7 +389,8 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
    the link and marking a transfer paid are the manager's, by hand.
 3. **Card payment (launch step 2).** Order fully in stock → a monobank invoice → redirect →
    signed webhook → verify → idempotent forward-only status change → Checkbox issues the fiscal
-   receipt on monobank's side; a cron reconciles invoices without a webhook.
+   receipt on monobank's side; a cron reconciles invoices without a webhook. Built up to the
+   webhook (adr-20261106-card-payment-on-monobanks-page); the cron is `mono-reconcile`'s.
 
 ### Deployment
 

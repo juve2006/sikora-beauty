@@ -23,7 +23,8 @@ export const getPaymentDetails = async (): Promise<
 
 // The order the thank-you page names, by the secret its checkout was given: its number, sum and
 // payment, and whether it still waits to be paid — not once paid or cancelled, so a link kept for
-// later asks for no money the store would send back. Access is skipped on purpose — no rule lets an anonymous visitor read an order, and
+// later asks for no money the store would send back. For a card, where its payment stands and
+// whether monobank's invoice was made. Access is skipped on purpose — no rule lets an anonymous visitor read an order, and
 // the token's field is closed to every reader but this one — so whatever `select` adds, anyone
 // holding the link reads (RULES.md).
 export const getPlacedOrder = async (token: string) => {
@@ -35,7 +36,13 @@ export const getPlacedOrder = async (token: string) => {
     limit: 1,
     pagination: false,
     overrideAccess: true,
-    select: { total: true, payment: true, status: true, paymentStatus: true },
+    select: {
+      total: true,
+      payment: true,
+      status: true,
+      paymentStatus: true,
+      monoInvoiceId: true,
+    },
   });
   const order = docs[0];
   return (
@@ -43,6 +50,9 @@ export const getPlacedOrder = async (token: string) => {
       number: order.id,
       total: order.total,
       payment: order.payment,
+      paymentStatus: order.paymentStatus,
+      cancelled: order.status === 'cancelled',
+      invoiced: Boolean(order.monoInvoiceId),
       payable:
         order.paymentStatus === 'awaiting' && order.status !== 'cancelled',
     }

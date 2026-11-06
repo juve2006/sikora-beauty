@@ -218,11 +218,11 @@ export const pages = [
         uk: {
           blockType: 'text',
           title: 'Оплата',
-          text: 'Ціни на сайті вказані в гривнях.\n\nПри отриманні: оплачуєте замовлення у відділенні Нової Пошти, коли забираєте посилку. Комісію за переказ коштів встановлює Нова Пошта.\n\nКарткою за посиланням: менеджер надішле посилання на оплату, коли підтвердить замовлення. Дані вашої картки магазин не бачить і не зберігає.',
+          text: 'Ціни на сайті вказані в гривнях.\n\nПри отриманні: оплачуєте замовлення у відділенні Нової Пошти, коли забираєте посилку. Комісію за переказ коштів встановлює Нова Пошта.\n\nПереказом на рахунок: реквізити магазину з’являться одразу після оформлення замовлення, переказати можна з будь-якого банку. У призначенні платежу вкажіть номер замовлення. Менеджер побачить оплату й зателефонує, щоб підтвердити відправку. Цей спосіб доступний, коли всі товари в замовленні є в наявності.\n\nКарткою на сайті: одразу після оформлення замовлення відкриється сторінка оплати monobank — карткою, Apple Pay або Google Pay. Чек про оплату monobank надішле на пошту, яку ви вкажете. Дані вашої картки магазин не бачить і не зберігає. Цей спосіб доступний, коли всі товари в замовленні є в наявності.\n\nКарткою за посиланням: менеджер надішле посилання на оплату, коли підтвердить замовлення. Дані вашої картки магазин не бачить і не зберігає.',
         },
         en: {
           title: 'Payment',
-          text: 'Prices on the site are in hryvnias.\n\nOn receipt: you pay for the order at the Nova Poshta branch when you collect the parcel. Nova Poshta sets the fee for the money transfer.\n\nBy card through a link: the manager sends you a payment link once they confirm the order. The store neither sees nor keeps your card details.',
+          text: 'Prices on the site are in hryvnias.\n\nOn receipt: you pay for the order at the Nova Poshta branch when you collect the parcel. Nova Poshta sets the fee for the money transfer.\n\nBy bank transfer: the store’s account details appear right after you place the order, and you can pay from any bank. Put the order number in the payment purpose. The manager sees the payment and calls you to confirm the dispatch. This option is open when every item in the order is in stock.\n\nBy card on the site: right after you place the order, monobank’s payment page opens — pay by card, Apple Pay or Google Pay. monobank sends the payment receipt to the email you give. The store neither sees nor keeps your card details. This option is open when every item in the order is in stock.\n\nBy card through a link: the manager sends you a payment link once they confirm the order. The store neither sees nor keeps your card details.',
         },
       },
       {
@@ -353,11 +353,11 @@ export const pages = [
         uk: {
           blockType: 'text',
           title: 'Кому ми передаємо дані',
-          text: 'Telegram: нові замовлення й запити на консультацію надходять у групу магазину.\n\nНова Пошта: дані одержувача, коли ми відправляємо посилку.\n\nGoogle (Gmail): надсилає листи вашого акаунта, зокрема для підтвердження пошти й відновлення пароля.\n\nVercel і Neon: хостинг сайту й база даних.\n\nCloudflare Turnstile: може перевіряти, що форму надсилає людина.\n\nSentry: технічні дані про збої на сайті, без вашого імені, телефону чи адреси.\n\nЦі сервіси можуть обробляти дані за межами України. Ми не продаємо ваші дані.',
+          text: 'Telegram: нові замовлення й запити на консультацію надходять у групу магазину.\n\nНова Пошта: дані одержувача, коли ми відправляємо посилку.\n\nmonobank: приймає оплату карткою на сайті й отримує суму, склад замовлення та пошту для чека.\n\nGoogle (Gmail): надсилає листи вашого акаунта, зокрема для підтвердження пошти й відновлення пароля.\n\nVercel і Neon: хостинг сайту й база даних.\n\nCloudflare Turnstile: може перевіряти, що форму надсилає людина.\n\nSentry: технічні дані про збої на сайті, без вашого імені, телефону чи адреси.\n\nЦі сервіси можуть обробляти дані за межами України. Ми не продаємо ваші дані.',
         },
         en: {
           title: 'Who we share data with',
-          text: 'Telegram: new orders and consultation requests arrive in the store’s group.\n\nNova Poshta: the recipient’s details, when we send a parcel.\n\nGoogle (Gmail): sends your account’s letters, including email confirmation and password reset.\n\nVercel and Neon: the site’s hosting and database.\n\nCloudflare Turnstile: may check that a form is sent by a person.\n\nSentry: technical data about site failures, without your name, phone or address.\n\nThese services may process data outside Ukraine. We do not sell your data.',
+          text: 'Telegram: new orders and consultation requests arrive in the store’s group.\n\nNova Poshta: the recipient’s details, when we send a parcel.\n\nmonobank: takes card payments on the site and receives the sum, the order’s items and the email for the receipt.\n\nGoogle (Gmail): sends your account’s letters, including email confirmation and password reset.\n\nVercel and Neon: the site’s hosting and database.\n\nCloudflare Turnstile: may check that a form is sent by a person.\n\nSentry: technical data about site failures, without your name, phone or address.\n\nThese services may process data outside Ukraine. We do not sell your data.',
         },
       },
       {

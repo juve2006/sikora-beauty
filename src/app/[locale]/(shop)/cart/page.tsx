@@ -7,6 +7,7 @@ import CartList from './cart-list';
 import { routing } from '@/i18n/routing';
 import { currentCustomer } from '@/lib/actions/customer.actions';
 import { getPaymentDetails } from '@/lib/actions/payment.actions';
+import { cardEnabled } from '@/lib/monobank';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -24,7 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // The cart this browser keeps, and the checkout under it. The server does not know the cart; the
 // list asks for its products' cards once it runs. It does know a shopper who is signed in, whose
-// name and phone fill in the form, and whether the store's account is there to take a transfer.
+// name, phone and address fill in the form, whether the store's account is there to take a
+// transfer, and whether monobank takes a card.
 const CartPage = async ({ params }: Props) => {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
@@ -44,9 +46,11 @@ const CartPage = async ({ params }: Props) => {
             firstName: customer.firstName ?? '',
             lastName: customer.lastName ?? '',
             phone: customer.phone ?? undefined,
+            email: customer.email,
           }
         }
         transfer={Boolean(details)}
+        card={cardEnabled()}
       />
     </main>
   );

@@ -470,11 +470,12 @@ export interface Order {
   warehouse: string;
   settlementRef?: string | null;
   warehouseRef?: string | null;
-  payment: 'cod' | 'link' | 'transfer';
+  payment: 'cod' | 'link' | 'transfer' | 'card';
   comment?: string | null;
   locale?: ('uk' | 'en') | null;
   status: 'new' | 'confirmed' | 'shipped' | 'completed' | 'cancelled';
-  paymentStatus: 'awaiting' | 'paid';
+  paymentStatus: 'awaiting' | 'paid' | 'failed' | 'refunded';
+  monoInvoiceId?: string | null;
   returnToken?: string | null;
   managerNote?: string | null;
   customer?: (number | null) | Customer;
@@ -919,6 +920,7 @@ export interface OrdersSelect<T extends boolean = true> {
   locale?: T;
   status?: T;
   paymentStatus?: T;
+  monoInvoiceId?: T;
   returnToken?: T;
   managerNote?: T;
   customer?: T;

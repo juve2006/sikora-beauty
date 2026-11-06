@@ -321,44 +321,62 @@ const json = (value: unknown) => {
     return undefined;
   }
 };
+// An address, as an account and a card's receipt take it.
+const email = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(254, 'long')
+  .pipe(z.email('emailInvalid'));
+
 // An NP reference as the API writes it; a hidden field left empty is none.
 const npRef = z.preprocess((value) => value || undefined, z.guid().optional());
 
 // A shopper's order: the checkout form checks it before sending, `placeOrder` again. A message is a
 // key of `Checkout.errors` in messages/*.json, translated by the form. Nothing here is a price: the
 // server reads them (RULES.md); `total` is only the sum the shopper was shown, to be compared.
-export const orderRequest = z.object({
-  firstName: text(50),
-  lastName: text(50),
-  phone,
-  // The settlement and the NP warehouse: chosen from Nova Poshta's search, with their refs, or
-  // typed by hand while the search does not work.
-  settlement: text(200),
-  warehouse: text(200),
-  payment: z.enum(PAYMENTS, 'paymentRequired'),
-  comment: z
-    .string()
-    .trim()
-    .max(500, 'long')
-    .transform((value) => value || undefined)
-    .optional(),
-  // The hidden fields the shopper does not type: a broken one fails the order, never a field.
-  lines: z.preprocess(
-    json,
-    z
-      .array(cartLine)
-      .min(1)
-      .max(CART_LINES)
-      .refine(
-        (lines) => new Set(lines.map(({ id }) => id)).size === lines.length,
-      ),
-  ),
-  total: z.coerce.number().pipe(kopiyky),
-  settlementRef: npRef,
-  warehouseRef: npRef,
-  locale: z.enum(routing.locales).catch(routing.defaultLocale),
-  token: z.string().max(2048).optional().catch(undefined),
-});
+export const orderRequest = z
+  .object({
+    firstName: text(50),
+    lastName: text(50),
+    phone,
+    // The settlement and the NP warehouse: chosen from Nova Poshta's search, with their refs, or
+    // typed by hand while the search does not work.
+    settlement: text(200),
+    warehouse: text(200),
+    payment: z.enum(PAYMENTS, 'paymentRequired'),
+    comment: z
+      .string()
+      .trim()
+      .max(500, 'long')
+      .transform((value) => value || undefined)
+      .optional(),
+    // The hidden fields the shopper does not type: a broken one fails the order, never a field.
+    lines: z.preprocess(
+      json,
+      z
+        .array(cartLine)
+        .min(1)
+        .max(CART_LINES)
+        .refine(
+          (lines) => new Set(lines.map(({ id }) => id)).size === lines.length,
+        ),
+    ),
+    total: z.coerce.number().pipe(kopiyky),
+    settlementRef: npRef,
+    warehouseRef: npRef,
+    locale: z.enum(routing.locales).catch(routing.defaultLocale),
+    token: z.string().max(2048).optional().catch(undefined),
+    // Where monobank sends a card's fiscal receipt: asked, and required, only for a card. It goes to
+    // mono and is not kept with the order.
+    email: z.preprocess((value) => value || undefined, email.optional()),
+  })
+  .refine((order) => order.payment !== 'card' || order.email, {
+    path: ['email'],
+    message: 'required',
+    // Told with the other fields' errors, not after they are fixed.
+    when: ({ value }) => typeof value === 'object' && value !== null,
+  });
 
 // The checkout form's fields by name, Turnstile's `cf-turnstile-response` among them: the order, or
 // the error keys of each field the shopper typed — none when only a hidden field is broken.
@@ -378,6 +396,7 @@ export const parseOrderForm = (form: FormData) => {
     warehouseRef: field('warehouseRef'),
     locale: field('locale'),
     token: field('cf-turnstile-response'),
+    email: field('email'),
   });
   if (result.success) return { data: result.data };
   const {
@@ -388,6 +407,7 @@ export const parseOrderForm = (form: FormData) => {
     warehouse,
     payment,
     comment,
+    email,
   } = z.flattenError(result.error).fieldErrors;
   const errors = {
     firstName,
@@ -397,6 +417,7 @@ export const parseOrderForm = (form: FormData) => {
     warehouse,
     payment,
     comment,
+    email,
   };
   return {
     errors: Object.fromEntries(
@@ -446,12 +467,20 @@ export const npWarehouses = z.array(
   }),
 );
 
-const email = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .max(254, 'long')
-  .pipe(z.email('emailInvalid'));
+// monobank acquiring's answers: `invoice/create` gives the invoice and the page the shopper pays
+// on, `pubkey` the base64 of a PEM key that signs webhooks.
+export const monoInvoice = z.object({
+  invoiceId: z.string().min(1).max(100),
+  pageUrl: z.url(),
+});
+export const monoPubkey = z.object({ key: z.string().min(1) });
+// A webhook's body, once its signature holds: only what moves an order. The status stays a string
+// — one mono adds later moves nothing (`nextPayment`), and a 400 would only make mono send it again.
+export const monoEvent = z.object({
+  invoiceId: z.string().min(1).max(100),
+  status: z.string().max(50),
+});
+
 // Payload refuses a blank password when it signs in, so one is never set.
 const newPassword = z
   .string()
@@ -497,6 +526,8 @@ export const accountToken = z.preprocess(
 );
 // What `placeOrder` gives the thank-you page's address: 16 random bytes in base64url.
 export const returnToken = z.preprocess(first, z.string().regex(/^[\w-]{22}$/));
+// What the checkout sends to pay for an order it just placed: its secret and the receipt's address.
+export const cardPayment = z.object({ token: returnToken, email });
 export const passwordReset = z.object({
   token: accountToken,
   password: newPassword,

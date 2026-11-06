@@ -48,6 +48,7 @@ const paymentLabels = {
   cod: 'післяплата',
   link: 'посилання на оплату',
   transfer: 'переказ на рахунок',
+  card: 'карткою на сайті',
 };
 
 const orderLine = ({
@@ -80,6 +81,26 @@ export const orderMessage = (order: Order, siteUrl: URL) =>
       order.comment && `Коментар: ${order.comment}`,
       'Товари:',
       ...order.lines.map(orderLine),
+    ],
+    `/admin/collections/orders/${order.id}`,
+    siteUrl,
+  );
+
+// What became of a card's payment: paid or failed, as monobank's webhook says, or an invoice mono
+// did not make, so the manager sends a link. The number and the sum only: the order's own message
+// carries the rest.
+export const cardMessage = (
+  order: Pick<Order, 'id' | 'total'>,
+  event: 'paid' | 'failed' | 'link',
+  siteUrl: URL,
+) =>
+  withLink(
+    [
+      {
+        paid: `Оплачено карткою: замовлення №${order.id}, ${formatHryvnias(order.total)} грн`,
+        failed: `Оплата карткою не пройшла: замовлення №${order.id}`,
+        link: `Рахунок mono не створився: замовлення №${order.id} — надішліть посилання`,
+      }[event],
     ],
     `/admin/collections/orders/${order.id}`,
     siteUrl,

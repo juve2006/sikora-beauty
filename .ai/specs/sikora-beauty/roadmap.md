@@ -183,7 +183,7 @@ from an order and the delivery status updates. The payment items were split in t
     forward only, marked by a manager; only when every item is in stock
   - Frontend: "transfer to the account" at checkout, the details with copy buttons on the thank-you
     page, found by the order's secret
-- [ ] `mono-payment` — card payment on the site (after: transfer payment — shares its payment
+- [x] `mono-payment` — card payment on the site (after: transfer payment — shares its payment
   status and thank-you page)
   - Backend: mono invoice, webhook with signature check and Zod, idempotency, forward-only
     statuses, a WAF exception; only when every item is in stock

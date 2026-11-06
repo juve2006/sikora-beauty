@@ -19,9 +19,11 @@ const nothing = () => () => {};
 const CartList = ({
   contact,
   transfer,
+  card,
 }: {
   contact?: OrderContact | null;
   transfer?: boolean;
+  card?: boolean;
 }) => {
   const locale = useLocale();
   const lines = useCart();
@@ -94,6 +96,7 @@ const CartList = ({
           {...order}
           contact={contact}
           transfer={transfer}
+          card={card}
           onChanged={() => {
             setStale(true);
             setAttempt((count) => count + 1);

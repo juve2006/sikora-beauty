@@ -124,6 +124,9 @@ describe('the reads of the thank-you page', () => {
       number: 17,
       total: 249100,
       payment: 'transfer',
+      paymentStatus: 'awaiting',
+      cancelled: false,
+      invoiced: false,
       payable: true,
     });
     expect(payload.find).toHaveBeenCalledWith(
@@ -136,6 +139,7 @@ describe('the reads of the thank-you page', () => {
           payment: true,
           status: true,
           paymentStatus: true,
+          monoInvoiceId: true,
         },
       }),
     );
@@ -152,6 +156,17 @@ describe('the reads of the thank-you page', () => {
         payable: false,
       });
     }
+  });
+
+  // A card's thanks: whether the bank's word is still to come, by its invoice.
+  it('says whether a card has its invoice', async () => {
+    payload.find.mockResolvedValueOnce({
+      docs: [{ ...placed, payment: 'card', monoInvoiceId: 'inv-1' }],
+    });
+    expect(await getPlacedOrder('a'.repeat(22))).toMatchObject({
+      payment: 'card',
+      invoiced: true,
+    });
   });
 
   it('finds nothing by a secret no order has', async () => {

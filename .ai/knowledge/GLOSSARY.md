@@ -212,9 +212,10 @@ Use in: source code, documentation.
 A shopper's checkout: a snapshot of products and prices, contacts, the NP warehouse, the payment
 method and a forward-only status. Collection `orders`, «Замовлення»; its number is its id; status
 `new`, `confirmed`, `shipped`, `completed` or `cancelled` — «Нове», «Підтверджене», «Відправлене»,
-«Виконане», «Скасоване»; payment `cod`, `link` or `transfer` — «Післяплата», «Посилання на оплату»,
-«Переказ на рахунок»; payment status `awaiting` or `paid` — «Очікує», «Оплачено», forward only and
-apart from the status.
+«Виконане», «Скасоване»; payment `cod`, `link`, `transfer` or `card` — «Післяплата», «Посилання на
+оплату», «Переказ на рахунок», «Карткою на сайті»; payment status `awaiting`, `paid`, `failed` or
+`refunded` — «Очікує», «Оплачено», «Не пройшла», «Повернено», moved by one table and apart from the
+status.
 
 Informal synonyms: замовлення.
 Use in: source code, schema, API, documentation.
@@ -251,6 +252,15 @@ stock; the manager marks the order paid on seeing it. Order payment `transfer`, 
 Informal synonyms: переказ, оплата за реквізитами, банківський переказ, bacs.
 Use in: source code, schema, documentation.
 
+## Card Payment
+
+A shopper's payment ahead by card, Apple Pay or Google Pay on monobank's page, right after placing an
+order wholly in stock; only mono's webhook marks it paid or failed. Order payment `card`, «Карткою на
+сайті». Not a Payment Link, which the manager sends after confirmation.
+
+Informal synonyms: оплата карткою, онлайн-оплата, оплата на сайті.
+Use in: source code, schema, documentation.
+
 ## Payment Details
 
 The store's account a transfer goes to: the recipient, the IBAN and the RNOKPP or EDRPOU. Global
@@ -276,7 +286,8 @@ Use in: source code, schema, API, documentation.
 
 ## Invoice
 
-A monobank acquiring payment request created for an order; its status arrives by webhook.
+A monobank acquiring payment request created for an order; its status arrives by webhook. Field
+`monoInvoiceId` of `orders`, «Рахунок mono»; never the store's account a transfer goes to.
 
 Informal synonyms: рахунок mono.
 Use in: source code, schema, API, documentation.

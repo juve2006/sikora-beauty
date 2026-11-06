@@ -7,12 +7,14 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type ReactNode,
 } from 'react';
 import DeliveryFields from './delivery-fields';
 import Turnstile, {
   turnstileToken,
 } from '@/components/shared/consultation/turnstile';
+import { payByCard } from '@/lib/actions/card.actions';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { dropOrdered } from '@/lib/cart';
 import { PAYMENTS } from '@/lib/constants';
@@ -25,6 +27,7 @@ import type {
   OrderContact,
   OrderField,
   OrderState,
+  Payment,
 } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,9 +40,13 @@ type Props = {
   total: number;
   // A signed-in shopper's name and phone, to start from.
   contact?: OrderContact | null;
-  // A transfer is offered when the store's account is filled in and every line is in stock.
+  // A transfer is offered when the store's account is filled in, a card when monobank's token is
+  // set — each only when every line is in stock.
   transfer?: boolean;
+  card?: boolean;
   prepay?: boolean;
+  // /canvas only: the payment chosen to start from.
+  payment?: Payment;
   // The cart changed under the order: its cards are read again.
   onChanged?: () => void;
   // /canvas only: a state to start from, the form while it sends, and the delivery search's answer.
@@ -54,7 +61,9 @@ const contacts = [
 ] as const;
 
 // The form's action: the same schema checks the fields here, before Turnstile's token is spent,
-// and in the server action. `read` takes the form's fields anew, as the token may come later.
+// and in the server action. `read` takes the form's fields anew, as the token may come later. A card
+// is paid next, by the placed order's secret: its invoice is the payments' own (`payByCard`). An
+// order placed is placed — whatever happens to its invoice, the thank-you page is where it leads.
 export const sendOrder = async (
   previous: OrderState,
   read: () => FormData,
@@ -65,13 +74,20 @@ export const sendOrder = async (
       ? { status: 'invalid', errors: parsed.errors }
       : { status: 'failed' };
   await turnstileToken(read);
+  let placed: OrderState;
   try {
-    return await placeOrder(previous, read());
+    placed = await placeOrder(previous, read());
   } catch {
     // It never reached the server — offline, or an action a new deploy replaced: a failed order,
     // not an error page, so the shopper keeps what they typed.
     return { status: 'failed' };
   }
+  if (placed.status !== 'placed' || parsed.data.payment !== 'card')
+    return placed;
+  const paid = await payByCard(placed.token, parsed.data.email ?? '').catch(
+    () => undefined,
+  );
+  return paid?.status === 'pay' ? paid : placed;
 };
 
 // The checkout under the cart's lines. Submitted by hand rather than through `action`: React resets
@@ -81,7 +97,9 @@ const CheckoutForm = ({
   total,
   contact,
   transfer = false,
+  card = false,
   prepay = false,
+  payment,
   onChanged,
   initialState = { status: 'idle' },
   sending = false,
@@ -95,8 +113,17 @@ const CheckoutForm = ({
   const id = useId();
   const form = useRef<HTMLFormElement>(null);
   const [state, submit, pending] = useActionState(sendOrder, initialState);
-  const busy = pending || sending || state.status === 'placed';
+  // The receipt's address is asked only while a card is chosen.
+  const [chosen, setChosen] = useState(payment);
+  const busy =
+    pending || sending || state.status === 'placed' || state.status === 'pay';
   const errors = state.status === 'invalid' ? state.errors : {};
+  const offered = PAYMENTS.filter(
+    (way) =>
+      (way !== 'transfer' || (transfer && prepay)) &&
+      (way !== 'card' || (card && prepay)),
+  );
+  const ahead = transfer && card ? 'both' : transfer ? 'transfer' : 'card';
 
   useEffect(() => {
     // A state to start from is shown, not answered: /canvas would scroll to its invalid form.
@@ -104,8 +131,16 @@ const CheckoutForm = ({
     if (state.status === 'invalid')
       form.current?.querySelector<HTMLElement>('[aria-invalid=true]')?.focus();
     if (state.status === 'changed') onChanged?.();
-    if (state.status !== 'placed') return;
     const ordered = lines.map(({ id }) => id);
+    if (state.status === 'pay') {
+      // Off to monobank's page: the ordered lines leave the cart as this page goes.
+      window.addEventListener('pagehide', () => dropOrdered(ordered), {
+        once: true,
+      });
+      window.location.assign(state.url);
+      return;
+    }
+    if (state.status !== 'placed') return;
     router.replace({
       pathname: '/cart/thanks',
       query: { t: state.token },
@@ -201,38 +236,63 @@ const CheckoutForm = ({
           aria-describedby={errors.payment ? `${id}-payment-error` : undefined}
         >
           <legend className="mb-3 font-medium">{t('payment')}</legend>
-          {PAYMENTS.filter(
-            (payment) => payment !== 'transfer' || (transfer && prepay),
-          ).map((payment) => (
+          {offered.map((way) => (
             <label
-              key={payment}
+              key={way}
               className="flex cursor-pointer gap-3 rounded-lg border p-3 has-checked:border-primary has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
             >
               <input
                 type="radio"
                 name="payment"
-                value={payment}
+                value={way}
+                defaultChecked={way === payment}
+                onChange={() => setChosen(way)}
                 className="mt-1 size-4 shrink-0 accent-primary"
-                aria-describedby={`${id}-${payment}-hint`}
+                aria-describedby={`${id}-${way}-hint`}
               />
               <span className="flex flex-col gap-0.5">
-                <span className="font-medium">{t(payment)}</span>
+                <span className="font-medium">{t(way)}</span>
                 <span
-                  id={`${id}-${payment}-hint`}
+                  id={`${id}-${way}-hint`}
                   className="text-sm text-muted-foreground"
                 >
-                  {t(`${payment}Hint`)}
+                  {t(`${way}Hint`)}
                 </span>
               </span>
             </label>
           ))}
-          {transfer && !prepay && (
+          {(transfer || card) && !prepay && (
             <p className="text-sm text-muted-foreground">
-              {t('transferInStock')}
+              {t('prepayInStock', { ways: ahead })}
             </p>
           )}
           {error('payment')}
         </fieldset>
+
+        {chosen === 'card' && offered.includes('card') && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor={`${id}-email`}>{t('email')}</Label>
+            <Input
+              id={`${id}-email`}
+              name="email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+              defaultValue={contact?.email}
+              aria-describedby={`${id}-email-hint`}
+              {...invalid('email')}
+            />
+            <p
+              id={`${id}-email-hint`}
+              className="text-sm text-muted-foreground"
+            >
+              {t('emailHint')}
+            </p>
+            {error('email')}
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-comment`}>

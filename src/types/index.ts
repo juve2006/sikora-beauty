@@ -42,6 +42,7 @@ export type OrderContact = {
   firstName: string;
   lastName: string;
   phone?: string;
+  email?: string;
 };
 export type OrderField =
   | 'firstName'
@@ -50,11 +51,18 @@ export type OrderField =
   | 'settlement'
   | 'warehouse'
   | 'payment'
-  | 'comment';
+  | 'comment'
+  | 'email';
+// `pay`: a card's invoice is made, and the browser goes to monobank's page at `url`.
 export type OrderState =
   | { status: 'idle' | 'failed' | 'changed' }
   | { status: 'invalid'; errors: Partial<Record<OrderField, string[]>> }
-  | { status: 'placed'; number: number; token: string };
+  | { status: 'placed'; number: number; token: string }
+  | { status: 'pay'; url: string };
+// `payByCard`'s answer: the page to pay on; the order's payment turned to a link the manager sends,
+// as the invoice was not made; or nothing to pay — another payment, or an invoice made already.
+export type CardPaymentState =
+  { status: 'pay'; url: string } | { status: 'link' | 'none' };
 // Where a shopper who chose a transfer sends the money.
 export type PaymentDetails = { recipient: string; iban: string; code: string };
 // What an account's forms show after a submit: the error keys of each field the shopper typed, or

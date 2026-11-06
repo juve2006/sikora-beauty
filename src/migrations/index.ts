@@ -13,6 +13,7 @@ import * as migration_20261103_170810_site_contacts from './20261103_170810_site
 import * as migration_20261103_201435_volume_unit_default from './20261103_201435_volume_unit_default';
 import * as migration_20261104_115441_google_sign_in from './20261104_115441_google_sign_in';
 import * as migration_20261106_093330_transfer_payment from './20261106_093330_transfer_payment';
+import * as migration_20261106_121641_card_payment from './20261106_121641_card_payment';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20261106_093330_transfer_payment.up,
     down: migration_20261106_093330_transfer_payment.down,
-    name: '20261106_093330_transfer_payment'
+    name: '20261106_093330_transfer_payment',
+  },
+  {
+    up: migration_20261106_121641_card_payment.up,
+    down: migration_20261106_121641_card_payment.down,
+    name: '20261106_121641_card_payment'
   },
 ];
