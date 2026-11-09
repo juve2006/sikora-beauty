@@ -16,6 +16,7 @@ import { keepPasswordChanges } from '@/lib/auth-writes';
 import { emailAdapter } from '@/lib/email';
 import { parseEnv } from '@/lib/env';
 import { monoReconcile, monoWebhook } from '@/lib/monobank';
+import { npTrack, npWaybill } from '@/lib/novaposhta';
 import { payloadLoggerOptions } from '@/lib/server-log';
 
 const env = parseEnv(process.env);
@@ -44,9 +45,9 @@ export default buildConfig({
   },
   collections,
   email: emailAdapter(env),
-  // The payment provider's own ways in, at /api/mono/webhook and /api/mono/reconcile: payments
-  // depend on orders, so they are registered here, not on the orders collection.
-  endpoints: [monoWebhook, monoReconcile],
+  // The payment provider's and the carrier's own ways in, under /api/mono and /api/np: payments and
+  // delivery depend on orders, so they are registered here, not on the orders collection.
+  endpoints: [monoWebhook, monoReconcile, npWaybill, npTrack],
   globals: [CareFinder, Contacts, PaymentDetails],
   hooks: {
     // Payload answers its own errors, so `onRequestError` never hears of them. A refusal, under 500,

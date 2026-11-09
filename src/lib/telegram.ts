@@ -106,6 +106,23 @@ export const cardMessage = (
     siteUrl,
   );
 
+// A parcel nobody collected, in Nova Poshta's words. The number and the waybill only: the order's
+// own message carries the rest.
+export const parcelMessage = (
+  order: Pick<Order, 'id'>,
+  waybill: string,
+  status: string,
+  siteUrl: URL,
+) =>
+  withLink(
+    [
+      `Посилку не забрали: замовлення №${order.id}, накладна ${waybill}`,
+      status,
+    ],
+    `/admin/collections/orders/${order.id}`,
+    siteUrl,
+  );
+
 // Without the bot's token and the group's id nothing is sent: what was sent waits in the admin.
 export async function sendTelegram(text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;

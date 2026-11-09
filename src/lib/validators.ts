@@ -4,8 +4,8 @@ import {
   AVAILABILITIES,
   CART_LINES,
   CART_QUANTITY_MAX,
+  CHECKOUT_PAYMENTS,
   FAVORITES_LIMIT,
-  PAYMENTS,
   RESERVED_SLUGS,
   ROLES,
   SORTS,
@@ -344,7 +344,7 @@ export const orderRequest = z
     // typed by hand while the search does not work.
     settlement: text(200),
     warehouse: text(200),
-    payment: z.enum(PAYMENTS, 'paymentRequired'),
+    payment: z.enum(CHECKOUT_PAYMENTS, 'paymentRequired'),
     comment: z
       .string()
       .trim()
@@ -440,6 +440,7 @@ export const npAnswer = z.object({
   success: z.boolean(),
   data: z.array(z.unknown()),
   errors: z.array(z.string()).catch([]),
+  errorCodes: z.array(z.string()).catch([]),
 });
 // `searchSettlements`: one result, whose `Addresses` are the matches; `Warehouses` is how many
 // NP warehouses the settlement has.
@@ -466,6 +467,46 @@ export const npWarehouses = z.array(
     DenyToSelect: z.coerce.string(),
   }),
 );
+// What a waybill is made of: the key's own counterparty and its contact with a phone, the city a
+// settlement's NP warehouses are in, the recipient and their contact as `save` returns them.
+export const npCounterparties = z.array(z.object({ Ref: z.guid() })).min(1);
+export const npContacts = z
+  .array(z.object({ Ref: z.guid(), Phones: z.string() }))
+  .min(1);
+export const npCities = z.array(z.object({ CityRef: z.guid() })).min(1);
+export const npRecipients = z
+  .array(
+    z.object({
+      Ref: z.guid(),
+      ContactPerson: z.object({
+        data: z.array(z.object({ Ref: z.guid() })).min(1),
+      }),
+    }),
+  )
+  .min(1);
+// The waybill `save` made.
+export const npDocuments = z
+  .array(z.object({ IntDocNumber: z.string().regex(/^\d{14}$/) }))
+  .min(1);
+// `getStatusDocuments`: one per number asked.
+export const npTracking = z.array(
+  z.object({
+    Number: z.string(),
+    StatusCode: z.coerce.string(),
+    Status: z.string(),
+  }),
+);
+
+// The waybill form: the order and its box, in kilograms and centimetres. `again` is the manager's own
+// word that a request Nova Poshta never answered left no waybill.
+export const waybillRequest = z.object({
+  id: z.coerce.number().int().positive(),
+  weight: z.coerce.number().min(0.1).max(30),
+  width: z.coerce.number().min(1).max(120),
+  length: z.coerce.number().min(1).max(120),
+  height: z.coerce.number().min(1).max(120),
+  again: z.boolean().optional(),
+});
 
 // monobank acquiring's answers: `invoice/create` gives the invoice and the page the shopper pays
 // on, `pubkey` the base64 of a PEM key that signs webhooks.

@@ -2,5 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run vercel-build",
   "regions": ["fra1"],
-  "crons": [{ "path": "/api/mono/reconcile", "schedule": "0 3 * * *" }]
+  "crons": [
+    { "path": "/api/mono/reconcile", "schedule": "0 3 * * *" },
+    { "path": "/api/np/track", "schedule": "0 4 * * *" }
+  ]
 }

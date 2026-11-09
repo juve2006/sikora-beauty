@@ -34,6 +34,9 @@ export default defineConfig({
       port: 3200,
       env: {
         NOVA_POSHTA_API_URL: 'http://127.0.0.1:4010/',
+        NOVA_POSHTA_API_KEY: 'e2e-np',
+        NOVA_POSHTA_SENDER_CITY: '55555555-5555-4555-8555-555555555555',
+        NOVA_POSHTA_SENDER_WAREHOUSE: '66666666-6666-4666-8666-666666666666',
         GOOGLE_CLIENT_ID: 'e2e-client',
         GOOGLE_CLIENT_SECRET: 'e2e-secret',
         GOOGLE_STUB_URL: 'http://127.0.0.1:4011/',

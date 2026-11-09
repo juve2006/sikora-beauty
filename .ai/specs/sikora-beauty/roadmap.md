@@ -191,9 +191,9 @@ from an order and the delivery status updates. The payment items were split in t
 - [x] `mono-reconcile` — invoices without a webhook settle themselves (after: mono payment —
   reconciles its invoices)
   - Backend: a daily cron reads the invoices still open and moves them forward
-- [ ] np waybill — waybills from the admin (after: cart and checkout — creates waybills for its orders)
-  - Backend: waybill through the Nova Poshta API, cash on delivery, tracking by cron, refusals
-    visible on the order
+- [x] `np-waybill` — waybills from the admin (after: cart and checkout — creates waybills for its orders)
+  - Backend: waybill through the Nova Poshta API, tracking by cron, refusals visible on the order;
+    cash on delivery was cut at its gate of 2026-11-09 and is `cash-on-delivery` below
   - Frontend: a "create waybill" button and the delivery status in the admin
 
 ## Phase 5 — After launch
@@ -204,6 +204,11 @@ been dropped on purpose.
 - [x] `customer-accounts` — a shopper registers and signs in, and staff sign in the same way and get
   the admin; done ahead of the launch at the developer's request of 2026-11-02
   (adr-20261103-customer-accounts)
+- [ ] `cash-on-delivery` — cash on delivery on top of the prepayment-only start
+  (adr-20261109-waybills-and-prepayment-only-start)
+  - Backend: first candidate «Контроль оплати», with a NovaPay contract and the accountant's answer
+    on receipts; the waybill's field
+  - Frontend: the option back in the checkout, the site's texts
 - [ ] fog: stock and price sync with the distributor — depends on the stock model
 - [ ] fog: reviews, promo codes, loyalty, blog — by demand after launch
 - [ ] fog: languages beyond Ukrainian and English — by traffic
@@ -215,7 +220,7 @@ been dropped on purpose.
 3. product-page; catalog-listing; catalog-import; search; consultation-request
 4. brands-and-collections; content-drafts; favorites; cart-and-checkout
 5. header, home and about; care-finder
-6. transfer-payment; np waybill
+6. transfer-payment; np-waybill
 7. mono-payment
 8. mono-reconcile
 9. production host; backups and restore; launch readiness

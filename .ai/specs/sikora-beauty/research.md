@@ -123,3 +123,36 @@ Gathered on 2026-11-06, for the split of `mono payment` (adr-20261106-transfer-t
   account: a transfer goes to the ФОП's IBAN.
 - Hence: mono for cards, once the seller opens a mono ФОП account; a transfer to her Privat ФОП
   account meanwhile and after; no second card provider — neither fee nor card coverage asks for one.
+
+## Nova Poshta API 2.0
+
+Gathered on 2026-11-09, for `np-waybill` (adr-20261109-waybills-and-prepayment-only-start).
+developers.novaposhta.ua answers 403 to automated readers and devcenter.novaposhta.ua fails TLS, so
+this comes from api-portal.novapost.com, «API Docs UA», whose pages name
+`https://api.novaposhta.ua/v2.0/` as their server. A claim marked (excerpt) was seen only in a search
+result.
+
+- **No sandbox.** Test keys exist only for the international API's stage host; «generating test keys for
+  Ukraine is not supported». A `save` with a real key makes a real document.
+- **`InternetDocumentGeneral.save`.** `WarehouseWarehouse`, `PayerType` `Recipient`, `PaymentMethod`
+  `Cash`, `DateTime` `dd.mm.yyyy`, `Weight` from 0.1, `OptionsSeat` or `VolumeGeneral`, sender and
+  recipient refs, phones as `380…`. No idempotency key appears in any schema. A failure is
+  `success: false` with `errors` and `errorCodes`, and HTTP 200 (excerpt).
+- **A recipient.** `Counterparty.save` with `PrivatePerson` and `Recipient`, its data in Ukrainian
+  alone, then the Ref form of `save`. The by-string form wants names and a branch number as text.
+- **A parcel locker.** `SeatsAmount` `1`, one `OptionsSeat` with all five fields, up to 40 × 60 × 30 cm
+  and 20 kg, `Cost` up to 29,000 UAH.
+- **Cash on delivery.** `BackwardDeliveryData` Money, «Післяплата»: NovaPay, 1% + 10 UAH with its cards,
+  2% + 20 UAH otherwise, paid out to a non-business card or in cash.
+  `AfterpaymentOnGoodsCost`, «Контроль оплати»: credited to the sender's account on a NovaPay
+  «Договір післяплати», 0.5% to a NovaPay account, 1.3% to another; error codes say it is disabled for
+  lockers, without saying when. Fiscal receipts: neither page mentions them.
+- **Tracking.** `TrackingDocumentGeneral.getStatusDocuments`, up to 100 numbers. No webhook in the docs.
+  Codes: 1 not handed over, 2 deleted, 7 and 8 at the branch, 9 received, 10 and 11 received with money
+  sent, 102 and 103 refused, 105 storage ended, 106 received with a return waybill. The page calls none
+  final, and may be incomplete (excerpt: 124).
+- **The key.** Issued free in the business cabinet («Налаштування → Безпека»), «виключно фізичним
+  особам», bound to the organizations chosen there, for a year (excerpt).
+- **Printing.** The URL on `my.novaposhta.ua` carries the key.
+- **Unconfirmed.** When a waybill can be deleted and what that costs; whether a personal cabinet's key
+  makes waybills for a ФОП; published rate limits; how a return links to the original waybill.

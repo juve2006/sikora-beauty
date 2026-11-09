@@ -123,6 +123,20 @@ describe('parseEnv', () => {
     expect(
       parseEnv({ ...cards, VERCEL_ENV: 'preview' }).CRON_SECRET,
     ).toBeUndefined();
+    // Waybills too: the tracking is called with it. The search's key alone makes no waybill.
+    const waybills = {
+      ...production,
+      NOVA_POSHTA_SENDER_WAREHOUSE: '11111111-1111-4111-8111-111111111111',
+    };
+    expect(() => parseEnv(waybills)).toThrow(
+      'Invalid environment variables: CRON_SECRET',
+    );
+    expect(parseEnv({ ...waybills, CRON_SECRET: secret }).CRON_SECRET).toBe(
+      secret,
+    );
+    expect(
+      parseEnv({ ...production, NOVA_POSHTA_API_KEY: 'key' }).CRON_SECRET,
+    ).toBeUndefined();
   });
 
   it('takes Turnstile and Telegram in pairs or not at all', () => {

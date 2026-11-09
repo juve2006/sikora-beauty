@@ -1,7 +1,9 @@
 import {
+  DELIVERY_DELETED,
   ORDER_STATUSES,
   PAYMENT_STATUSES,
   VOLUME_UNIT_LABELS,
+  WAYBILL_STATUSES,
 } from '@/lib/constants';
 import type { Order, Product } from '@/payload-types';
 import type { CartLine, OrderStatus, PaymentStatus } from '@/types';
@@ -117,6 +119,36 @@ export const cardRetryable = ({
   (status === 'new' || status === 'confirmed') &&
   (paymentStatus === 'failed' ||
     (paymentStatus === 'awaiting' && !monoInvoiceId));
+
+// Why the button may not make this order's waybill, or nothing when it may: the admin's form shows
+// the reason and the endpoint refuses by it. A number whose parcel Nova Poshta says was deleted no
+// longer counts as a waybill.
+export function waybillBlock({
+  status,
+  paymentStatus,
+  settlementRef,
+  warehouseRef,
+  waybillNumber,
+  deliveryCode,
+}: Pick<
+  Order,
+  | 'status'
+  | 'paymentStatus'
+  | 'settlementRef'
+  | 'warehouseRef'
+  | 'waybillNumber'
+  | 'deliveryCode'
+>) {
+  if (waybillNumber && deliveryCode !== DELIVERY_DELETED)
+    return 'Накладна вже є';
+  if (status === 'new') return 'Спершу підтвердьте замовлення';
+  if (!(WAYBILL_STATUSES as readonly string[]).includes(status))
+    return 'Замовлення вже закрите';
+  if (!settlementRef || !warehouseRef)
+    return 'Адресу введено вручну: створіть накладну в кабінеті НП і впишіть номер';
+  if (paymentStatus !== 'paid') return 'Замовлення ще не оплачене';
+  return null;
+}
 
 // The order's lines as monobank's invoice wants them for the fiscal receipt: each with a code, here
 // the product's id — its name once the product is gone — and its price per unit in kopiyky.

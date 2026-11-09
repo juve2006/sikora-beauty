@@ -107,6 +107,27 @@ export const keepPaymentForward: CollectionBeforeChangeHook = ({
   return data;
 };
 
+// A waybill made in Nova Poshta's cabinet is typed in by hand, and what the cron knew of the old number
+// goes with it. An empty field takes no number away: a form opened before the waybill was made saves
+// one, and the button would then make a second.
+export const keepWaybill: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  operation,
+}) => {
+  if (operation !== 'update') return data;
+  const kept = originalDoc?.waybillNumber;
+  if (!data.waybillNumber) return { ...data, waybillNumber: kept ?? null };
+  return data.waybillNumber === kept
+    ? data
+    : {
+        ...data,
+        deliveryCode: null,
+        deliveryStatus: null,
+        waybillRequestedAt: null,
+      };
+};
+
 // A shopper's order, waiting for the manager's confirmation (adr-20261028-two-step-launch). Their
 // name, phone and NP warehouse are personal data: only an admin role and the shopper who ordered
 // signed in read them, nobody creates an order through the API — `placeOrder` does, after Zod,
@@ -135,7 +156,7 @@ export const Orders: CollectionConfig = {
     update: hasRole,
     delete: isOwner,
   },
-  hooks: { beforeChange: [keepStatusForward, keepPaymentForward] },
+  hooks: { beforeChange: [keepStatusForward, keepPaymentForward, keepWaybill] },
   fields: [
     {
       name: 'lines',
@@ -322,6 +343,48 @@ export const Orders: CollectionConfig = {
       index: true,
       access: { read: hasRole, update: nobody },
       admin: { position: 'sidebar' },
+    },
+    // Nova Poshta's waybill: the button makes it (src/lib/novaposhta.ts), or the manager types the
+    // number of one made in its cabinet. What the cron and the button write nobody changes here, and a
+    // shopper reads none of it.
+    {
+      type: 'ui',
+      name: 'waybill',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/waybill-field' },
+      },
+    },
+    {
+      name: 'waybillNumber',
+      type: 'text',
+      label: 'Номер накладної',
+      unique: true,
+      index: true,
+      access: { read: hasRole },
+      validate: (value: string | null | undefined) =>
+        !value ||
+        /^\d{14}$/.test(value) ||
+        'Номер накладної: 14 цифр без пробілів',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'waybillRequestedAt',
+      type: 'date',
+      access: { read: hasRole, update: nobody },
+      admin: { hidden: true },
+    },
+    {
+      name: 'deliveryCode',
+      type: 'text',
+      access: { read: hasRole, update: nobody },
+      admin: { hidden: true },
+    },
+    {
+      name: 'deliveryStatus',
+      type: 'text',
+      access: { read: hasRole, update: nobody },
+      admin: { hidden: true },
     },
     // The thank-you page finds the order by it, never by its number, which anyone could count
     // through: only the browser that placed the order has it, and nobody reads it back.

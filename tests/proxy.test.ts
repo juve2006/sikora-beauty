@@ -95,14 +95,19 @@ describe('the site password', () => {
   });
 
   // monobank's webhook carries its signature, not the password (src/lib/monobank.ts).
-  it("lets only monobank's webhook and its reconciliation through without it", async () => {
+  it("lets only monobank's webhook, its reconciliation and the parcels' tracking through without it", async () => {
     vi.stubEnv('SITE_PASSWORD', 'open-sesame-123');
     const send = (path: string, method: string) =>
       proxy(new NextRequest(`http://localhost${path}`, { method }));
 
     expect((await send('/api/mono/webhook', 'POST')).status).not.toBe(401);
     expect((await send('/api/mono/reconcile', 'GET')).status).not.toBe(401);
+    expect((await send('/api/np/track', 'GET')).status).not.toBe(401);
     for (const [path, method] of [
+      ['/api/np/track', 'POST'],
+      ['/api/np/track/', 'GET'],
+      ['/en/api/np/track', 'GET'],
+      ['/api/np/waybill', 'POST'],
       ['/api/mono/webhook', 'GET'],
       ['/api/mono/webhook/', 'POST'],
       ['/api/mono', 'POST'],

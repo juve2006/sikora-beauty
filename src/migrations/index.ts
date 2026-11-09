@@ -14,6 +14,7 @@ import * as migration_20261103_201435_volume_unit_default from './20261103_20143
 import * as migration_20261104_115441_google_sign_in from './20261104_115441_google_sign_in';
 import * as migration_20261106_093330_transfer_payment from './20261106_093330_transfer_payment';
 import * as migration_20261106_121641_card_payment from './20261106_121641_card_payment';
+import * as migration_20261109_142149_np_waybill from './20261109_142149_np_waybill';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20261106_121641_card_payment.up,
     down: migration_20261106_121641_card_payment.down,
-    name: '20261106_121641_card_payment'
+    name: '20261106_121641_card_payment',
+  },
+  {
+    up: migration_20261109_142149_np_waybill.up,
+    down: migration_20261109_142149_np_waybill.down,
+    name: '20261109_142149_np_waybill'
   },
 ];

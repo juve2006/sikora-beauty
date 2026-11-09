@@ -70,7 +70,7 @@
     "related": "Goes well with",
     "deliveryTitle": "Delivery and payment",
     "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine, at Nova Poshta’s rates — you pay for delivery when you collect the parcel.",
-    "payment": "Pay on delivery, by bank transfer, or by card — on the site or by a link a manager sends."
+    "payment": "By bank transfer or by card — on the site or by a link a manager sends."
   },
   "Catalog": {
     "count": "{count, plural, one {# product} other {# products}}",

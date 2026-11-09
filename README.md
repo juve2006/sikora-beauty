@@ -45,13 +45,16 @@ shopper's favorites — in their browser, no account — counted on «Обран
 shows them with today's prices, the newest first, and drops a product taken off the store.
 The cart is kept the same way, counted on the bag in the header; `/cart` shows it with today's
 prices and takes a guest's order under it: name, phone, a Nova Poshta settlement and branch found
-as they type (typed by hand when Nova Poshta does not answer), cash on delivery, a payment link
+as they type (typed by hand when Nova Poshta does not answer), a payment link
 from the manager or, when every item is in stock and the owner has filled in «Продажі → Реквізити
 для оплати», a transfer to the store's account — or a card on monobank's page, paid right after
 the order, its receipt mailed by mono. The server prices the order again — a price changed
 meanwhile asks the shopper to check the cart — and keeps its lines as they were sold; it waits in the
 admin under «Продажі → Замовлення», where the manager moves its status forward, marks it paid and
-keeps a note. `/cart/thanks` finds the order by a secret its checkout was given and shows its
+keeps a note. The store starts on prepayment alone; cash on delivery comes later. On a confirmed, paid
+order a button makes the Nova Poshta waybill from the box the manager measures, or the number of one
+made in Nova Poshta's cabinet is typed in; once a day a cron asks how each parcel is doing, shows it on
+the order and tells the Telegram group of one nobody collected. `/cart/thanks` finds the order by a secret its checkout was given and shows its
 number — for a transfer, the account to pay, each detail with a copy button; for a card, whether
 it paid, by mono's signed webhook or by asking mono on the way back and once a day, and another try
 when it did not. The order reaches the same Telegram group as a request, a message with the contacts,
@@ -121,6 +124,8 @@ letters and whatever tries a phone number. A public
 Production (no `SITE_PASSWORD`) does not deploy without the Turnstile keys. `.env.example` has Cloudflare's test keys.
 The checkout searches Nova Poshta with `NOVA_POSHTA_API_KEY` when it is set and without a key
 otherwise; whenever Nova Poshta does not answer, the shopper types the settlement and branch.
+The admin's waybill button also needs `NOVA_POSHTA_SENDER_CITY` and `NOVA_POSHTA_SENDER_WAREHOUSE`
+(`docs/deploy.md`, step 18); without them it is off and nothing is created.
 An account's letters go by SMTP with the `SMTP_*` variables (`docs/deploy.md`, step 9), which
 Production does not deploy without. Elsewhere nothing is sent or logged: to follow a letter's link,
 take the token from the `customers` table (`_verificationtoken`, `reset_password_token`).

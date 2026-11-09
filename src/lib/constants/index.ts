@@ -95,6 +95,9 @@ export const ORDER_STATUSES = [
 // account, or a card on monobank's page — the last two only for an order wholly in stock
 // (adr-20261028-two-step-launch).
 export const PAYMENTS = ['cod', 'link', 'transfer', 'card'] as const;
+// What the checkout offers: the store starts on prepayment alone, and cash on delivery comes back
+// later. It stays in `PAYMENTS` for the orders that were placed with it.
+export const CHECKOUT_PAYMENTS = ['link', 'transfer', 'card'] as const;
 // Whether an order is paid, apart from its status: only forward (RULES.md) — the manager marks it,
 // and monobank for a card.
 export const PAYMENT_STATUSES = [
@@ -112,6 +115,36 @@ export const MONO_API = 'https://api.monobank.ua';
 export const RECONCILE_AFTER = 10 * 60_000;
 export const RECONCILE_WITHIN = 7 * 24 * 60 * 60_000;
 export const RECONCILE_LIMIT = 20;
+
+// A parcel's box as the waybill form starts it, in kilograms and centimetres.
+export const WAYBILL_BOX = {
+  weight: '0.5',
+  width: '20',
+  length: '30',
+  height: '10',
+};
+export const WAYBILL_STATUSES = ['confirmed', 'shipped'] as const;
+// How long a waybill's request must be gone before the manager may send it again: longer than the
+// 15 seconds Nova Poshta is given, so a second tab never repeats one still on its way.
+export const WAYBILL_AGAIN_AFTER = 60_000;
+// The daily tracking asks of at most the first, Nova Poshta's limit for one request, the oldest
+// first, and lets go of an order older than the second.
+export const TRACK_LIMIT = 100;
+export const TRACK_WITHIN = 60 * 24 * 60 * 60_000;
+// Nova Poshta's status codes: deleted in its cabinet, and so free to be made again; the ones after
+// which nothing more happens, any code not named here being still on its way; and a parcel nobody
+// collected, which the manager is told of.
+export const DELIVERY_DELETED = '2';
+export const DELIVERY_FINAL = [
+  DELIVERY_DELETED,
+  '9',
+  '10',
+  '11',
+  '102',
+  '103',
+  '106',
+];
+export const DELIVERY_NOT_COLLECTED = ['102', '103', '105'];
 
 // Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.
 export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';

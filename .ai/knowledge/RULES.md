@@ -30,13 +30,14 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `tests/orders.test.ts` and `tests/monobank.test.ts`)
 - An order is created only by `placeOrder`, after the form's Zod schema, Turnstile and repricing:
   no role creates one through REST or GraphQL, and no role changes what the shopper sent or the
-  snapshot — only the status, the payment status and the manager's note. An admin role reads every
-  order, and a shopper only their own, without the manager's note; nobody reads its return token,
-  which only the thank-you page looks an order up by; nobody changes its monobank invoice, which
-  only staff read; only the owner deletes one.
+  snapshot — only the status, the payment status, the manager's note and the waybill's number. An
+  admin role reads every order, and a shopper only their own, without the manager's note; nobody
+  reads its return token, which only the thank-you page looks an order up by; nobody changes its
+  monobank invoice, which only staff read; only the owner deletes one.
   (adr-20261101-cart-and-checkout, adr-20261103-customer-accounts,
-  adr-20261106-transfer-to-the-store-account, adr-20261106-card-payment-on-monobanks-page; checked
-  by: Vitest in `tests/access.test.ts` and `tests/orders.test.ts`)
+  adr-20261106-transfer-to-the-store-account, adr-20261106-card-payment-on-monobanks-page,
+  adr-20261109-waybills-and-prepayment-only-start; checked by: Vitest in `tests/access.test.ts` and
+  `tests/orders.test.ts`)
 - The store's payment details are read by anyone and changed only by the owner: an account taken
   over must not redirect the money. (adr-20261106-transfer-to-the-store-account; checked by: Vitest
   in `tests/access.test.ts`)
@@ -44,10 +45,17 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   holds. (adr-20261028-monobank-and-cash-on-delivery, adr-20261106-card-payment-on-monobanks-page;
   checked by: Vitest in `tests/monobank.test.ts` with a valid and a forged signature, the e2e tests
   through `tests/e2e/mono-stub.mjs`)
-- The daily reconciliation of mono's invoices has no effect before `CRON_SECRET` holds: nothing is
-  read before it, and with no secret on the server it refuses everyone.
-  (adr-20261109-card-reconciliation; checked by: Vitest in `tests/monobank.test.ts`, the e2e test
-  through `tests/e2e/mono-stub.mjs`)
+- The daily reconciliation of mono's invoices and the daily tracking of parcels have no effect before
+  `CRON_SECRET` holds: nothing is read before it, and with no secret on the server they refuse
+  everyone. (adr-20261109-card-reconciliation, adr-20261109-waybills-and-prepayment-only-start;
+  checked by: Vitest in `tests/monobank.test.ts` and `tests/waybill.test.ts`, the e2e tests through
+  `tests/e2e/mono-stub.mjs` and `tests/e2e/novaposhta-stub.mjs`)
+- An order gets one waybill, and only confirmed or shipped, and paid: Nova Poshta is asked only after
+  one conditional statement took the order, and a `save` nobody answered keeps it taken, as a waybill
+  may exist. (adr-20261109-waybills-and-prepayment-only-start; checked by: `waybillBlock`, `claimOrder`,
+  Vitest in `tests/waybill.test.ts`, `tests/e2e/waybill.spec.ts`)
+- The checkout takes no cash on delivery: `orderRequest` refuses `cod` from any request.
+  (adr-20261109-waybills-and-prepayment-only-start; checked by: Vitest in `tests/orders.test.ts`)
 - A card's invoice gives way to a new one only once mono itself says it was refused or expired, and
   an invoice not saved on the order as it was read is never paid. (adr-20261109-card-reconciliation;
   checked by: Vitest on `payByCard` in `tests/monobank.test.ts`)
@@ -66,10 +74,12 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - The store always has an owner: nobody changes their own role or deletes themselves.
   (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password, but
-  `POST /api/mono/webhook`, which its signature authenticates, and `GET /api/mono/reconcile`, which
-  `CRON_SECRET` does; a Production build without `SITE_PASSWORD` fails, as does one with `MONO_TOKEN`
-  and no `CRON_SECRET`. (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page,
-  adr-20261109-card-reconciliation; checked by: Vitest on `src/proxy.ts` and `src/lib/env.ts`)
+  `POST /api/mono/webhook`, which its signature authenticates, and `GET /api/mono/reconcile` and
+  `GET /api/np/track`, which `CRON_SECRET` does; a Production build without `SITE_PASSWORD` fails, as
+  does one with `MONO_TOKEN` or `NOVA_POSHTA_SENDER_WAREHOUSE` and no `CRON_SECRET`.
+  (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page,
+  adr-20261109-card-reconciliation, adr-20261109-waybills-and-prepayment-only-start; checked by:
+  Vitest on `src/proxy.ts` and `src/lib/env.ts`)
 - A consultation request is created only by `requestConsultation`, after the form's Zod schema
   and Turnstile: no role creates one through REST or GraphQL, and no role changes what the shopper
   sent — only its status. Only an admin role reads a request; only the owner deletes one.
