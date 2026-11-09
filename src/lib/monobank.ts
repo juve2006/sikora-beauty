@@ -6,6 +6,7 @@ import {
   MONO_API,
   RECONCILE_AFTER,
   RECONCILE_LIMIT,
+  RECONCILE_WITHIN,
   SITE_URL,
 } from '@/lib/constants';
 import { monoPayment, movesTo } from '@/lib/orders';
@@ -160,7 +161,26 @@ export const monoWebhook: Endpoint = {
     } catch {}
     const event = monoEvent.safeParse(data);
     if (!event.data) return Response.json({ error: 'body' }, { status: 400 });
-    await settle(req.payload, event.data.invoiceId, event.data.status);
+    const { invoiceId, status } = event.data;
+    const moved = await settle(req.payload, invoiceId, status);
+    if (!moved && status === 'success') {
+      // Money for an invoice a retry replaced, which only mono's cabinet shows otherwise. No visitor's
+      // read: mono's, once its signature holds, and only the invoice is selected.
+      const { docs } = await req.payload.find({
+        collection: 'orders',
+        where: { monoInvoiceId: { equals: invoiceId } },
+        depth: 0,
+        limit: 1,
+        pagination: false,
+        overrideAccess: true,
+        select: { monoInvoiceId: true },
+      });
+      if (!docs.length)
+        console.error(
+          'monobank:',
+          `no order holds the paid invoice ${invoiceId}`,
+        );
+    }
     return Response.json({ ok: true });
   },
 };
@@ -179,7 +199,8 @@ const fromCron = (authorization: string | null) => {
 // The day's sweep for what no webhook told: the oldest card invoices still waiting, each asked of
 // mono and moved as its webhook would have. Past the site password (src/proxy.ts), and nothing is
 // read before the secret holds. Younger invoices are left to their shoppers; one mono cannot answer
-// for is logged and the rest go on. An `expired` invoice has no webhook at all, so this is its way.
+// for is logged and the rest go on, until a week has passed and it stops taking a place among the
+// oldest. An `expired` invoice has no webhook at all, so this is its way.
 export const monoReconcile: Endpoint = {
   path: '/mono/reconcile',
   method: 'get',
@@ -198,6 +219,13 @@ export const monoReconcile: Endpoint = {
           {
             createdAt: {
               less_than: new Date(Date.now() - RECONCILE_AFTER).toISOString(),
+            },
+          },
+          {
+            createdAt: {
+              greater_than: new Date(
+                Date.now() - RECONCILE_WITHIN,
+              ).toISOString(),
             },
           },
         ],

@@ -60,7 +60,8 @@ export type OrderState =
   | { status: 'placed'; number: number; token: string }
   | { status: 'pay'; url: string };
 // `payByCard`'s answer: the page to pay on; the order's payment turned to a link the manager sends,
-// as the invoice was not made; or nothing to pay — another payment, or an invoice made already.
+// as its first invoice was not made; or no page — nothing to pay any more, an old invoice still
+// alive, or a new one not made or not kept.
 export type CardPaymentState =
   { status: 'pay'; url: string } | { status: 'link' | 'none' };
 // Where a shopper who chose a transfer sends the money.

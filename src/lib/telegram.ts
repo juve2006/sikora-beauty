@@ -86,7 +86,7 @@ export const orderMessage = (order: Order, siteUrl: URL) =>
     siteUrl,
   );
 
-// What became of a card's payment: paid or failed, as monobank's webhook says, or an invoice mono
+// What became of a card's payment: paid or failed, as monobank says, or an invoice mono
 // did not make, so the manager sends a link. The number and the sum only: the order's own message
 // carries the rest.
 export const cardMessage = (
