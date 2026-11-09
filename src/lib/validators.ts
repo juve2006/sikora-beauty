@@ -474,6 +474,11 @@ export const monoInvoice = z.object({
   pageUrl: z.url(),
 });
 export const monoPubkey = z.object({ key: z.string().min(1) });
+// What mono says when it refuses a request.
+export const monoError = z.object({
+  errCode: z.string().optional(),
+  errText: z.string().optional(),
+});
 // A webhook's body, once its signature holds: only what moves an order. The status stays a string
 // — one mono adds later moves nothing (`nextPayment`), and a 400 would only make mono send it again.
 export const monoEvent = z.object({

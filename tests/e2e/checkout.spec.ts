@@ -235,6 +235,15 @@ test('a card mono makes no invoice for becomes a link', async ({ page }) => {
     payment: 'link',
     payment_status: 'awaiting',
   });
+
+  // Once the manager marks it paid, nobody promises a link any more.
+  await database.query(
+    "update orders set payment_status = 'paid' where id = $1",
+    [id],
+  );
+  await page.reload();
+  await expect(page.locator('h1')).toContainText(String(id));
+  await expect(page.getByText(uk.Checkout.linkText)).toHaveCount(0);
 });
 
 test('offers no prepayment while a line is made to order', async ({ page }) => {
