@@ -492,7 +492,7 @@ describe('the Telegram message', () => {
       'Оплачено карткою: замовлення №42, 2491 грн',
     );
     expect(cardMessage(order, 'failed', site)).toContain(
-      'Оплата карткою не пройшла: замовлення №42',
+      'Оплата карткою не пройшла: замовлення №42, 2491 грн',
     );
     expect(cardMessage(order, 'link', site)).toContain(
       'Рахунок mono не створився: замовлення №42',

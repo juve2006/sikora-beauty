@@ -14,7 +14,7 @@ paths:
   - src/collections/orders.ts
   - "src/app/*/(shop)/cart/**"
 summary: "Why a card is paid on monobank's page right after ordering: the payments module makes the invoice, the webhook passes the site password by its signature, and the payment status moves by one table"
-reviewed_at: 2026-11-06
+reviewed_at: 2026-11-09
 ---
 # A shopper pays by card on monobank's page right after ordering; the payments module makes the invoice and only mono's signed webhook moves a card's payment status
 
@@ -81,8 +81,8 @@ back, the cron and `expired` — is the task `mono-reconcile`.
 - **The time of mono's last event, kept to refuse older ones.** One more field and a comparison of
   dates refusing what the table already refuses.
 - **The receipt's address kept with the order.** The manager needs none, and it is more personal
-  data. **No address at all** waits on whether mono's page asks for one itself, to be seen on a live
-  test payment.
+  data. **No address at all** — mono's page does not ask for one itself, as a live test payment
+  showed (2026-11-06), so a shopper would get no receipt.
 - **An error in the form when mono makes no invoice.** The order would have to be deleted, or the
   invoice made before the order, without its number.
 - **«Спробувати ще раз» for a failed card here.** One more action, a new invoice and its tests;

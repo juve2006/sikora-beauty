@@ -309,6 +309,33 @@ describe('payByCard', () => {
     );
   });
 
+  const logged = async (answer: Response) => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    fetch.mockImplementation(async (url) =>
+      new URL(url).pathname === '/api/merchant/invoice/create'
+        ? answer
+        : answers(url),
+    );
+    await payByCard(token, 'olena@example.com');
+    return error;
+  };
+
+  it.each([
+    ["invalid 'qty'", "HTTP 400 BAD_REQUEST invalid 'qty'"],
+    ['bad address olena@example.com', 'HTTP 400 BAD_REQUEST'],
+  ])('logs what mono refused, and no address: %s', async (errText, line) => {
+    const error = await logged(
+      Response.json({ errCode: 'BAD_REQUEST', errText }, { status: 400 }),
+    );
+    expect(error).toHaveBeenCalledWith('monobank:', line);
+    expect(JSON.stringify(error.mock.calls)).not.toContain('olena');
+  });
+
+  it('logs which fields of mono’s answer did not hold', async () => {
+    const error = await logged(Response.json({ invoiceId: 'a' }));
+    expect(error).toHaveBeenCalledWith('monobank:', 'invalid: pageUrl');
+  });
+
   it('turns it to a link while no token is set, asking mono nothing', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.stubEnv('MONO_TOKEN', '');

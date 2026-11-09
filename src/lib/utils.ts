@@ -3,13 +3,17 @@ export { cn } from 'cn';
 // What of an error may reach a log, only what went wrong: a failed query carries its params, the
 // database's detail the failing row, a mail server's refusal the address and Google's answer a
 // shopper's data. A mail error's code says as much without them. A number is no such code: a timeout's
-// `DOMException` has 23 there, and its message says what failed.
+// `DOMException` has 23 there, and its message says what failed. A Zod error's message is its issues as
+// JSON, values included: the paths alone say which fields did not hold.
 export function whatFailed(error: unknown) {
-  const { code, message, cause } = error as {
+  const { code, message, cause, issues } = error as {
     code?: unknown;
     message?: string;
     cause?: { message?: string };
+    issues?: { path: PropertyKey[] }[];
   };
+  if (Array.isArray(issues))
+    return `invalid: ${issues.map(({ path }) => path.map(String).join('.')).join(', ')}`;
   return typeof code === 'string'
     ? code
     : (cause?.message ?? message?.split('\n')[0]);

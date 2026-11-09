@@ -5,7 +5,12 @@ import type { Endpoint } from 'payload';
 import { MONO_API, SITE_URL } from '@/lib/constants';
 import { nextPayment } from '@/lib/orders';
 import { whatFailed } from '@/lib/utils';
-import { monoEvent, monoInvoice, monoPubkey } from '@/lib/validators';
+import {
+  monoError,
+  monoEvent,
+  monoInvoice,
+  monoPubkey,
+} from '@/lib/validators';
 
 // monobank acquiring for a card paid on the site: its invoice and its signed webhook. Payments depend
 // on orders, never the other way (ARCHITECTURE): this module reads and writes orders, and orders only
@@ -28,7 +33,17 @@ async function call(path: string, init: RequestInit = {}) {
       signal: AbortSignal.timeout(10_000),
     },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    // What mono refused, for the log. All it holds of a shopper is the receipt's address, so a text
+    // that repeats one stays out.
+    const { errCode, errText } =
+      monoError.safeParse(await response.json().catch(() => null)).data ?? {};
+    throw new Error(
+      [`HTTP ${response.status}`, errCode, !errText?.includes('@') && errText]
+        .filter(Boolean)
+        .join(' '),
+    );
+  }
   return response.json();
 }
 

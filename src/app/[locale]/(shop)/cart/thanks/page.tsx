@@ -60,7 +60,7 @@ const ThanksPage = async ({ params, searchParams }: Props) => {
         transfer={order && details && { details, total: order.total }}
         card={order?.payment === 'card' ? cardState(order) : undefined}
         again={token && `?t=${token}`}
-        link={order?.payment === 'link' && !order.cancelled}
+        link={order?.payment === 'link' && order.payable}
       />
     </main>
   );

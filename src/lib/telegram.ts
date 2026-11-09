@@ -98,7 +98,7 @@ export const cardMessage = (
     [
       {
         paid: `Оплачено карткою: замовлення №${order.id}, ${formatHryvnias(order.total)} грн`,
-        failed: `Оплата карткою не пройшла: замовлення №${order.id}`,
+        failed: `Оплата карткою не пройшла: замовлення №${order.id}, ${formatHryvnias(order.total)} грн`,
         link: `Рахунок mono не створився: замовлення №${order.id} — надішліть посилання`,
       }[event],
     ],
