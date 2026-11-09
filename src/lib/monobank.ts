@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual, verify } from 'node:crypto';
+import { verify } from 'node:crypto';
 import { after } from 'next/server';
 import type { Endpoint, Payload } from 'payload';
 
@@ -9,6 +9,7 @@ import {
   RECONCILE_WITHIN,
   SITE_URL,
 } from '@/lib/constants';
+import { fromCron } from '@/lib/cron';
 import { monoPayment, movesTo } from '@/lib/orders';
 import { whatFailed } from '@/lib/utils';
 import {
@@ -183,17 +184,6 @@ export const monoWebhook: Endpoint = {
     }
     return Response.json({ ok: true });
   },
-};
-
-// Whether a request carries the cron's secret. Compared as digests, in constant time whatever its
-// length; no secret on the server refuses everyone.
-const fromCron = (authorization: string | null) => {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || !authorization) return false;
-  const [sent, expected] = [authorization, `Bearer ${secret}`].map((value) =>
-    createHash('sha256').update(value).digest(),
-  );
-  return timingSafeEqual(sent, expected);
 };
 
 // The day's sweep for what no webhook told: the oldest card invoices still waiting, each asked of

@@ -4,7 +4,8 @@ Sikora Beauty is an online store for professional skincare from seven brands (Dr
 Innoaesthetics, Me line, Dermafirm, Braderm, Institutum). It serves shoppers who do not know which
 professional product suits them: they find care by zone, skin type, skin condition and skin
 concern — alone, through the care finder or through the cosmetologist — in Ukrainian or English,
-and buy it with card payment or cash on delivery, delivered by Nova Poshta. The owner and the
+and buy it by card, by a transfer or through a link the manager sends, delivered by Nova Poshta;
+cash on delivery comes later (adr-20261109-waybills-and-prepayment-only-start). The owner and the
 cosmetologist, who are not technical, run catalog, orders and consultation requests in the admin.
 Source: spec `sikora-beauty`.
 
@@ -93,7 +94,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     sets its own.
     «Додати в кошик» (`add-to-cart.tsx`) puts the product in the cart and then links to it; out of
     stock it is disabled. Delivery and payment state the checkout's terms: Nova Poshta at its
-    rates, paid on delivery; the goods paid on delivery or by a link the manager sends.
+    rates, paid on delivery; the goods paid by a transfer or a card, on the site or by a link the
+    manager sends.
   - The catalog's lists: `/catalog/<slug>` (a zone or a category; the header's menu links
     them), `/skin-type/<slug>`, `/concern/<slug>` and `/brand/<slug>` (the landings a product
     page's terms and brand link to; `landing.tsx` makes them, without the page's own facet), and
@@ -276,8 +278,16 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Delivery** — Nova Poshta's settlement and warehouse search for the checkout
   (adr-20261101-cart-and-checkout). `DeliveryFields` in `/cart`'s folder calls the server actions
   `findSettlements` and `findWarehouses` (`delivery.actions.ts`, an answer cached 12 hours), which
-  call `src/lib/novaposhta.ts` (`server-only`). `NOVA_POSHTA_API_KEY` is optional; any failure
-  turns the two fields into plain text ones. Waybills and tracking are not built.
+  call `src/lib/novaposhta.ts`. `NOVA_POSHTA_API_KEY` is optional; any failure turns the two fields
+  into plain text ones. Waybills come from the same module, not `server-only` as `payload.config`
+  loads it (adr-20261109-waybills-and-prepayment-only-start): `POST /api/np/waybill`, a root endpoint
+  of Payload behind an admin role, takes the order in one conditional statement before asking Nova
+  Poshta, and the order's `WaybillField` (`src/components/admin/`) shows what `waybillBlock`
+  (`src/lib/orders.ts`) decides for the server too. Without `NOVA_POSHTA_SENDER_CITY` and
+  `NOVA_POSHTA_SENDER_WAREHOUSE` it is off. `GET /api/np/track`, a daily Vercel cron with
+  `CRON_SECRET` (`src/lib/cron.ts`), past the site password, writes each parcel's code and words on
+  the order and tells Telegram of one nobody collected; it moves neither the order's status nor its
+  payment.
 - **Payments** — a card paid on monobank acquiring's page right after the order
   (adr-20261106-card-payment-on-monobanks-page). The checkout calls the server action `payByCard`
   (`card.actions.ts`) with the order's return token: `src/lib/monobank.ts` makes the invoice for the
@@ -361,8 +371,9 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 - **Payments** (`src/lib/monobank.ts`, `card.actions.ts`, `checkCard` in `payment.actions.ts`) —
   monobank invoices, the webhook and reconciliation are built (above). Depends on orders: it reads and writes orders, and orders only know that a payment provider moves a card's
   payment status.
-- **Delivery** (`src/lib/novaposhta.ts`, `delivery.actions.ts`) — the search of settlements and NP
-  warehouses is built (above); waybills and tracking are not. Depends on orders.
+- **Delivery** (`src/lib/novaposhta.ts`, `delivery.actions.ts`, `src/components/admin/waybill-*`) —
+  the search of settlements and NP warehouses, waybills and tracking are built (above). Depends on
+  orders; orders know only the waybill's fields, and payments are not its concern.
 - **Care finder** (`src/globals/care-finder.ts`, `src/lib/finder.ts`, `finder.actions.ts`) —
   questions, what answers mean, routines; built (above). Depends on catalog. Consultation depends
   on it: a request reads the questionnaire for its answers' text — the developer's decision after
@@ -386,11 +397,13 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
    request.
 2. **Order (launch step 1).** Cart in localStorage → checkout server action → Zod → reprice from
    the database → an `orders` record with a snapshot → Telegram to the owner → manager
-   confirmation → cash on delivery or a payment link (adr-20261028-two-step-launch). An order wholly
+   confirmation → a payment link (adr-20261028-two-step-launch, and
+   adr-20261109-waybills-and-prepayment-only-start on cash on delivery). An order wholly
    in stock may instead be paid ahead by a transfer to the store's account, whose details the
    thank-you page shows at once; the manager's call then follows the payment and confirms the
    dispatch (adr-20261106-transfer-to-the-store-account). Built up to Telegram; the confirmation,
-   the link and marking a transfer paid are the manager's, by hand.
+   the link and marking a transfer paid are the manager's, by hand. A confirmed, paid order gets its
+   waybill from the admin, and a daily cron reports its parcel.
 3. **Card payment (launch step 2).** Order fully in stock → a monobank invoice → redirect →
    signed webhook → verify → idempotent forward-only status change → Checkbox issues the fiscal
    receipt on monobank's side; the shopper's return and a daily cron reconcile invoices without a

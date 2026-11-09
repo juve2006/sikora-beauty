@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Order } from '@/payload-types';
-import { keepPaymentForward, keepStatusForward } from '@/collections/orders';
+import {
+  keepPaymentForward,
+  keepStatusForward,
+  keepWaybill,
+} from '@/collections/orders';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { ORDER_STATUSES, TELEGRAM_TEXT_LIMIT } from '@/lib/constants';
 import {
@@ -13,6 +17,7 @@ import {
   monoPayment,
   movesTo,
   priceOrder,
+  waybillBlock,
 } from '@/lib/orders';
 import { cardMessage, orderMessage } from '@/lib/telegram';
 import { parseOrderForm } from '@/lib/validators';
@@ -148,6 +153,99 @@ describe('canPrepay', () => {
 
   it('refuses one with a line made to order', () => {
     expect(canPrepay([cream, serum])).toBe(false);
+  });
+});
+
+// The button's own conditions (task `np-waybill`); the server and the form read the same one.
+describe('waybillBlock', () => {
+  const order = {
+    status: 'confirmed',
+    paymentStatus: 'paid',
+    settlementRef: 'settlement',
+    warehouseRef: 'branch',
+    waybillNumber: null,
+    deliveryCode: null,
+  } as const;
+
+  it.each([
+    ['a confirmed, paid order', {}],
+    ['a shipped one', { status: 'shipped' }],
+    [
+      'one whose waybill was deleted at Nova Poshta',
+      { waybillNumber: '20450000000001', deliveryCode: '2' },
+    ],
+  ] as const)('lets %s through', (_, change) => {
+    expect(waybillBlock({ ...order, ...change })).toBeNull();
+  });
+
+  it.each([
+    ['Накладна вже є', { waybillNumber: '20450000000001', deliveryCode: '1' }],
+    ['Накладна вже є', { waybillNumber: '20450000000001', deliveryCode: null }],
+    ['Спершу підтвердьте замовлення', { status: 'new' }],
+    ['Замовлення вже закрите', { status: 'completed' }],
+    ['Замовлення вже закрите', { status: 'cancelled' }],
+    [
+      'Адресу введено вручну: створіть накладну в кабінеті НП і впишіть номер',
+      { settlementRef: null },
+    ],
+    [
+      'Адресу введено вручну: створіть накладну в кабінеті НП і впишіть номер',
+      { warehouseRef: null },
+    ],
+    ['Замовлення ще не оплачене', { paymentStatus: 'awaiting' }],
+    ['Замовлення ще не оплачене', { paymentStatus: 'failed' }],
+    ['Замовлення ще не оплачене', { paymentStatus: 'refunded' }],
+  ] as const)('«%s» for %o', (reason, change) => {
+    expect(waybillBlock({ ...order, ...change })).toBe(reason);
+  });
+});
+
+describe('keepWaybill', () => {
+  const run = (data: object, waybillNumber: string | null) =>
+    keepWaybill({
+      data,
+      originalDoc: { waybillNumber },
+      operation: 'update',
+    } as never);
+  const cleared = {
+    deliveryCode: null,
+    deliveryStatus: null,
+    waybillRequestedAt: null,
+  };
+
+  it('drops what was known of the old number when a new one is typed', () => {
+    expect(run({ waybillNumber: '20450000000002' }, '20450000000001')).toEqual({
+      waybillNumber: '20450000000002',
+      ...cleared,
+    });
+    expect(run({ waybillNumber: '20450000000002' }, null)).toEqual({
+      waybillNumber: '20450000000002',
+      ...cleared,
+    });
+  });
+
+  it('leaves a save of the same number alone', () => {
+    const data = { waybillNumber: '20450000000001', status: 'shipped' };
+    expect(run(data, '20450000000001')).toEqual(data);
+  });
+
+  // A tab opened before the button made the waybill: without this it would be free to make a second.
+  it.each(['', null, undefined])(
+    'keeps the number when the field is %o',
+    (value) => {
+      expect(run({ waybillNumber: value }, '20450000000001')).toEqual({
+        waybillNumber: '20450000000001',
+      });
+    },
+  );
+
+  it('stores nothing for a field never filled in', () => {
+    expect(run({ waybillNumber: '' }, null)).toEqual({ waybillNumber: null });
+  });
+
+  it('touches nothing when an order is created', () => {
+    const data = { firstName: 'Олена' };
+    expect(keepWaybill({ data, operation: 'create' } as never)).toEqual(data);
   });
 });
 
@@ -359,7 +457,7 @@ const filled = {
   warehouse: 'Відділення №2: вул. Київська, 302',
   settlementRef: BROVARY,
   warehouseRef: BRANCH,
-  payment: 'cod',
+  payment: 'link',
   comment: '',
   lines: JSON.stringify([
     { id: 1, qty: 2 },
@@ -372,6 +470,13 @@ const filled = {
 const idle = { status: 'idle' } as const;
 
 describe('the order schema', () => {
+  // The store starts on prepayment alone, whatever a form sends.
+  it('takes no cash on delivery from the checkout', () => {
+    expect(parseOrderForm(form({ ...filled, payment: 'cod' })).errors).toEqual({
+      payment: ['paymentRequired'],
+    });
+  });
+
   it("reads a filled form, with the shopper's phone as +380…", () => {
     expect(parseOrderForm(form(filled)).data).toEqual({
       firstName: 'Олена',
@@ -381,7 +486,7 @@ describe('the order schema', () => {
       warehouse: filled.warehouse,
       settlementRef: BROVARY,
       warehouseRef: BRANCH,
-      payment: 'cod',
+      payment: 'link',
       comment: undefined,
       lines: [
         { id: 1, qty: 2 },
@@ -620,7 +725,7 @@ describe('placeOrder', () => {
         warehouse: filled.warehouse,
         settlementRef: BROVARY,
         warehouseRef: BRANCH,
-        payment: 'cod',
+        payment: 'link',
         comment: undefined,
         locale: 'en',
         status: 'new',

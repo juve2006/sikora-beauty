@@ -279,7 +279,9 @@ Use in: source code, schema, documentation.
 
 ## Cash On Delivery
 
-Payment collected by Nova Poshta when the shopper receives the parcel.
+Payment collected by Nova Poshta when the shopper receives the parcel. Not offered at the start
+(adr-20261109-waybills-and-prepayment-only-start): the checkout refuses it, and the value stays for
+the orders that hold it.
 
 Informal synonyms: накладений платіж, COD.
 Use in: source code, schema, API, documentation.
@@ -323,6 +325,14 @@ A Nova Poshta shipment document created for an order.
 
 Informal synonyms: ТТН, накладна, express waybill.
 Use in: source code, schema, API, documentation.
+
+## Delivery Status
+
+What Nova Poshta says of a parcel, kept on the order as its code and words (`deliveryCode`,
+`deliveryStatus`) and refreshed by a daily cron. Never the order's own status or its payment status.
+
+Informal synonyms: статус доставки, статус НП.
+Use in: source code, schema, documentation.
 
 ## Shopper
 

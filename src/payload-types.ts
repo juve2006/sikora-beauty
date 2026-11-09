@@ -476,6 +476,10 @@ export interface Order {
   status: 'new' | 'confirmed' | 'shipped' | 'completed' | 'cancelled';
   paymentStatus: 'awaiting' | 'paid' | 'failed' | 'refunded';
   monoInvoiceId?: string | null;
+  waybillNumber?: string | null;
+  waybillRequestedAt?: string | null;
+  deliveryCode?: string | null;
+  deliveryStatus?: string | null;
   returnToken?: string | null;
   managerNote?: string | null;
   customer?: (number | null) | Customer;
@@ -921,6 +925,10 @@ export interface OrdersSelect<T extends boolean = true> {
   status?: T;
   paymentStatus?: T;
   monoInvoiceId?: T;
+  waybillNumber?: T;
+  waybillRequestedAt?: T;
+  deliveryCode?: T;
+  deliveryStatus?: T;
   returnToken?: T;
   managerNote?: T;
   customer?: T;

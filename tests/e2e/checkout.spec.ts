@@ -48,7 +48,7 @@ const addSerum = async (page: Page, prefix: string, m: typeof uk) => {
 const fillContacts = async (
   page: Page,
   m: typeof uk,
-  payment: 'cod' | 'transfer' | 'card' = 'cod',
+  payment: 'link' | 'transfer' | 'card' = 'link',
 ) => {
   await page.getByLabel(m.Checkout.firstName).fill('Олена');
   await page.getByLabel(m.Checkout.lastName).fill('Тестова');
@@ -111,7 +111,7 @@ for (const [locale, m, prefix] of [
       settlement: 'м. Бровари, Броварський р-н, Київська обл.',
       settlement_ref: 'e715719e-4b33-11e4-ab6d-005056801329',
       warehouse_ref: '5a39e5b2-e1c2-11e3-8c4a-0050568002cf',
-      payment: 'cod',
+      payment: 'link',
       locale,
       lines: [{ product_id: rows[0].id, price: String(price), quantity: '2' }],
     });
@@ -332,9 +332,10 @@ test('offers no prepayment while a line is made to order', async ({ page }) => {
   await page.getByRole('button', { name: uk.Product.addToCart }).click();
   await page.getByRole('link', { name: uk.Product.goToCart }).click();
   await expect(
-    page.getByRole('radio', { name: uk.Checkout.cod }),
+    page.getByRole('radio', { name: uk.Checkout.link }),
   ).toBeVisible();
-  for (const way of [uk.Checkout.transfer, uk.Checkout.card])
+  // Cash on delivery is not on offer at all for now.
+  for (const way of [uk.Checkout.transfer, uk.Checkout.card, uk.Checkout.cod])
     await expect(page.getByRole('radio', { name: way })).toHaveCount(0);
   await expect(
     page.getByText('Переказ і картка на сайті — коли всі товари в наявності.'),

@@ -235,6 +235,38 @@ describe('consultation requests', () => {
     ).toEqual([false, false, false, false]);
   });
 
+  // Nova Poshta's waybill: a shopper reads none of it; the number alone is the manager's to type.
+  it('a role reads the waybill, and changes only its number', () => {
+    const users = [owner, cosmetologist, shopper, null];
+    const number = fieldAccess(Orders.fields, 'waybillNumber');
+    expect(users.map((user) => run(number.read, user))).toEqual([
+      true,
+      true,
+      false,
+      false,
+    ]);
+    expect(number.update).toBeUndefined();
+    for (const name of [
+      'waybillRequestedAt',
+      'deliveryCode',
+      'deliveryStatus',
+    ]) {
+      const { read, update } = fieldAccess(Orders.fields, name);
+      expect(users.map((user) => run(read, user))).toEqual([
+        true,
+        true,
+        false,
+        false,
+      ]);
+      expect(users.map((user) => run(update, user))).toEqual([
+        false,
+        false,
+        false,
+        false,
+      ]);
+    }
+  });
+
   it('only the owner deletes one', () => {
     expect(roles('delete')).toEqual([true, false, false]);
   });

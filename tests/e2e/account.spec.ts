@@ -180,7 +180,7 @@ const orderSerum = async (page: Page, m: typeof uk, prefix: string) => {
 };
 
 const place = async (page: Page, m: typeof uk) => {
-  await page.getByRole('radio', { name: m.Checkout.cod }).check();
+  await page.getByRole('radio', { name: m.Checkout.link }).check();
   await page.getByRole('button', { name: m.Checkout.submit }).click();
   // The address carries the order's secret; the database, its number.
   await expect(page).toHaveURL(/\/cart\/thanks\?t=[\w-]{22}$/);

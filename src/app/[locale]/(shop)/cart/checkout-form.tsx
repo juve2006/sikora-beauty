@@ -17,7 +17,7 @@ import Turnstile, {
 import { payByCard } from '@/lib/actions/card.actions';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { dropOrdered } from '@/lib/cart';
-import { PAYMENTS } from '@/lib/constants';
+import { CHECKOUT_PAYMENTS } from '@/lib/constants';
 import { formatHryvnias } from '@/lib/utils';
 import { parseOrderForm } from '@/lib/validators';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -118,7 +118,7 @@ const CheckoutForm = ({
   const busy =
     pending || sending || state.status === 'placed' || state.status === 'pay';
   const errors = state.status === 'invalid' ? state.errors : {};
-  const offered = PAYMENTS.filter(
+  const offered = CHECKOUT_PAYMENTS.filter(
     (way) =>
       (way !== 'transfer' || (transfer && prepay)) &&
       (way !== 'card' || (card && prepay)),

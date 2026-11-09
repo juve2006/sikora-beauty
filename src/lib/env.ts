@@ -31,11 +31,16 @@ const schema = z
     // that is refused the shopper types the address. The URL is for the e2e tests' stub only.
     NOVA_POSHTA_API_KEY: z.string().optional(),
     NOVA_POSHTA_API_URL: z.url().optional(),
+    // The city and the branch parcels leave from, Nova Poshta's refs; without them the admin's waybill
+    // button is off.
+    NOVA_POSHTA_SENDER_CITY: z.guid().optional(),
+    NOVA_POSHTA_SENDER_WAREHOUSE: z.guid().optional(),
     // A card paid on the site through monobank; without the token the checkout offers no card. The
     // URL is for the e2e tests' stub only.
     MONO_TOKEN: z.string().optional(),
     MONO_API_URL: z.url().optional(),
-    // What the daily reconciliation of mono's invoices is called with; Vercel sends it by itself.
+    // What the daily reconciliation of mono's invoices and the tracking of Nova Poshta's parcels are
+    // called with; Vercel sends it by itself.
     CRON_SECRET: z.string().min(16).optional(),
     // Signing in with Google; without them its button leads to a message. The URL is for the e2e
     // tests' stub only.
@@ -63,10 +68,13 @@ const schema = z
   .refine((env) => env.VERCEL_ENV !== 'production' || env.SITE_PASSWORD, {
     path: ['SITE_PASSWORD'],
   })
-  // Without it the cron would be refused every night, and a lost webhook would stay lost unseen.
+  // Without it the crons would be refused every night, and a lost webhook or a refused parcel would
+  // stay unseen.
   .refine(
     (env) =>
-      env.VERCEL_ENV !== 'production' || !env.MONO_TOKEN || env.CRON_SECRET,
+      env.VERCEL_ENV !== 'production' ||
+      !(env.MONO_TOKEN || env.NOVA_POSHTA_SENDER_WAREHOUSE) ||
+      env.CRON_SECRET,
     { path: ['CRON_SECRET'] },
   )
   // A pair or nothing: a secret without the widget refuses every request, a widget without the

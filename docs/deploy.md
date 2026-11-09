@@ -30,9 +30,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 | `SITE_PASSWORD`                                                     | the site password, 12+ characters, shared with the owner and the cosmetologist                                                | Vercel env, Production only, Sensitive; the Production build fails without it                                                                                               |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                            | the bot that posts orders and consultation requests, and the group it posts to                                                | Vercel env, Production only, the token Sensitive; without them an order or a request is only saved                                                                          |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`            | Cloudflare Turnstile widget keys for the consultation form, the checkout and a shopper's account                              | Vercel env, Production, the secret Sensitive; set both or neither, and a Production without `SITE_PASSWORD` fails without them                                              |
-| `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security)                                                  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
+| `NOVA_POSHTA_API_KEY`                                               | the developer's Nova Poshta API key (business cabinet → Settings → Security), the seller's own once waybills start (step 18)  | Vercel env, Production, Sensitive; optional — without it the checkout searches Nova Poshta without a key, and when Nova Poshta does not answer the shopper types the branch |
+| `NOVA_POSHTA_SENDER_CITY`, `NOVA_POSHTA_SENDER_WAREHOUSE` | Nova Poshta's refs of the city and the branch parcels leave from | Vercel env, Production only; optional — without them the admin's waybill button is off |
 | `MONO_TOKEN` | monobank acquiring's token: a test one from api.monobank.ua, then the seller's ФОП account's own | Vercel env, Production only, Sensitive; optional — without it the checkout offers no card; the live one replaces it without code |
-| `CRON_SECRET` | 16+ random characters the daily reconciliation of mono's invoices is called with; Vercel sends it as `Authorization: Bearer …` | Vercel env, Production only, Sensitive; required while `MONO_TOKEN` is set, or the Production build fails |
+| `CRON_SECRET` | 16+ random characters the daily reconciliation of mono's invoices and the tracking of parcels are called with; Vercel sends it as `Authorization: Bearer …` | Vercel env, Production only, Sensitive; required while `MONO_TOKEN` or `NOVA_POSHTA_SENDER_WAREHOUSE` is set, or the Production build fails |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the store's Gmail for the letters of a shopper's account: `smtp.gmail.com`, `465`, its address, its app password, its address | Vercel env, Production only, the password Sensitive; the Production build fails without them; elsewhere no letter is sent or logged                                         |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                          | the Web client a shopper signs in with Google through                                                                         | Vercel env, Production only, the secret Sensitive; set both or neither; without them the button leads to a message                                                          |
 | `NEXT_PUBLIC_SENTRY_DSN`                                            | where failures are sent; public, the browser holds it                                                                         | Vercel env, Production only; read at build, so a change needs a Redeploy; without it nothing starts and nothing is sent                                                     |
@@ -134,6 +135,19 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     by hand, and Logs shows a run's status code. With the live token: Checkbox turned on in mono's cabinet, which
     issues the fiscal receipt from the invoice's basket; the card's paragraph on «Оплата та
     доставка» and monobank's line on «Конфіденційність», as `src/db/seed-data.ts` has them.
+18. **Waybills from the admin** (once the seller has a Nova Poshta business cabinet on the ФОП). The key
+    from that cabinet (Settings → Security; it is issued to a person and expires, so it goes in a
+    calendar) replaces `NOVA_POSHTA_API_KEY`. `getWarehouses` names the branch parcels leave from:
+    its `Ref` goes into `NOVA_POSHTA_SENDER_WAREHOUSE` and its `CityRef` into `NOVA_POSHTA_SENDER_CITY`,
+    Production only → redeploy; `CRON_SECRET` goes in first, as Production does not build with the branch
+    without it. Until then the button says «Накладні не налаштовані» and nothing is created. Nova
+    Poshta has no test mode for this API: the first waybill is a real one, so it is made for a real
+    parcel, and what it answers settles what the docs left open (a recipient without a patronymic, the
+    sum's format, `volumetricVolume`). `vercel.json` has Vercel call `GET /api/np/track` once a day,
+    within the hour after 04:00 UTC, on Production only.
+19. **Prepayment only.** The checkout no longer offers cash on delivery, and the seed never changes a
+    page that exists: on a database seeded earlier, «Сторінки → Оплата та доставка» still has it, so its
+    paragraph «При отриманні» («On receipt» in English) is removed by hand and the page saved.
 
 ## Check it
 
