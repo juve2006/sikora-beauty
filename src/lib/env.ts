@@ -35,6 +35,8 @@ const schema = z
     // URL is for the e2e tests' stub only.
     MONO_TOKEN: z.string().optional(),
     MONO_API_URL: z.url().optional(),
+    // What the daily reconciliation of mono's invoices is called with; Vercel sends it by itself.
+    CRON_SECRET: z.string().min(16).optional(),
     // Signing in with Google; without them its button leads to a message. The URL is for the e2e
     // tests' stub only.
     GOOGLE_CLIENT_ID: z.string().optional(),
@@ -61,6 +63,12 @@ const schema = z
   .refine((env) => env.VERCEL_ENV !== 'production' || env.SITE_PASSWORD, {
     path: ['SITE_PASSWORD'],
   })
+  // Without it the cron would be refused every night, and a lost webhook would stay lost unseen.
+  .refine(
+    (env) =>
+      env.VERCEL_ENV !== 'production' || !env.MONO_TOKEN || env.CRON_SECRET,
+    { path: ['CRON_SECRET'] },
+  )
   // A pair or nothing: a secret without the widget refuses every request, a widget without the
   // secret checks nothing, a token without a chat sends nowhere, half of Google's keys fails every
   // sign-in.

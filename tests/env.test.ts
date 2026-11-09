@@ -100,6 +100,31 @@ describe('parseEnv', () => {
     ).toBeUndefined();
   });
 
+  // Without it the daily reconciliation would be refused every night, and nobody would see.
+  it('needs the cron secret on a Production that takes cards', () => {
+    const production = {
+      ...valid,
+      ...smtp,
+      VERCEL: '1',
+      BLOB_READ_WRITE_TOKEN: 'token',
+      VERCEL_ENV: 'production',
+      SITE_PASSWORD: 'x'.repeat(12),
+    };
+    const cards = { ...production, MONO_TOKEN: 'token' };
+    const secret = 'x'.repeat(16);
+    for (const source of [cards, { ...cards, CRON_SECRET: 'short' }])
+      expect(() => parseEnv(source)).toThrow(
+        'Invalid environment variables: CRON_SECRET',
+      );
+    expect(parseEnv({ ...cards, CRON_SECRET: secret }).CRON_SECRET).toBe(
+      secret,
+    );
+    expect(parseEnv(production).CRON_SECRET).toBeUndefined();
+    expect(
+      parseEnv({ ...cards, VERCEL_ENV: 'preview' }).CRON_SECRET,
+    ).toBeUndefined();
+  });
+
   it('takes Turnstile and Telegram in pairs or not at all', () => {
     expect(() =>
       parseEnv({ ...valid, NEXT_PUBLIC_TURNSTILE_SITE_KEY: 'site' }),

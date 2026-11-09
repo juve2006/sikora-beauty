@@ -128,6 +128,7 @@ describe('the reads of the thank-you page', () => {
       cancelled: false,
       invoiced: false,
       payable: true,
+      retry: false,
     });
     expect(payload.find).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -166,7 +167,22 @@ describe('the reads of the thank-you page', () => {
     expect(await getPlacedOrder('a'.repeat(22))).toMatchObject({
       payment: 'card',
       invoiced: true,
+      retry: false,
     });
+  });
+
+  it('offers a card that failed another try', async () => {
+    payload.find.mockResolvedValueOnce({
+      docs: [
+        {
+          ...placed,
+          payment: 'card',
+          paymentStatus: 'failed',
+          monoInvoiceId: 'inv-1',
+        },
+      ],
+    });
+    expect(await getPlacedOrder('a'.repeat(22))).toMatchObject({ retry: true });
   });
 
   it('finds nothing by a secret no order has', async () => {

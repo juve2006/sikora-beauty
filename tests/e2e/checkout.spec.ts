@@ -166,6 +166,14 @@ for (const [locale, m, prefix] of [
 
 // A card (task `mono-payment`): the order is placed, monobank's page — tests/e2e/mono-stub.mjs —
 // takes the sum the database has, and the thanks say what mono's signed webhook told the order.
+const monoStub = (path: string) => fetch(`http://127.0.0.1:4012/${path}`);
+const invoiceOf = async (id: number) => {
+  const { rows } = await database.query(
+    'select mono_invoice_id, payment_status from orders where id = $1',
+    [id],
+  );
+  return rows[0];
+};
 const toMono = async (page: Page, email = 'olena@example.com') => {
   await addSerum(page, '', uk);
   await page.getByLabel(uk.Checkout.settlement).fill('Бров');
@@ -199,15 +207,88 @@ test('pays by card on monobank’s page', async ({ page }) => {
   await expect.poll(() => cartInBrowser(page)).toBe('[]');
 });
 
-test('a card the bank refused is told, and the manager calls', async ({
+test('a card the bank refused is told, tried again on a new invoice and paid', async ({
   page,
 }) => {
-  await toMono(page);
+  const first = await toMono(page);
   await page.getByRole('link', { name: 'Відмовити' }).click();
   const id = await thanked(page);
-
-  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardFailed);
+  await expect(page.getByRole('status')).toHaveText(
+    uk.Checkout.cardFailedRetry,
+  );
   expect(await order(id)).toMatchObject({ payment_status: 'failed' });
+
+  await page.getByLabel(uk.Checkout.email).fill('olena@example.com');
+  await page.getByRole('button', { name: uk.Checkout.cardRetry }).click();
+  await expect(page).toHaveURL(/^http:\/\/127\.0\.0\.1:4012\/pay\//);
+  const second = new URL(page.url()).pathname.split('/')[2];
+  expect(second).not.toBe(first);
+  expect(await invoiceOf(id)).toEqual({
+    mono_invoice_id: second,
+    payment_status: 'awaiting',
+  });
+
+  await page.getByRole('link', { name: 'Оплатити' }).click();
+  await thanked(page);
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardPaid);
+  await expect(
+    page.getByRole('button', { name: uk.Checkout.cardRetry }),
+  ).toHaveCount(0);
+  expect(await order(id)).toMatchObject({ payment_status: 'paid' });
+});
+
+// Task `mono-reconcile`: no webhook came, and what mono itself says still moves the order.
+test('a webhook that was lost: the shopper’s return asks mono', async ({
+  page,
+}) => {
+  const invoice = await toMono(page);
+  await monoStub(`set/${invoice}/success`);
+  await page.getByRole('link', { name: 'Пізніше' }).click();
+  const id = await thanked(page);
+
+  await expect(page.getByRole('status')).toHaveText(uk.Checkout.cardPaid);
+  expect(await order(id)).toMatchObject({ payment_status: 'paid' });
+});
+
+test('an invoice that expired fails on the return and offers another try', async ({
+  page,
+}) => {
+  const invoice = await toMono(page);
+  await monoStub(`set/${invoice}/expired`);
+  await page.getByRole('link', { name: 'Пізніше' }).click();
+  const id = await thanked(page);
+
+  await expect(page.getByRole('status')).toHaveText(
+    uk.Checkout.cardFailedRetry,
+  );
+  await expect(
+    page.getByRole('button', { name: uk.Checkout.cardRetry }),
+  ).toBeVisible();
+  expect(await order(id)).toMatchObject({ payment_status: 'failed' });
+});
+
+test('the daily cron settles an invoice nobody came back for, and only with its secret', async ({
+  page,
+  request,
+}) => {
+  const invoice = await toMono(page);
+  await monoStub(`set/${invoice}/success`);
+  // Older than what the cron leaves to the shopper's return.
+  const { rows } = await database.query(
+    "update orders set created_at = now() - interval '1 hour' where mono_invoice_id = $1 returning id",
+    [invoice],
+  );
+  const id = rows[0].id;
+
+  expect((await request.get('/api/mono/reconcile')).status()).toBe(401);
+  expect(await order(id)).toMatchObject({ payment_status: 'awaiting' });
+
+  const answer = await request.get('/api/mono/reconcile', {
+    headers: { Authorization: 'Bearer e2e-cron-only-not-a-real-secret' },
+  });
+  expect(answer.status()).toBe(200);
+  expect(await answer.json()).toMatchObject({ moved: 1 });
+  expect(await order(id)).toMatchObject({ payment_status: 'paid' });
 });
 
 test('waits for the bank’s word, and a refresh shows it', async ({ page }) => {

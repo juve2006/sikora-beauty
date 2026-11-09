@@ -42,6 +42,7 @@ import CartView from '@/app/[locale]/(shop)/cart/cart-view';
 import CheckoutForm from '@/app/[locale]/(shop)/cart/checkout-form';
 import DeliveryFields from '@/app/[locale]/(shop)/cart/delivery-fields';
 import OrderPlaced from '@/app/[locale]/(shop)/cart/thanks/order-placed';
+import RetryForm from '@/app/[locale]/(shop)/cart/thanks/retry-form';
 import FinderQuestions from '@/app/[locale]/(shop)/care-finder/finder-questions';
 import Routine from '@/app/[locale]/(shop)/care-finder/routine';
 import NewPasswordForm from '@/app/[locale]/(shop)/account/new-password-form';
@@ -1117,6 +1118,33 @@ const CanvasPage = async ({ params }: Props) => {
             <Specimen label="a card, failed">
               <div>
                 <OrderPlaced number={1042} card="failed" />
+              </div>
+            </Specimen>
+            <Specimen label="a card, failed, to try again">
+              <div>
+                <OrderPlaced
+                  number={1042}
+                  card="failed"
+                  retry={{ token: 'canvas', email: 'olena@example.com' }}
+                />
+              </div>
+            </Specimen>
+            <Specimen label="RetryForm, an invalid address">
+              <div>
+                <RetryForm
+                  token="canvas"
+                  email="olena@"
+                  problem="emailInvalid"
+                />
+              </div>
+            </Specimen>
+            <Specimen label="RetryForm, no invoice made">
+              <div>
+                <RetryForm
+                  token="canvas"
+                  email="olena@example.com"
+                  problem="failed"
+                />
               </div>
             </Specimen>
             <Specimen label="a link">

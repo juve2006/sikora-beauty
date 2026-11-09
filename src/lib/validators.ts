@@ -479,8 +479,9 @@ export const monoError = z.object({
   errCode: z.string().optional(),
   errText: z.string().optional(),
 });
-// A webhook's body, once its signature holds: only what moves an order. The status stays a string
-// — one mono adds later moves nothing (`nextPayment`), and a 400 would only make mono send it again.
+// A webhook's body, once its signature holds, and mono's answer on an invoice, the same body: only
+// what moves an order. The status stays a string — one mono adds later moves nothing
+// (`monoPayment`), and a 400 would only make mono send it again.
 export const monoEvent = z.object({
   invoiceId: z.string().min(1).max(100),
   status: z.string().max(50),

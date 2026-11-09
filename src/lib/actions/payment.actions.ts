@@ -3,6 +3,9 @@ import 'server-only';
 import config from '@payload-config';
 import { getPayload } from 'payload';
 
+import { invoiceStatus, settle } from '@/lib/monobank';
+import { cardRetryable } from '@/lib/orders';
+import { whatFailed } from '@/lib/utils';
 import type { PaymentDetails } from '@/types';
 
 // The store's account a transfer goes to, once all three are filled in: none until then, and the
@@ -55,6 +58,50 @@ export const getPlacedOrder = async (token: string) => {
       invoiced: Boolean(order.monoInvoiceId),
       payable:
         order.paymentStatus === 'awaiting' && order.status !== 'cancelled',
+      retry: cardRetryable(order),
     }
   );
+};
+
+// Back from monobank's page, before the webhook or with it lost: mono itself is asked, for at most
+// three seconds, and its word moves the order as the webhook's would. Nothing here may spoil the
+// page: no answer leaves the order as it is. Access is skipped as above, and only the invoice is
+// selected, for mono.
+export const checkCard = async (token: string) => {
+  try {
+    const payload = await getPayload({ config });
+    const { docs } = await payload.find({
+      collection: 'orders',
+      where: {
+        and: [
+          { returnToken: { equals: token } },
+          { payment: { equals: 'card' } },
+          { paymentStatus: { equals: 'awaiting' } },
+          { status: { not_equals: 'cancelled' } },
+          { monoInvoiceId: { exists: true } },
+        ],
+      },
+      depth: 0,
+      limit: 1,
+      pagination: false,
+      overrideAccess: true,
+      select: { monoInvoiceId: true },
+    });
+    const invoiceId = docs[0]?.monoInvoiceId;
+    if (!invoiceId) return;
+    const { status } = await invoiceStatus(invoiceId, 3_000);
+    await settle(payload, invoiceId, status);
+  } catch (error) {
+    console.error('monobank:', whatFailed(error));
+  }
+};
+
+// The order as the thank-you page shows it: a card still waiting is asked of mono first. Read again
+// whatever came of that, as the webhook may have moved it while mono was being asked.
+export const getReturnedOrder = async (token: string) => {
+  const order = await getPlacedOrder(token);
+  if (order?.payment !== 'card' || !order.payable || !order.invoiced)
+    return order;
+  await checkCard(token);
+  return getPlacedOrder(token);
 };

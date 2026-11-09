@@ -188,7 +188,7 @@ from an order and the delivery status updates. The payment items were split in t
   - Backend: mono invoice, webhook with signature check and Zod, idempotency, forward-only
     statuses, a WAF exception; only when every item is in stock
   - Frontend: "pay by card", return from mono, "paid" and "failed" states
-- [ ] `mono-reconcile` — invoices without a webhook settle themselves (after: mono payment —
+- [x] `mono-reconcile` — invoices without a webhook settle themselves (after: mono payment —
   reconciles its invoices)
   - Backend: a daily cron reads the invoices still open and moves them forward
 - [ ] np waybill — waybills from the admin (after: cart and checkout — creates waybills for its orders)

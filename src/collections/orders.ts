@@ -79,10 +79,11 @@ export const keepStatusForward: CollectionBeforeChangeHook = ({
 };
 
 // Whether it is paid only moves forward too (RULES.md): the manager marks a transfer they see on the
-// account, or a payment by link or on delivery. A card's is the payment provider's alone — its
-// webhook writes with `context.paymentProvider` — as only monobank knows whether the card paid.
+// account, or a payment by link or on delivery. A card's nobody changes here, as only monobank knows
+// whether the card paid: its word is written past this hook, by `settle` (src/lib/monobank.ts). Only
+// a card's new invoice makes a failed payment wait again (`payByCard`): for a mark that is taking it
+// back.
 export const keepPaymentForward: CollectionBeforeChangeHook = ({
-  context,
   data,
   originalDoc,
   operation,
@@ -91,11 +92,12 @@ export const keepPaymentForward: CollectionBeforeChangeHook = ({
   const from = originalDoc?.paymentStatus;
   const to = data.paymentStatus;
   if (operation !== 'update' || !from || !to || from === to) return data;
-  const message = !canMovePayment(from, to)
-    ? 'Позначка оплати не знімається'
-    : originalDoc.payment === 'card' && !context.paymentProvider
-      ? 'Стан оплати карткою змінює лише monobank'
-      : undefined;
+  const message =
+    !canMovePayment(from, to) || to === 'awaiting'
+      ? 'Позначка оплати не знімається'
+      : originalDoc.payment === 'card'
+        ? 'Стан оплати карткою змінює лише monobank'
+        : undefined;
   if (message) {
     throw new ValidationError(
       { errors: [{ label: 'Статус оплати', message, path: 'paymentStatus' }] },
