@@ -39,6 +39,7 @@ export default defineConfig({
         GOOGLE_STUB_URL: 'http://127.0.0.1:4011/',
         MONO_TOKEN: 'e2e-mono',
         MONO_API_URL: 'http://127.0.0.1:4012/',
+        CRON_SECRET: 'e2e-cron-only-not-a-real-secret',
         // SITE_URL: Google's way back has to name this server.
         PORT: '3200',
       },

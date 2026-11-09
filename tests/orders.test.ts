@@ -9,7 +9,9 @@ import {
   canMovePayment,
   canMoveStatus,
   canPrepay,
-  nextPayment,
+  cardRetryable,
+  monoPayment,
+  movesTo,
   priceOrder,
 } from '@/lib/orders';
 import { cardMessage, orderMessage } from '@/lib/telegram';
@@ -161,15 +163,15 @@ describe('canMovePayment', () => {
     expect(canMovePayment('paid', 'paid')).toBe(true);
   });
 
-  it('lets a failed card be paid and a paid one refunded, and nothing else', () => {
+  it('lets a failed card be paid or tried again and a paid one refunded, and nothing else', () => {
     for (const [from, to] of [
       ['awaiting', 'failed'],
       ['failed', 'paid'],
+      ['failed', 'awaiting'],
       ['paid', 'refunded'],
     ] as const)
       expect(canMovePayment(from, to), `${from} → ${to}`).toBe(true);
     for (const [from, to] of [
-      ['failed', 'awaiting'],
       ['paid', 'failed'],
       ['awaiting', 'refunded'],
       ['refunded', 'paid'],
@@ -180,21 +182,67 @@ describe('canMovePayment', () => {
 });
 
 // What monobank's word on an invoice makes of an order's payment.
-describe('nextPayment', () => {
+describe('monoPayment', () => {
   it('pays, fails and refunds as the invoice did', () => {
-    expect(nextPayment('awaiting', 'success')).toBe('paid');
-    expect(nextPayment('awaiting', 'failure')).toBe('failed');
-    expect(nextPayment('failed', 'success')).toBe('paid');
-    expect(nextPayment('paid', 'reversed')).toBe('refunded');
+    expect(monoPayment('success')).toBe('paid');
+    expect(monoPayment('failure')).toBe('failed');
+    expect(monoPayment('expired')).toBe('failed');
+    expect(monoPayment('reversed')).toBe('refunded');
   });
 
-  it('moves nothing on a status on its way, an expired invoice, a repeat or a late event', () => {
-    for (const status of ['created', 'processing', 'hold', 'expired', 'new'])
-      expect(nextPayment('awaiting', status), status).toBeNull();
-    expect(nextPayment('paid', 'success')).toBeNull();
-    expect(nextPayment('paid', 'failure')).toBeNull();
-    expect(nextPayment('refunded', 'success')).toBeNull();
-    expect(nextPayment('awaiting', 'reversed')).toBeNull();
+  it('says nothing of a status on its way or one it does not know', () => {
+    for (const status of ['created', 'processing', 'hold', 'new'])
+      expect(monoPayment(status), status).toBeUndefined();
+  });
+});
+
+// Where monobank's word may move a payment from: a repeat and a late event find nothing to move.
+describe('movesTo', () => {
+  it('pays what waits or failed, so `failure` and `success` end paid in any order', () => {
+    expect(movesTo('paid')).toEqual(['awaiting', 'failed']);
+  });
+
+  it('fails only what waits, and refunds only what is paid', () => {
+    expect(movesTo('failed')).toEqual(['awaiting']);
+    expect(movesTo('refunded')).toEqual(['paid']);
+  });
+});
+
+describe('cardRetryable', () => {
+  const card = {
+    payment: 'card',
+    status: 'new',
+    paymentStatus: 'failed',
+    monoInvoiceId: 'inv-1',
+  } as const;
+
+  it('offers a card that failed, or that never got its invoice', () => {
+    expect(cardRetryable(card)).toBe(true);
+    expect(cardRetryable({ ...card, status: 'confirmed' })).toBe(true);
+    expect(
+      cardRetryable({
+        ...card,
+        paymentStatus: 'awaiting',
+        monoInvoiceId: null,
+      }),
+    ).toBe(true);
+  });
+
+  it('offers nothing while its invoice waits, once paid, on an order gone on, or for another payment', () => {
+    for (const other of [
+      { paymentStatus: 'awaiting' },
+      { paymentStatus: 'paid' },
+      { paymentStatus: 'refunded' },
+      { status: 'shipped' },
+      { status: 'completed' },
+      { status: 'cancelled' },
+      { payment: 'transfer' },
+      { payment: 'link' },
+    ] as const)
+      expect(
+        cardRetryable({ ...card, ...other }),
+        String(Object.values(other)),
+      ).toBe(false);
   });
 });
 
@@ -250,6 +298,11 @@ describe('keepPaymentForward', () => {
     expect(() => save('awaiting', 'paid')).toThrow();
   });
 
+  // RULES.md: a mistaken mark is told in the note. Only a card's new invoice waits again.
+  it('refuses making a failed payment wait again by hand', () => {
+    expect(() => save('awaiting', 'failed')).toThrow();
+  });
+
   it('leaves a new order alone', () => {
     expect(save('awaiting', 'paid', 'create')).toEqual({
       paymentStatus: 'awaiting',
@@ -257,21 +310,18 @@ describe('keepPaymentForward', () => {
   });
 
   // RULES.md: only monobank knows whether a card paid.
-  it("leaves a card's payment to its provider, and forward only even then", () => {
-    const card = (paymentStatus: string, context: object) =>
+  it("lets nobody change a card's payment through Payload", () => {
+    const card = (paymentStatus: string) =>
       keepPaymentForward({
-        context,
+        context: { paymentProvider: true },
         data: { paymentStatus },
         originalDoc: { payment: 'card', paymentStatus: 'awaiting' },
         operation: 'update',
         req: { t: (key: string) => key },
       } as never);
-    expect(() => card('paid', {})).toThrow();
-    expect(card('paid', { paymentProvider: true })).toEqual({
-      paymentStatus: 'paid',
-    });
-    expect(() => card('refunded', { paymentProvider: true })).toThrow();
-    expect(card('awaiting', {})).toEqual({ paymentStatus: 'awaiting' });
+    expect(() => card('paid')).toThrow();
+    expect(() => card('refunded')).toThrow();
+    expect(card('awaiting')).toEqual({ paymentStatus: 'awaiting' });
   });
 });
 

@@ -20,11 +20,14 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   is. (adr-20261028-own-orders-collection; checked by: `canMoveStatus` in the `beforeChange` hook
   on `orders`, Vitest in `tests/orders.test.ts`)
 - An order's payment status moves apart from its status and only by one table: `awaiting` →
-  `paid` or `failed`, `failed` → `paid`, `paid` → `refunded`; a mistaken mark is told in the
-  manager's note, never taken back. A card's is changed only by monobank's webhook, the owner's
-  never. (adr-20261106-transfer-to-the-store-account, adr-20261106-card-payment-on-monobanks-page;
-  checked by: `canMovePayment` and `context.paymentProvider` in the `beforeChange` hook
-  `keepPaymentForward`, Vitest in `tests/orders.test.ts`)
+  `paid` or `failed`, `failed` → `paid`, `paid` → `refunded`, and a card's new invoice alone makes a
+  failed payment wait again; a mistaken mark is told in the manager's note, never taken back. A
+  card's is changed only by monobank's word, the owner's never: its webhook, the shopper's return
+  and the daily cron each write it by `settle`, one statement that asks the table of the row, and
+  only the one that moved it tells Telegram. (adr-20261106-transfer-to-the-store-account,
+  adr-20261106-card-payment-on-monobanks-page, adr-20261109-card-reconciliation; checked by:
+  `canMovePayment` in the `beforeChange` hook `keepPaymentForward`, `movesTo` in `settle`, Vitest in
+  `tests/orders.test.ts` and `tests/monobank.test.ts`)
 - An order is created only by `placeOrder`, after the form's Zod schema, Turnstile and repricing:
   no role creates one through REST or GraphQL, and no role changes what the shopper sent or the
   snapshot — only the status, the payment status and the manager's note. An admin role reads every
@@ -41,6 +44,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   holds. (adr-20261028-monobank-and-cash-on-delivery, adr-20261106-card-payment-on-monobanks-page;
   checked by: Vitest in `tests/monobank.test.ts` with a valid and a forged signature, the e2e tests
   through `tests/e2e/mono-stub.mjs`)
+- The daily reconciliation of mono's invoices has no effect before `CRON_SECRET` holds: nothing is
+  read before it, and with no secret on the server it refuses everyone.
+  (adr-20261109-card-reconciliation; checked by: Vitest in `tests/monobank.test.ts`, the e2e test
+  through `tests/e2e/mono-stub.mjs`)
+- A card's invoice gives way to a new one only once mono itself says it was refused or expired, and
+  an invoice not saved on the order as it was read is never paid. (adr-20261109-card-reconciliation;
+  checked by: Vitest on `payByCard` in `tests/monobank.test.ts`)
 - Paying ahead — a transfer to the store's account, and online card payment — is offered only when
   every order line is in stock, and `placeOrder` refuses it otherwise. (adr-20261028-two-step-launch,
   adr-20261106-transfer-to-the-store-account, adr-20261106-card-payment-on-monobanks-page; checked
@@ -56,9 +66,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - The store always has an owner: nobody changes their own role or deletes themselves.
   (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password, but
-  `POST /api/mono/webhook`, which its signature authenticates; a Production build without
-  `SITE_PASSWORD` fails. (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page;
-  checked by: Vitest on `src/proxy.ts` and `src/lib/env.ts`)
+  `POST /api/mono/webhook`, which its signature authenticates, and `GET /api/mono/reconcile`, which
+  `CRON_SECRET` does; a Production build without `SITE_PASSWORD` fails, as does one with `MONO_TOKEN`
+  and no `CRON_SECRET`. (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page,
+  adr-20261109-card-reconciliation; checked by: Vitest on `src/proxy.ts` and `src/lib/env.ts`)
 - A consultation request is created only by `requestConsultation`, after the form's Zod schema
   and Turnstile: no role creates one through REST or GraphQL, and no role changes what the shopper
   sent — only its status. Only an admin role reads a request; only the owner deletes one.
@@ -118,11 +129,12 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - Every input from outside — form, webhook, import row, API response — passes the domain's Zod
   schema before use. (spec `sikora-beauty`; checked by: review)
 - The storefront reads Payload's Local API with `overrideAccess: false`. The Local API skips access
-  control by default, so without it a page would show drafts. Three reads skip it, explicitly, each
-  by a token only its holder has. Two go by an order's return token: `getPlacedOrder`, the thank-you
+  control by default, so without it a page would show drafts. Four reads skip it, explicitly, each
+  by a token only its holder has. Three go by an order's return token: `getPlacedOrder`, the thank-you
   page's, which selects the order's number, sum, payment, statuses and whether it has a monobank
-  invoice, and nothing a shopper typed; and `payByCard`, which selects the sum, the lines, the
-  payment, its status, the invoice and the language to make mono's invoice. `waitingLetter`, the
+  invoice, and nothing a shopper typed; `payByCard`, which selects the sum, the lines, the
+  payment, both statuses, the invoice and the language to make mono's invoice; and `checkCard`, which
+  selects only the invoice, to ask mono of it. `waitingLetter`, the
   letter's page's, goes by an account's letter token and selects only the email the letter went to,
   to fill it in. (task `catalog-model`, adr-20261106-transfer-to-the-store-account,
   adr-20261106-card-payment-on-monobanks-page, task `verify-letter-password`; checked by: review,

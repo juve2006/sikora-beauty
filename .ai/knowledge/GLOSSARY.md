@@ -255,7 +255,7 @@ Use in: source code, schema, documentation.
 ## Card Payment
 
 A shopper's payment ahead by card, Apple Pay or Google Pay on monobank's page, right after placing an
-order wholly in stock; only mono's webhook marks it paid or failed. Order payment `card`, «Карткою на
+order wholly in stock; only mono's word, by its webhook or when asked, marks it paid or failed. Order payment `card`, «Карткою на
 сайті». Not a Payment Link, which the manager sends after confirmation.
 
 Informal synonyms: оплата карткою, онлайн-оплата, оплата на сайті.
@@ -286,11 +286,20 @@ Use in: source code, schema, API, documentation.
 
 ## Invoice
 
-A monobank acquiring payment request created for an order; its status arrives by webhook. Field
+A monobank acquiring payment request created for an order; its status arrives by webhook, or mono is
+asked for it. Field
 `monoInvoiceId` of `orders`, «Рахунок mono»; never the store's account a transfer goes to.
 
 Informal synonyms: рахунок mono.
 Use in: source code, schema, API, documentation.
+
+## Reconciliation
+
+Asking monobank itself where an invoice stands, as a webhook may be lost and an expired invoice has
+none: on the shopper's return from mono's page and by a daily cron.
+
+Informal synonyms: звірка.
+Use in: source code (`monoReconcile`), documentation.
 
 ## Fiscal Receipt
 

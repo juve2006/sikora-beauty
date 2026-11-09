@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 
 import OrderPlaced from './order-placed';
 import { routing } from '@/i18n/routing';
+import { currentCustomer } from '@/lib/actions/customer.actions';
 import {
   getPaymentDetails,
-  getPlacedOrder,
+  getReturnedOrder,
 } from '@/lib/actions/payment.actions';
 import { returnToken } from '@/lib/validators';
 
@@ -28,10 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // Where a card stands, as the shopper is back from monobank's page: paid; waiting for the bank's
-// word, as the webhook may come a moment later; or not paid — failed, or never sent to mono, as the
-// browser left before the invoice — and the manager calls. A cancelled or refunded order says no more.
+// word, as neither its webhook nor mono itself has said yet; or not paid — failed, or never sent to
+// mono, as the browser left before the invoice — and the shopper tries again or the manager calls. A
+// cancelled or refunded order says no more.
 const cardState = (
-  order: NonNullable<Awaited<ReturnType<typeof getPlacedOrder>>>,
+  order: NonNullable<Awaited<ReturnType<typeof getReturnedOrder>>>,
 ) => {
   if (order.cancelled || order.paymentStatus === 'refunded') return undefined;
   if (order.paymentStatus === 'paid') return 'paid';
@@ -48,11 +50,12 @@ const ThanksPage = async ({ params, searchParams }: Props) => {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const token = returnToken.safeParse((await searchParams).t).data;
-  const order = token ? await getPlacedOrder(token) : undefined;
+  const order = token ? await getReturnedOrder(token) : undefined;
   const details =
     order?.payment === 'transfer' && order.payable
       ? await getPaymentDetails()
       : undefined;
+  const customer = order?.retry ? await currentCustomer() : null;
   return (
     <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
       <OrderPlaced
@@ -60,6 +63,9 @@ const ThanksPage = async ({ params, searchParams }: Props) => {
         transfer={order && details && { details, total: order.total }}
         card={order?.payment === 'card' ? cardState(order) : undefined}
         again={token && `?t=${token}`}
+        retry={
+          token && order?.retry ? { token, email: customer?.email } : undefined
+        }
         link={order?.payment === 'link' && order.payable}
       />
     </main>

@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import CopyButton from './copy-button';
+import RetryForm from './retry-form';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { formatHryvnias } from '@/lib/utils';
@@ -13,14 +14,16 @@ type Props = {
   // to look again while it waits.
   card?: 'paid' | 'waiting' | 'failed';
   again?: string;
+  // A card that may be tried again: the order's secret, and the address to start from.
+  retry?: { token: string; email?: string };
   // A payment by a link the manager sends — chosen, or what a card became without its invoice.
   link?: boolean;
 };
 
 // The thanks for an order: its number when the page found the order, and what happens next — for a
 // transfer, where to send the money, each detail with its own copy button; for a card, whether it
-// paid.
-const OrderPlaced = ({ number, transfer, card, again, link }: Props) => {
+// paid, and another try when it did not.
+const OrderPlaced = ({ number, transfer, card, again, retry, link }: Props) => {
   const t = useTranslations('Checkout');
   const c = useTranslations('Cart');
   const p = useTranslations('Product');
@@ -82,13 +85,14 @@ const OrderPlaced = ({ number, transfer, card, again, link }: Props) => {
               ? {
                   paid: t('cardPaid'),
                   waiting: t('cardWaiting'),
-                  failed: t('cardFailed'),
+                  failed: retry ? t('cardFailedRetry') : t('cardFailed'),
                 }[card]
               : t('placedText')}
           </p>
           {link && <p>{t('linkText')}</p>}
         </div>
       )}
+      {retry && <RetryForm token={retry.token} email={retry.email} />}
       <div className="mt-6 flex flex-wrap gap-3">
         {card === 'waiting' && again && (
           <Button asChild>

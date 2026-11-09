@@ -53,7 +53,8 @@ meanwhile asks the shopper to check the cart — and keeps its lines as they wer
 admin under «Продажі → Замовлення», where the manager moves its status forward, marks it paid and
 keeps a note. `/cart/thanks` finds the order by a secret its checkout was given and shows its
 number — for a transfer, the account to pay, each detail with a copy button; for a card, whether
-mono's signed webhook said it paid. The order reaches the same Telegram group as a request, a message with the contacts,
+it paid, by mono's signed webhook or by asking mono on the way back and once a day, and another try
+when it did not. The order reaches the same Telegram group as a request, a message with the contacts,
 the address and the lines, and a link to it in the admin.
 «Підбір догляду» (`/care-finder`) asks the shopper about their skin, one question a screen, and
 builds a routine — cleansing, toning, serum, cream, SPF — of up to two products in stock a step,

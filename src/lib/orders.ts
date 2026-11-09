@@ -1,4 +1,8 @@
-import { ORDER_STATUSES, VOLUME_UNIT_LABELS } from '@/lib/constants';
+import {
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+  VOLUME_UNIT_LABELS,
+} from '@/lib/constants';
 import type { Order, Product } from '@/payload-types';
 import type { CartLine, OrderStatus, PaymentStatus } from '@/types';
 
@@ -68,11 +72,11 @@ export const canPrepay = (lines: { availability?: string | null }[]) =>
   lines.every(({ availability }) => availability === 'in_stock');
 
 // Where a payment may go next, for the manager and for monobank alike. A failed card may still be
-// paid — whether mono lets the same invoice be tried again is not known, and a lost payment is worse;
-// a paid one only comes back as a refund.
+// paid — whether mono lets the same invoice be tried again is not known, and a lost payment is worse
+// — or wait again on a new invoice; a paid one only comes back as a refund.
 const paymentMoves: Record<PaymentStatus, PaymentStatus[]> = {
   awaiting: ['paid', 'failed'],
-  failed: ['paid'],
+  failed: ['paid', 'awaiting'],
   paid: ['refunded'],
   refunded: [],
 };
@@ -82,22 +86,36 @@ const paymentMoves: Record<PaymentStatus, PaymentStatus[]> = {
 export const canMovePayment = (from: PaymentStatus, to: PaymentStatus) =>
   from === to || paymentMoves[from].includes(to);
 
+// The payments that may become `next`: what a statement that moves one asks of the row, so the table
+// holds without reading it first.
+export const movesTo = (next: PaymentStatus) =>
+  PAYMENT_STATUSES.filter((from) => paymentMoves[from].includes(next));
+
 const monoPayments: Partial<Record<string, PaymentStatus>> = {
   success: 'paid',
   failure: 'failed',
+  expired: 'failed',
   reversed: 'refunded',
 };
 
-// What an invoice's status from monobank makes of an order's payment, or nothing: a status still
-// on its way (`created`, `processing`, `hold`), an expired invoice (`mono-reconcile`'s), a repeat,
-// or a late event that would move it back. mono moves an invoice only forward itself, so an event
-// the table refuses is an old one.
-export function nextPayment(current: PaymentStatus, monoStatus: string) {
-  const next = monoPayments[monoStatus];
-  return next && next !== current && canMovePayment(current, next)
-    ? next
-    : null;
-}
+// What an invoice's status from monobank makes of an order's payment, or nothing for a status still
+// on its way (`created`, `processing`, `hold`). mono moves an invoice only forward itself, so a word
+// `movesTo` refuses is a repeat or an old one. `expired` is `failed`: for the shopper and the manager
+// alike there is no money, and another try or a call.
+export const monoPayment = (status: string) => monoPayments[status];
+
+// Whether the shopper may ask monobank for another invoice: the order is still going, nothing is
+// paid, and its invoice was refused or never made.
+export const cardRetryable = ({
+  payment,
+  status,
+  paymentStatus,
+  monoInvoiceId,
+}: Pick<Order, 'payment' | 'status' | 'paymentStatus' | 'monoInvoiceId'>) =>
+  payment === 'card' &&
+  (status === 'new' || status === 'confirmed') &&
+  (paymentStatus === 'failed' ||
+    (paymentStatus === 'awaiting' && !monoInvoiceId));
 
 // The order's lines as monobank's invoice wants them for the fiscal receipt: each with a code, here
 // the product's id — its name once the product is gone — and its price per unit in kopiyky.

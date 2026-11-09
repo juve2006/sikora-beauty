@@ -92,14 +92,15 @@ back, the cron and `expired` — is the task `mono-reconcile`.
 
 ## Consequences
 
-- A card paid but whose webhook never came stays «Очікує» until `mono-reconcile`; the truth is in
-  mono's cabinet. So the live token goes in only after `mono-reconcile`; until then only a test one.
+- A card paid but whose webhook never came stays «Очікує» until `mono-reconcile`
+  (adr-20261109-card-reconciliation); the truth is in mono's cabinet. So the live token goes in only
+  after `mono-reconcile`; until then only a test one.
 - A failed card is the manager's call; a card made to order is still a payment link. An order by
   card that failed, or was left before its invoice, cannot be marked paid by the manager even once
   they took the money by a link: its payment is read-only and its status mono's alone. It is told
-  in the note until `mono-reconcile` gives it a way.
-- mono's webhook is the one request that passes the site password; the signature is all that
-  authenticates it. A Preview behind Vercel Authentication gets no webhook.
+  in the note; `mono-reconcile` gave the shopper another try, not the manager a mark.
+- mono's webhook passes the site password, with `mono-reconcile`'s cron the only requests that do;
+  the signature is all that authenticates it. A Preview behind Vercel Authentication gets no webhook.
 - `tests/e2e/mono-stub.mjs` signs with a key of its own and stands for mono in e2e
   (`MONO_API_URL`).
 - Undoing it is a revert and a redeploy; the migration's `down` drops the column and the enum

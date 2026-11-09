@@ -96,7 +96,7 @@ export const ORDER_STATUSES = [
 // (adr-20261028-two-step-launch).
 export const PAYMENTS = ['cod', 'link', 'transfer', 'card'] as const;
 // Whether an order is paid, apart from its status: only forward (RULES.md) — the manager marks it,
-// and monobank's webhook for a card.
+// and monobank for a card.
 export const PAYMENT_STATUSES = [
   'awaiting',
   'paid',
@@ -106,6 +106,10 @@ export const PAYMENT_STATUSES = [
 
 // monobank acquiring's API; MONO_API_URL replaces it for the e2e tests' stub.
 export const MONO_API = 'https://api.monobank.ua';
+// The daily reconciliation leaves an invoice younger than this to its shopper's return, and asks of
+// at most this many, the oldest first: within what a Vercel function may take.
+export const RECONCILE_AFTER = 10 * 60_000;
+export const RECONCILE_LIMIT = 20;
 
 // Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.
 export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';

@@ -1,7 +1,8 @@
 // monobank acquiring for the end-to-end run (playwright.config.ts): an invoice, its page with
 // «Оплатити» and «Відмовити», and the webhook each sends, signed by this stub's own key as mono signs
-// its. «Пізніше» goes back without the webhook, which `/send/<id>/<status>` sends when the test says.
-// An invoice for down@example.com is refused: mono when it is down.
+// its. «Пізніше» goes back without the webhook, which `/send/<id>/<status>` sends when the test says;
+// `/set/<id>/<status>` only changes what `invoice/status` answers: a webhook that was lost. An
+// invoice for down@example.com is refused: mono when it is down.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import { createServer } from 'node:http';
 
@@ -12,7 +13,9 @@ const pem = publicKey.export({ type: 'spki', format: 'pem' });
 const invoices = new Map();
 
 const webhook = async (invoiceId, status) => {
-  const { webHookUrl, amount } = invoices.get(invoiceId);
+  const invoice = invoices.get(invoiceId);
+  invoice.status = status;
+  const { webHookUrl, amount } = invoice;
   const body = JSON.stringify({ invoiceId, status, amount, ccy: 980 });
   await fetch(webHookUrl, {
     method: 'POST',
@@ -44,6 +47,15 @@ createServer((request, response) => {
     }
     if (url.pathname === '/api/merchant/pubkey') {
       answer(200, { key: Buffer.from(pem).toString('base64') });
+      return;
+    }
+    if (url.pathname === '/api/merchant/invoice/status') {
+      const invoiceId = url.searchParams.get('invoiceId');
+      const asked = invoices.get(invoiceId);
+      if (asked) {
+        const { status = 'created', amount } = asked;
+        answer(200, { invoiceId, status, amount, ccy: 980 });
+      } else answer(400, { errCode: 'NOT_FOUND' });
       return;
     }
     if (url.pathname === '/api/merchant/invoice/create') {
@@ -87,6 +99,11 @@ createServer((request, response) => {
     }
     if (step === 'send') {
       await webhook(invoiceId, status);
+      answer(200, {});
+      return;
+    }
+    if (step === 'set') {
+      invoice.status = status;
       answer(200, {});
       return;
     }
