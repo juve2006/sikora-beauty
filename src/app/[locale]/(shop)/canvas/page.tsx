@@ -1147,6 +1147,11 @@ const CanvasPage = async ({ params }: Props) => {
                 />
               </div>
             </Specimen>
+            <Specimen label="RetryForm, sending">
+              <div>
+                <RetryForm token="canvas" email="olena@example.com" sending />
+              </div>
+            </Specimen>
             <Specimen label="a link">
               <div>
                 <OrderPlaced number={1042} link />

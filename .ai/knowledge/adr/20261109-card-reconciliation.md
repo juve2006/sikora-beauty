@@ -50,9 +50,10 @@ password. Source: task `mono-reconcile`, the developer's approval at its gate of
   while the page renders (`getReturnedOrder`), and the order is read again whatever came of it, as
   the webhook may have moved it meanwhile. No answer shows what the order has.
 - **The cron.** `GET /api/mono/reconcile`, a root endpoint in `payload.config`, at 03:00 UTC
-  (`vercel.json`): at most the 20 oldest card invoices still `awaiting` and older than 10 minutes,
-  each asked of mono for at most five seconds, one failure not stopping the rest. `CRON_SECRET` is
-  compared in constant time before anything is read; with none on the server it refuses everyone.
+  (`vercel.json`): at most the 20 oldest card invoices still `awaiting`, older than 10 minutes and
+  younger than a week, each asked of mono for at most five seconds, one failure not stopping the
+  rest. `CRON_SECRET` is compared in constant time before anything is read; with none on the server
+  it refuses everyone.
   Exactly this method and path pass the site password. A Production build with `MONO_TOKEN` and no
   `CRON_SECRET` fails.
 - **Another try.** The thank-you page offers «Спробувати ще раз», with the receipt's address, for a
@@ -93,9 +94,11 @@ password. Source: task `mono-reconcile`, the developer's approval at its gate of
   and the site stays on the previous version.
 - The live token may go in. An invoice nobody comes back to waits for the day's run, and a run Vercel
   misses for the next.
-- A `success` for an invoice a retry already replaced finds no order and is answered 200. It can only
-  happen if mono takes a payment after `failure`, which is not known; the truth is in mono's cabinet.
-- Invoices mono cannot answer for, such as a replaced token's, keep their places among the 20 oldest.
+- A `success` for an invoice a retry already replaced finds no order, is answered 200 and is logged
+  as an error, so Sentry tells. It can only happen if mono takes a payment after `failure`, which is
+  not known; the truth is in mono's cabinet.
+- Invoices mono cannot answer for, such as a replaced token's, keep their places among the 20 oldest
+  for a week: an invoice lives 24 hours by default, so one still waiting after that is one of those.
 - A card the manager took money for by a link is still not theirs to mark: it is told in the note.
 - A `GET` of the thank-you page may move a payment, by mono's word and idempotently.
 - At the production host the cron needs a scheduler of its own: `crons` in `vercel.json` are Vercel's.

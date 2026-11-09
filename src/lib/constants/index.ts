@@ -106,9 +106,11 @@ export const PAYMENT_STATUSES = [
 
 // monobank acquiring's API; MONO_API_URL replaces it for the e2e tests' stub.
 export const MONO_API = 'https://api.monobank.ua';
-// The daily reconciliation leaves an invoice younger than this to its shopper's return, and asks of
-// at most this many, the oldest first: within what a Vercel function may take.
+// The daily reconciliation leaves an invoice younger than the first to its shopper's return, gives
+// up on one older than the second, as mono cannot answer for it, and asks of at most the third, the
+// oldest first: within what a Vercel function may take.
 export const RECONCILE_AFTER = 10 * 60_000;
+export const RECONCILE_WITHIN = 7 * 24 * 60 * 60_000;
 export const RECONCILE_LIMIT = 20;
 
 // Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.

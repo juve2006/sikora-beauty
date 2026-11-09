@@ -152,6 +152,7 @@ describe("monobank's webhook", () => {
 
   beforeEach(() => {
     payload.db.updateOne.mockResolvedValue(order);
+    payload.find.mockResolvedValue({ docs: [{ id: 17 }] });
     vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
@@ -211,6 +212,39 @@ describe("monobank's webhook", () => {
     );
     await afterTheAnswer();
     expect(asked('/botbot/sendMessage')).toHaveLength(0);
+  });
+
+  it('logs a paid invoice no order holds, and answers 200', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    payload.db.updateOne.mockResolvedValue(null);
+    payload.find.mockResolvedValue({ docs: [] });
+    expect((await send({ invoiceId: 'gone', status: 'success' })).status).toBe(
+      200,
+    );
+    expect(payload.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { monoInvoiceId: { equals: 'gone' } },
+        select: { monoInvoiceId: true },
+      }),
+    );
+    expect(error).toHaveBeenCalledWith(
+      'monobank:',
+      'no order holds the paid invoice gone',
+    );
+  });
+
+  it('logs nothing for a repeat of a paid invoice its order holds', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    payload.db.updateOne.mockResolvedValue(null);
+    await send({ invoiceId: 'inv-1', status: 'success' });
+    expect(payload.find).toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('looks for no order when the status that moved nothing is no payment', async () => {
+    payload.db.updateOne.mockResolvedValue(null);
+    await send({ invoiceId: 'gone', status: 'failure' });
+    expect(payload.find).not.toHaveBeenCalled();
   });
 
   it('answers 200 and writes nothing for a status on its way', async () => {
@@ -301,15 +335,17 @@ describe("monobank's reconciliation", () => {
     expect(payload.find).not.toHaveBeenCalled();
   });
 
-  it('asks mono of the 20 oldest card invoices older than 10 minutes, and moves what it says', async () => {
+  it('asks mono, five seconds each, of the 20 oldest card invoices between 10 minutes and a week old, and moves what it says', async () => {
     invoiceNow = 'expired';
     payload.db.updateOne
       .mockResolvedValueOnce({ id: 1, total: 100 })
       .mockResolvedValueOnce(null);
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
     const response = await run(`Bearer ${SECRET}`);
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ checked: 2, moved: 1 });
+    expect(timeout.mock.calls).toEqual([[5_000], [5_000]]);
     expect(payload.find).toHaveBeenCalledWith(
       expect.objectContaining({
         collection: 'orders',
@@ -319,6 +355,7 @@ describe("monobank's reconciliation", () => {
             { paymentStatus: { equals: 'awaiting' } },
             { monoInvoiceId: { exists: true } },
             { createdAt: { less_than: '2026-11-09T02:50:00.000Z' } },
+            { createdAt: { greater_than: '2026-11-02T03:00:00.000Z' } },
           ],
         },
         sort: 'createdAt',
@@ -394,10 +431,12 @@ describe('checkCard', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('moves a card still waiting by what mono says, as the webhook would', async () => {
+  it('moves a card still waiting by what mono says in three seconds, as the webhook would', async () => {
     invoiceNow = 'success';
     payload.db.updateOne.mockResolvedValue({ id: 17, total: 249100 });
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
     await checkCard(token);
+    expect(timeout.mock.calls).toEqual([[3_000]]);
     expect(payload.db.updateOne).toHaveBeenCalledWith(
       moved('inv-1', 'paid', ['awaiting', 'failed']),
     );

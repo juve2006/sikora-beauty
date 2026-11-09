@@ -15,14 +15,15 @@ type Problem = 'emailInvalid' | 'failed';
 type Props = {
   token: string;
   email?: string;
-  // A state to start from, for /canvas.
+  // States to start from, for /canvas.
   problem?: Problem;
+  sending?: boolean;
 };
 
 // Another try at a card that did not go through: a new invoice, and off to monobank's page. Whatever
 // else the server answers — paid after all, a link the manager sends, none made — the page reads the
 // order anew. Submitted by hand, as React resets a form after its action and the address is to stay.
-const RetryForm = ({ token, email, problem: initial }: Props) => {
+const RetryForm = ({ token, email, problem: initial, sending }: Props) => {
   const t = useTranslations('Checkout');
   const router = useRouter();
   // The field's id: /canvas shows the form several times.
@@ -91,7 +92,7 @@ const RetryForm = ({ token, email, problem: initial }: Props) => {
         </p>
       )}
       <div>
-        <Button type="submit" disabled={pending || leaving}>
+        <Button type="submit" disabled={pending || leaving || sending}>
           {t('cardRetry')}
         </Button>
       </div>

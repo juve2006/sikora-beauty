@@ -71,9 +71,10 @@ export function canMoveStatus(from: OrderStatus, to: OrderStatus) {
 export const canPrepay = (lines: { availability?: string | null }[]) =>
   lines.every(({ availability }) => availability === 'in_stock');
 
-// Where a payment may go next, for the manager and for monobank alike. A failed card may still be
-// paid — whether mono lets the same invoice be tried again is not known, and a lost payment is worse
-// — or wait again on a new invoice; a paid one only comes back as a refund.
+// Where a payment may go next: the manager's marks and monobank's word read this. A failed card may
+// still be paid — whether mono lets the same invoice be tried again is not known, and a lost payment
+// is worse — and a paid one only comes back as a refund. `failed → awaiting` is a card's new invoice
+// alone, which `payByCard` writes itself: the hook refuses it as a mark.
 const paymentMoves: Record<PaymentStatus, PaymentStatus[]> = {
   awaiting: ['paid', 'failed'],
   failed: ['paid', 'awaiting'],

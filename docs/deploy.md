@@ -130,8 +130,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     Preview: Vercel Authentication refuses mono's webhook. A test payment takes any card number that passes
     the Luhn check and moves no money. The live token, from the seller's ФОП account at mono,
     replaces it without code. `vercel.json` has Vercel call `GET /api/mono/reconcile` once a day, within
-    the hour after 03:00 UTC, on Production only: Project → Cron Jobs lists it and runs it by hand, and
-    a run answers how many invoices it checked and moved. With the live token: Checkbox turned on in mono's cabinet, which
+    the hour after 03:00 UTC, on Production only: Project → Settings → Cron Jobs lists it and runs it
+    by hand, and Logs shows a run's status code. With the live token: Checkbox turned on in mono's cabinet, which
     issues the fiscal receipt from the invoice's basket; the card's paragraph on «Оплата та
     доставка» and monobank's line on «Конфіденційність», as `src/db/seed-data.ts` has them.
 
