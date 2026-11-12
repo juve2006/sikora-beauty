@@ -25,9 +25,11 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
 its texts, delivery and payment, related products and «Додати в кошик». The
-header's menu reads the zones with their categories and the skin concerns from the catalog, beside
-links to the brands, the collections and the about page — in a sheet on a phone, with «Адмінка» for someone
-signed in to the admin; the footer repeats the catalog's links beside a shopper's, among them payment
+header, olive with the client's colours, reads the zones with their categories from the catalog, a zone
+marked «Окремий пункт меню» (beauty gadgets) also as an item of its own, beside links to the brands and
+the about page and «Консультація» — in a sheet on a phone, with «Адмінка» for someone signed in to the
+admin; the skin concerns and the collections are hidden from the menu for now, their pages still open;
+the footer, cream with olive text, repeats the catalog's links beside a shopper's, among them payment
 and delivery with returns, the terms of use (the public offer) and the privacy policy, with the contacts
 the owner fills in at «Сторінки → Контакти», showing only what is filled in; far down any page, in
 the store and in the admin, an arrow leads back up, and the store's header stays in view;
@@ -141,7 +143,8 @@ production build — `npm run build` first — against a throwaway database: its
 `e2e` does.
 
 UI strings live in `messages/uk.json` and `messages/en.json`; both keep the same keys. The
-storefront's colours, font and radii are tokens in `src/app/[locale]/globals.css`; its components
+storefront's colours, fonts (Onest, and Playfair Display for headings) and radii are tokens in
+`src/app/[locale]/globals.css`, the header a scope of its own there; its components
 are shadcn/ui in `src/components/ui/` (`npx shadcn add <component>`), composed in
 `src/components/shared/`, each shown on `/canvas`.
 

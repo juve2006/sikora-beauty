@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 
 // The header's way to the account. No page asks who is signed in: that keeps the pages cached and adds
 // no request; a click does (`useAccountEntry`). Nothing is prefetched for the same reason. A phone has
-// it in the menu sheet: a fifth button would not fit beside the logo at 360 px. The word waits for
-// `lg`: with it the header passes the edge at 640 px.
+// it in the menu sheet: a fifth button would not fit beside the logo at 360 px. The icon stands alone,
+// as the client's mockup has the header; the word names it.
 const AccountLink = () => {
   const t = useTranslations('Nav');
   const { open, setOpen, onCloseAutoFocus, onClick } = useAccountEntry();
@@ -19,7 +19,7 @@ const AccountLink = () => {
       <Button asChild variant="ghost" size="sm" className="max-sm:hidden">
         <Link href="/account" prefetch={false} onClick={onClick}>
           <UserRound data-icon="inline-start" aria-hidden />
-          <span className="max-lg:sr-only">{t('account')}</span>
+          <span className="sr-only">{t('account')}</span>
         </Link>
       </Button>
       <AccountDialog

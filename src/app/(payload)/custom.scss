@@ -2,15 +2,15 @@
 // storefront's tokens, so `--primary` and `--primary-foreground` of each theme are repeated here.
 // Payload's styles sit in a layer, so these win as they are; a disabled button stays Payload's grey.
 :root {
-  --store-primary: #17605c;
-  --store-on-primary: #f4fbfa;
+  --store-primary: #596653;
+  --store-on-primary: #f5f1e8;
   --store-tint: color-mix(in srgb, var(--store-primary) 14%, transparent);
   --store-tint-strong: color-mix(in srgb, var(--store-primary) 24%, transparent);
 }
 
 html[data-theme='dark'] {
-  --store-primary: #62bbb1;
-  --store-on-primary: #0b1d1c;
+  --store-primary: #b3bfa6;
+  --store-on-primary: #1b2018;
 }
 
 .btn--style-primary:not(.btn--disabled) {

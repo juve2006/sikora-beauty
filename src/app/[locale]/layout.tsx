@@ -1,6 +1,6 @@
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
-import { Onest } from 'next/font/google';
+import { Onest, Playfair_Display } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { routing } from '@/i18n/routing';
@@ -12,6 +12,13 @@ const onest = Onest({
   subsets: ['latin', 'cyrillic'],
   display: 'swap',
   variable: '--font-onest',
+});
+
+// The headings' serif, as the client's mockups set them; its Cyrillic is its own too.
+const playfair = Playfair_Display({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-playfair',
 });
 
 // Runs before the first paint so the page never flashes the other theme: the shopper's choice
@@ -48,7 +55,11 @@ const LocaleLayout = async ({ children, params }: Props) => {
 
   // The theme script changes the class on <html> before React hydrates it.
   return (
-    <html lang={locale} className={onest.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${onest.variable} ${playfair.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

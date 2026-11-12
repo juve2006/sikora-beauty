@@ -1,21 +1,17 @@
 ---
 id: adr-20261029-storefront-look
 type: adr
-status: accepted
+status: superseded
 date: 2026-10-29
-domains:
-  - storefront
-paths:
-  - "src/app/*/globals.css"
-  - "src/app/*/layout.tsx"
-  - components.json
-  - postcss.config.mjs
-  - "src/components/shared/**"
-  - "src/components/ui/**"
+domains: []
+paths: []
 summary: "Storefront look: Tailwind v4 + shadcn/ui on theme tokens in [locale]/globals.css, Onest, light and dark themes by an inline script; no prototypes, no next-themes"
-reviewed_at: 2026-10-30
+reviewed_at: 2026-11-12
 ---
 # The storefront's look lives in theme tokens on Tailwind and shadcn/ui, in a light and a dark theme
+
+Superseded by adr-20261112-storefront-look-rosynaskin (2026-11-12): the owner's olive and cream
+replace direction A, and headings take a serif beside Onest; the mechanics below stay.
 
 Refines the spec's decision "Design": no prototypes for the owner to choose from.
 

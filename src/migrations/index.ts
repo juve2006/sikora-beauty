@@ -15,6 +15,7 @@ import * as migration_20261104_115441_google_sign_in from './20261104_115441_goo
 import * as migration_20261106_093330_transfer_payment from './20261106_093330_transfer_payment';
 import * as migration_20261106_121641_card_payment from './20261106_121641_card_payment';
 import * as migration_20261109_142149_np_waybill from './20261109_142149_np_waybill';
+import * as migration_20261112_084909_menu_item from './20261112_084909_menu_item';
 
 export const migrations = [
   {
@@ -100,6 +101,11 @@ export const migrations = [
   {
     up: migration_20261109_142149_np_waybill.up,
     down: migration_20261109_142149_np_waybill.down,
-    name: '20261109_142149_np_waybill'
+    name: '20261109_142149_np_waybill',
+  },
+  {
+    up: migration_20261112_084909_menu_item.up,
+    down: migration_20261112_084909_menu_item.down,
+    name: '20261112_084909_menu_item'
   },
 ];

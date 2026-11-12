@@ -25,9 +25,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   redirected an English browser to `/en` and the switcher could not get back; `src/i18n/request.ts` takes the locale from `next/root-params`; strings in
   `messages/*.json`, kept to the same keys by `scripts/check-messages.mjs` in CI.
   - Its look is Tailwind CSS v4 and shadcn/ui on theme tokens in `src/app/[locale]/globals.css`,
-    which only this layout imports, so the admin never gets the storefront's styles; a light and a
-    dark theme, set before the first paint by an inline script in the layout
-    (adr-20261029-storefront-look). A link to the other language is a plain `<a>`, never
+    which only this layout imports, so the admin never gets the storefront's styles; the owner's olive
+    and cream, Onest for text and Playfair Display for headings, a light and a dark theme set before
+    the first paint by an inline script in the layout, and the header a token scope of its own
+    (adr-20261112-storefront-look-rosynaskin). A link to the other language is a plain `<a>`, never
     next-intl's `Link` with `locale`: each language is its own root layout, and a client
     navigation into it renders `<html>` without the class the script set. Components take
     everything from the tokens (convention-storefront-components): shadcn's in
@@ -48,14 +49,18 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     named by the words it shows, «ROSYNA SKIN», so a voice command finds it. A new artwork is traced
     again, not set in a font; the header's is at most 128 px wide on a phone, or the header breaks
     into two lines at 360 px (task `rosyna-skin-name`).
-  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. It stays on the screen
+  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`, olive in both themes
+    (`.site-header` in `globals.css`). It stays on the screen
     as a page scrolls, whole (`sticky`, the developer's wish, after sisters.co.ua), under the
     dialogs' z-50. So `scroll-pt` on `<html>` holds its height, to keep what the keyboard focuses
     out from under it, and the catalog's panel scrolls itself in a low window. `SiteHeader` reads the
     menu with `getMenu` (`category.actions.ts`) — the zones with their categories and the skin
-    concerns, in the admin's order — beside fixed links to the brands, the collections and the
-    about page, and with `isFinderOn` (`finder.actions.ts`) whether to link the care finder (Care
-    finder, below): the catalog's menu does not know the finder. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
+    concerns, in the admin's order — beside fixed links to the brands and the about page and
+    «Консультація», and with `isFinderOn` (`finder.actions.ts`) whether to link the care finder (Care
+    finder, below): the catalog's menu does not know the finder. A zone marked «Окремий пункт меню»
+    (beauty gadgets) is an item of its own too; the skin concerns and the collections are hidden by
+    `SHOW_CONCERNS_AND_COLLECTIONS` (adr-20261112-storefront-look-rosynaskin). From `xl` the logo, the
+    menu and the icon buttons share one row. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
     and the theme move into that sheet and the buttons left in the header are 32 px, so it keeps
     one line at 360 px. «Обране» is `FavoritesLink` (Favorites, below), «Кошик» `CartLink` (Cart
     and orders, below), the account `AccountLink` (Accounts, below). «Пошук» opens `SearchDialog` (Search, below). «Адмінка» is
@@ -68,9 +73,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     «Сторінки → Контакти», which both roles keep. What is left empty is not shown, and with nothing
     filled in the column goes, so the store never needs a contact it does not have. The shopper's
     column links `/delivery` (returns inside it), `/terms` (the public offer) and `/privacy`, pages
-    from the admin in sisters.co.ua's shape, which the checkout's consent line links too. The block is in the primary
-    colour and renames `--foreground`, `--muted-foreground` and `--ring` for what is inside, so `Logo`
-    and a focus ring read on it without a variant of their own.
+    from the admin in sisters.co.ua's shape, which the checkout's consent line links too. The block is the
+    page's cream under a line, and renames `--foreground` and `--muted-foreground` to `--primary` for
+    what is inside, so its text and `Logo` are olive without a variant of their own.
   - The way back up: `BackToTop` (`src/components/shared/back-to-top/`, from the same layout) and the
     admin's own (`src/components/admin/back-to-top.tsx`, a Payload provider, as that is what reaches
     every admin page) share `src/lib/back-to-top.ts`, as they share no styles.

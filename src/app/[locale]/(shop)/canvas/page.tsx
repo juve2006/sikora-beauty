@@ -190,8 +190,18 @@ const CanvasPage = async ({ params }: Props) => {
     { slug: 'face-serums', title: t('sampleCategory') },
     { slug: 'face-creams', title: t('sampleCategory2') },
   ];
+  // Two zones marked for the menu: one with a category opens a panel, one without is a link.
   const menu: Menu = {
-    zones: [{ ...zone, categories }],
+    zones: [
+      { ...zone, menuItem: false, categories },
+      {
+        slug: 'gadgets',
+        title: t('sampleGadgets'),
+        menuItem: true,
+        categories: [{ slug: 'gadgets-massagers', title: t('sampleGadget') }],
+      },
+      { slug: 'body', title: t('sampleZone2'), menuItem: true, categories: [] },
+    ],
     concerns: [{ slug: 'dehydration', title: t('sampleConcern') }],
   };
   // The care finder's questionnaire as its admin writes it; a routine shows terms by their titles.
@@ -395,6 +405,18 @@ const CanvasPage = async ({ params }: Props) => {
 
         <Section title="MobileMenu">
           <MobileMenu menu={menu} finder />
+        </Section>
+
+        {/* The header's own tokens: what stands on its olive, and a menu panel taking the page's back. */}
+        <Section title=".site-header">
+          <div className="min-h-80">
+            <div className="site-header flex flex-wrap items-center gap-2 rounded-lg bg-background p-2 text-foreground">
+              <MainMenu menu={menu} finder />
+              <FavoritesLink shown={3} />
+              <CartLink shown={3} />
+              <LanguageSwitcher />
+            </div>
+          </div>
         </Section>
 
         <Section title="AdminLink">

@@ -92,6 +92,20 @@ export const Categories: CollectionConfig = {
       filterOptions: { parent: { exists: false } },
       validate: validateParent,
     },
+    // A zone the header offers as an item of its own too, as the owner asked of beauty gadgets.
+    // The menu reads it of zones only, so a category moved under a zone keeps it harmlessly.
+    {
+      name: 'menuItem',
+      type: 'checkbox',
+      label: 'Окремий пункт меню',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Лише для зони: у меню шапки вона стане ще й окремим пунктом, поруч із «Каталогом».',
+        condition: (data) => !data?.parent,
+      },
+    },
   ],
 };
 

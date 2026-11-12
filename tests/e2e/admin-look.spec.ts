@@ -34,14 +34,14 @@ test('a bulk publish says how many, centred, on buttons in the store colour', as
   );
   await expect(dialog.getByRole('button', { name: 'Підтвердити' })).toHaveCSS(
     'background-color',
-    'rgb(23, 96, 92)',
+    'rgb(89, 102, 83)',
   );
 
   await dialog.getByRole('button', { name: 'Скасувати' }).click();
   await expect(dialog.getByText(`Вибрано: ${rows}`)).toHaveCount(0);
   await expect(
     page.getByRole('button', { name: 'Редагувати', exact: true }),
-  ).toHaveCSS('color', 'rgb(23, 96, 92)');
+  ).toHaveCSS('color', 'rgb(89, 102, 83)');
 });
 
 test('a row shows its brand on a first visit', async ({

@@ -5,56 +5,75 @@
 /* The theme is a class on <html>, set before the first paint (see the locale layout). */
 @custom-variant dark (&:is(.dark *));
 
-/* Direction A, "clinical clean": porcelain and mist surfaces, ink text, petrol for actions.
-   Every storefront colour, font and radius comes from here; a component never holds its own. */
-:root {
-  --background: #fbfcfc;
-  --foreground: #15232d;
-  --card: #ffffff;
-  --card-foreground: #15232d;
-  --popover: #ffffff;
-  --popover-foreground: #15232d;
-  --primary: #17605c;
-  --primary-foreground: #f4fbfa;
-  --secondary: #eef2f2;
-  --secondary-foreground: #15232d;
-  --muted: #eef2f2;
-  --muted-foreground: #56666e;
-  --accent: #e3efed;
-  --accent-foreground: #0f4744;
+/* ROSYNASKIN: cream surfaces, olive for actions, olive-black text; the dark theme is the same olive
+   at night. Every storefront colour, font and radius comes from here; a component never holds its own.
+   A menu's panel opens inside the header, so it takes the page's tokens back (.site-header below). */
+:root,
+.site-header [data-slot='navigation-menu-content'] {
+  --background: #f5f1e8;
+  --foreground: #2d3329;
+  --card: #fbf9f4;
+  --card-foreground: #2d3329;
+  --popover: #fbf9f4;
+  --popover-foreground: #2d3329;
+  --primary: #596653;
+  --primary-foreground: #f5f1e8;
+  --secondary: #ebe5d8;
+  --secondary-foreground: #2d3329;
+  --muted: #ebe5d8;
+  --muted-foreground: #596653;
+  --accent: #e3e6d9;
+  --accent-foreground: #3f4a3a;
   --destructive: #b42318;
-  --border: #dce3e3;
-  --input: #cfd8d9;
-  --ring: #17605c;
+  --border: #ddd6c7;
+  --input: #d2cab9;
+  --ring: #596653;
   --radius: 0.5rem;
 }
 
-.dark {
+.dark,
+.dark .site-header [data-slot='navigation-menu-content'] {
   color-scheme: dark;
-  --background: #0f1a20;
-  --foreground: #e7eef0;
-  --card: #142229;
-  --card-foreground: #e7eef0;
-  --popover: #142229;
-  --popover-foreground: #e7eef0;
-  --primary: #62bbb1;
-  --primary-foreground: #0b1d1c;
-  --secondary: #1b2b34;
-  --secondary-foreground: #e7eef0;
-  --muted: #1b2b34;
-  --muted-foreground: #9aabb2;
-  --accent: #17393a;
-  --accent-foreground: #cdebe7;
+  --background: #161a15;
+  --foreground: #ece7dc;
+  --card: #1e231c;
+  --card-foreground: #ece7dc;
+  --popover: #1e231c;
+  --popover-foreground: #ece7dc;
+  --primary: #b3bfa6;
+  --primary-foreground: #1b2018;
+  --secondary: #262c23;
+  --secondary-foreground: #ece7dc;
+  --muted: #262c23;
+  --muted-foreground: #a8b09d;
+  --accent: #2d3628;
+  --accent-foreground: #dfe5d6;
   --destructive: #f97066;
-  --border: #26363f;
-  --input: #31434d;
-  --ring: #62bbb1;
+  --border: #30372c;
+  --input: #3a4235;
+  --ring: #b3bfa6;
+}
+
+/* The header is the client's olive and cream in both themes, a scope of its own like .dark: what
+   stands on it — buttons, the menu's triggers, the logo, the counts, the current language — reads
+   these. Only the hover's darker olive is ours. */
+.site-header {
+  --background: #596653;
+  --foreground: #f5f1e8;
+  --muted: #4c5847;
+  --muted-foreground: #f5f1e8;
+  --primary: #f5f1e8;
+  --primary-foreground: #596653;
+  --accent: #f5f1e8;
+  --accent-foreground: #596653;
+  --border: #4c5847;
+  --ring: #f5f1e8;
 }
 
 @theme inline {
   --container-page: 90rem;
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-playfair), ui-serif, Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -91,5 +110,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* A page's title is set in the serif, as a block's title is (font-heading on it). */
+  h1 {
+    @apply font-heading;
   }
 }

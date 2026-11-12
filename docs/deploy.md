@@ -154,6 +154,10 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     name in its block «Хто ми» («Who we are»). Outside the site: the app name on Google's consent screen
     (step 10), which Google shows at sign-in, and the store's name in mono's cabinet, if its payment
     page shows one. The repository, the Vercel project, the Blob store and Sentry keep `sikora-beauty`.
+21. **Beauty gadgets in the menu.** The deploy's migration adds the zones' checkbox «Окремий пункт меню».
+    In «Каталог → Зони й категорії» an editor creates the zone «Beauty-ґаджети» («Beauty gadgets» in
+    English), its field «Зона» left empty, and ticks the checkbox: the header then offers it beside
+    «Каталог», a panel once it has categories. Until then the menu has no such item.
 
 ## Check it
 

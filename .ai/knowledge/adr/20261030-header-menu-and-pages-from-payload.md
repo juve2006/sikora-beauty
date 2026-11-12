@@ -17,9 +17,12 @@ paths:
   - src/lib/actions/page.actions.ts
   - src/lib/actions/category.actions.ts
 summary: The header's menu comes from Payload in (shop)/layout.tsx, so pages the build would prerender are force-dynamic; store pages are a pages collection of blocks with reserved slugs; the admin link is checked in the browser
-reviewed_at: 2026-10-30
+reviewed_at: 2026-11-12
 ---
 # The header's menu and the store's pages are read from Payload, never at build; pages are a collection of blocks
+
+Since adr-20261112-storefront-look-rosynaskin (2026-11-12) the menu also offers a zone marked
+«Окремий пункт меню» and «Консультація»; the skin concerns and the collections are hidden from it.
 
 ## Context
 

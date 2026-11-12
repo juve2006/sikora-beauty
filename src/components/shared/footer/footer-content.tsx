@@ -8,7 +8,7 @@ import type { Contact } from '@/payload-types';
 import type { Menu } from '@/types';
 
 const linkStyle =
-  'rounded-sm outline-none hover:text-primary-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50';
+  'rounded-sm outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50';
 
 const FooterLink = (props: ComponentProps<typeof Link>) => (
   <li>
@@ -26,7 +26,7 @@ const Column = ({
   children: ReactNode;
 }) => (
   <div className={className}>
-    <h2 className="mb-3 font-medium text-primary-foreground">{title}</h2>
+    <h2 className="mb-3 font-semibold">{title}</h2>
     <ul className="text-sm">{children}</ul>
   </div>
 );
@@ -61,8 +61,8 @@ const InstagramMark = () => (
   </svg>
 );
 
-// A solid block in the primary colour, in both themes. It renames the tokens for what is inside, so
-// `Logo` and every focus ring stay readable on it without a variant of their own.
+// The page's cream under a line, its text and `Logo` in the primary colour (olive), in both themes:
+// it renames the text tokens for what is inside, so they need no variant of their own.
 const FooterContent = ({
   menu,
   finder = false,
@@ -86,7 +86,7 @@ const FooterContent = ({
   const address = contacts.address?.trim();
   const anyContact = phone || email || instagram || hours || address;
   return (
-    <footer className="mt-auto w-full bg-primary text-primary-foreground/80 [--foreground:var(--primary-foreground)] [--muted-foreground:var(--primary-foreground)] [--ring:var(--primary-foreground)]">
+    <footer className="mt-auto w-full border-t bg-background text-primary [--foreground:var(--primary)] [--muted-foreground:var(--primary)]">
       <div className="mx-auto w-full max-w-page px-4 py-10 sm:px-6">
         <Logo withTagline />
         <div className="mt-8 grid grid-cols-2 gap-8 lg:grid-cols-3">
@@ -153,7 +153,7 @@ const FooterContent = ({
           )}
         </div>
         {/* On a phone the way back up sits in this corner, so the line ends above it. */}
-        <p className="mt-10 border-t border-primary-foreground/20 pt-6 text-sm max-sm:pb-12">
+        <p className="mt-10 border-t pt-6 text-sm max-sm:pb-12">
           {t('copyright', { year: new Date().getFullYear() })}
         </p>
       </div>

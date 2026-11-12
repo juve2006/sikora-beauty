@@ -10,7 +10,7 @@ const TextBlock = ({ block }: { block: BlockOf<'text'> }) => {
   return (
     <section className="grid gap-8 py-10 lg:grid-cols-[minmax(0,65ch)_1fr] lg:gap-12">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-balance">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance">
           {block.title}
         </h2>
         <Paragraphs text={block.text} className="mt-4" />

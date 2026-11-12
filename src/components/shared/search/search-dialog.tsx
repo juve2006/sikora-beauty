@@ -68,8 +68,8 @@ const SearchDialog = () => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <Search data-icon="inline-start" aria-hidden />
-          {/* A phone's header keeps one line: the icon, named by the same word. */}
-          <span className="max-sm:sr-only">{t('open')}</span>
+          {/* The icon alone, as the client's mockup has the header; the word names it. */}
+          <span className="sr-only">{t('open')}</span>
         </Button>
       </DialogTrigger>
       {/* At the top, not centred: a phone's keyboard takes the lower half. */}

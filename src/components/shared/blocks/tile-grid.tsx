@@ -12,7 +12,9 @@ type Props = {
 // A tiles block as it shows: a tile for each term, leading to its page in the catalog.
 const TileGrid = ({ title, source, terms }: Props) => (
   <section className="py-10">
-    <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+    <h2 className="font-heading text-2xl font-semibold tracking-tight">
+      {title}
+    </h2>
     <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {terms.map(({ slug, title }) => (
         <li key={slug}>

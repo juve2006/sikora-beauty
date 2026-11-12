@@ -25,7 +25,9 @@ Use in: UI strings, documentation.
 
 ## Zone
 
-The top level of the catalog by where a product is applied: face, body, hair and scalp.
+The top level of the catalog by where a product is applied: face, body, hair and scalp; beauty
+gadgets are a zone too. A zone marked «Окремий пункт меню» (`menuItem`) is also an item of its own
+in the header's menu.
 
 Informal synonyms: зона застосування, area, body area.
 Use in: source code, schema, API, documentation.
@@ -393,8 +395,8 @@ Use in: source code, documentation.
 
 A CSS variable in `src/app/[locale]/globals.css` — `--primary`, `--background`, `--radius` and the
 rest of shadcn's set — with a value for the light theme (`:root`) and one for the dark theme
-(`.dark`); Tailwind classes such as `bg-primary` read it. Storefront components take colours and
-radii only from theme tokens.
+(`.dark`), and the header's own for both (`.site-header`); Tailwind classes such as `bg-primary`
+read it. Storefront components take colours and radii only from theme tokens.
 
 Informal synonyms: design token, CSS variable, токен.
 Use in: source code, documentation.

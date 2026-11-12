@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
-import { COLLECTIONS } from '@/lib/constants';
+import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
+import { COLLECTIONS, SHOW_CONCERNS_AND_COLLECTIONS } from '@/lib/constants';
 import type { Menu } from '@/types';
 import {
   NavigationMenu,
@@ -28,9 +29,47 @@ const MenuLink = ({
   </NavigationMenuLink>
 );
 
-// The main menu from lg up: the catalog's zones with their categories, the skin concerns and the
-// collections open as panels; brands, the care finder when it is on, and the about page are links.
-// Below lg it is MobileMenu.
+// A zone marked for the menu, beside «Каталог»: a panel of its categories, or a link while it has none.
+const ZoneItem = ({ zone }: { zone: Menu['zones'][number] }) => (
+  <NavigationMenuItem>
+    {zone.categories.length > 0 ? (
+      <>
+        <NavigationMenuTrigger>{zone.title}</NavigationMenuTrigger>
+        <NavigationMenuContent>
+          <ul className="w-56 p-2">
+            <li>
+              <MenuLink href={`/catalog/${zone.slug}`} className="font-medium">
+                {zone.title}
+              </MenuLink>
+            </li>
+            {zone.categories.map((category) => (
+              <li key={category.slug}>
+                <MenuLink
+                  href={`/catalog/${category.slug}`}
+                  className="text-muted-foreground"
+                >
+                  {category.title}
+                </MenuLink>
+              </li>
+            ))}
+          </ul>
+        </NavigationMenuContent>
+      </>
+    ) : (
+      <MenuLink
+        href={`/catalog/${zone.slug}`}
+        className={navigationMenuTriggerStyle()}
+      >
+        {zone.title}
+      </MenuLink>
+    )}
+  </NavigationMenuItem>
+);
+
+// The main menu from lg up: the catalog's zones with their categories opens as a panel, and so does
+// a zone marked for the menu; brands, the care finder when it is on, and the about page are links,
+// and the consultation opens its dialog. The skin concerns and the collections are hidden for now
+// (SHOW_CONCERNS_AND_COLLECTIONS). Below lg it is MobileMenu.
 const MainMenu = ({
   menu,
   finder = false,
@@ -43,6 +82,7 @@ const MainMenu = ({
 }) => {
   const t = useTranslations('Nav');
   const catalog = useTranslations('Catalog');
+  const consultation = useTranslations('Consultation');
   return (
     <NavigationMenu aria-label={t('label')} className={className}>
       <NavigationMenuList>
@@ -76,25 +116,32 @@ const MainMenu = ({
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>{t('concerns')}</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-md grid-cols-2 p-2">
-              {menu.concerns.map((concern) => (
-                <li key={concern.slug}>
-                  <MenuLink href={`/concern/${concern.slug}`}>
-                    {concern.title}
-                  </MenuLink>
-                </li>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+        {SHOW_CONCERNS_AND_COLLECTIONS && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>{t('concerns')}</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-md grid-cols-2 p-2">
+                {menu.concerns.map((concern) => (
+                  <li key={concern.slug}>
+                    <MenuLink href={`/concern/${concern.slug}`}>
+                      {concern.title}
+                    </MenuLink>
+                  </li>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
         <NavigationMenuItem>
           <MenuLink href="/brands" className={navigationMenuTriggerStyle()}>
             {t('brands')}
           </MenuLink>
         </NavigationMenuItem>
+        {menu.zones
+          .filter(({ menuItem }) => menuItem)
+          .map((zone) => (
+            <ZoneItem key={zone.slug} zone={zone} />
+          ))}
         {finder && (
           <NavigationMenuItem>
             <MenuLink
@@ -105,24 +152,33 @@ const MainMenu = ({
             </MenuLink>
           </NavigationMenuItem>
         )}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>{t('collections')}</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="w-56 p-2">
-              {collections.map((slug) => (
-                <li key={slug}>
-                  <MenuLink href={`/collection/${slug}`}>
-                    {catalog(`collections.${slug}`)}
-                  </MenuLink>
-                </li>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+        {SHOW_CONCERNS_AND_COLLECTIONS && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>{t('collections')}</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="w-56 p-2">
+                {collections.map((slug) => (
+                  <li key={slug}>
+                    <MenuLink href={`/collection/${slug}`}>
+                      {catalog(`collections.${slug}`)}
+                    </MenuLink>
+                  </li>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
         <NavigationMenuItem>
           <MenuLink href="/about" className={navigationMenuTriggerStyle()}>
             {t('about')}
           </MenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <ConsultationDialog>
+            <button type="button" className={navigationMenuTriggerStyle()}>
+              {consultation('openShort')}
+            </button>
+          </ConsultationDialog>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
