@@ -45,10 +45,10 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
 
 - A block whose text takes another token renames `--foreground` and `--muted-foreground` for what is
   inside (`FooterContent`, olive on the page's cream), so a component in it reads without a variant of
-  its own. A surface whose colours differ by theme from every token — the header, the client's olive in
-  both themes — is a scope in `globals.css` instead (`.site-header`, beside `:root` and `.dark`), which
-  renames the generic tokens; what renders inline inside it but must look like the page (the menu's
-  panel) stands in the selector lists of `:root` and `.dark` (adr-20261112-storefront-look-rosynaskin).
+  its own. A surface whose colours differ by theme from every token — the header's strip, the client's
+  olive in both themes — is a scope in `globals.css` instead (`.top-bar`, beside `:root` and `.dark`),
+  which renames the generic tokens (adr-20261112-header-strip-and-banner); what renders inline inside
+  such a scope but must look like the page stands in the selector lists of `:root` and `.dark`.
 - `rounded-full` is a shape, not a radius value: a circle or a pill (the heart over a card's photo,
   the count on it) takes it; anything with corners takes the theme's steps.
 - A toggle button — one that says whether something is on, like the favorites heart — keeps one

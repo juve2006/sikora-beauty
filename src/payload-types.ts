@@ -351,10 +351,14 @@ export interface Page {
     | (
         | {
             title: string;
+            subtitle?: string | null;
             /**
              * Абзаци — через порожній рядок.
              */
             text?: string | null;
+            /**
+             * Фоном на всю ширину банера; текст стоїть на його лівій частині. Кілька банерів поспіль стають слайдером.
+             */
             image?: (number | null) | Media;
             buttonLabel?: string | null;
             /**
@@ -834,6 +838,7 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               title?: T;
+              subtitle?: T;
               text?: T;
               image?: T;
               buttonLabel?: T;

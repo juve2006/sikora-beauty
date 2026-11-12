@@ -17,7 +17,7 @@ import Turnstile, {
 import { payByCard } from '@/lib/actions/card.actions';
 import { placeOrder } from '@/lib/actions/order.actions';
 import { dropOrdered } from '@/lib/cart';
-import { CHECKOUT_PAYMENTS } from '@/lib/constants';
+import { CHECKOUT_PAYMENTS, FREE_DELIVERY_FROM } from '@/lib/constants';
 import { formatHryvnias } from '@/lib/utils';
 import { parseOrderForm } from '@/lib/validators';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -228,7 +228,9 @@ const CheckoutForm = ({
             }}
             sample={delivery}
           />
-          <p className="text-sm text-muted-foreground">{t('rates')}</p>
+          <p className="text-sm text-muted-foreground">
+            {t('rates', { amount: formatHryvnias(FREE_DELIVERY_FROM) })}
+          </p>
         </fieldset>
 
         <fieldset

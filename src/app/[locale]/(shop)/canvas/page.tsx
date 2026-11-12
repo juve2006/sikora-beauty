@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type {
   Listing as ListingResult,
+  BlockOf,
   CardProduct,
   FinderQuestion,
   Menu,
@@ -63,6 +64,8 @@ import MobileMenu from '@/components/shared/header/mobile-menu';
 import ThemeToggle from '@/components/shared/header/theme-toggle';
 import ConsultationBlock from '@/components/shared/blocks/consultation-block';
 import Hero from '@/components/shared/blocks/hero';
+import HeroSlider from '@/components/shared/blocks/hero-slider';
+import TopBar from '@/components/shared/header/top-bar';
 import PageBlocks from '@/components/shared/blocks/page-blocks';
 import BrandStrip from '@/components/shared/blocks/brand-strip';
 import BrandTile from '@/components/shared/brand/brand-tile';
@@ -174,6 +177,15 @@ const CanvasPage = async ({ params }: Props) => {
     url: samples[1],
     updatedAt: '',
     createdAt: '',
+  };
+  const banner: BlockOf<'hero'> = {
+    blockType: 'hero',
+    title: t('heading'),
+    subtitle: t('bannerSubtitle'),
+    text: t('body'),
+    image,
+    buttonLabel: nav('brands'),
+    buttonLink: '/brands',
   };
   // No product has this id: a heart pressed here leaves the favorites when /favorites asks for it.
   const card = (overrides: Partial<CardProduct>): CardProduct => ({
@@ -415,15 +427,10 @@ const CanvasPage = async ({ params }: Props) => {
           <MobileMenu menu={menu} finder />
         </Section>
 
-        {/* The header's own tokens: what stands on its olive, and a menu panel taking the page's back. */}
-        <Section title=".site-header">
-          <div className="min-h-80">
-            <div className="site-header flex flex-wrap items-center gap-2 rounded-lg bg-background p-2 text-foreground">
-              <MainMenu menu={menu} finder />
-              <FavoritesLink shown={3} />
-              <CartLink shown={3} />
-              <LanguageSwitcher />
-            </div>
+        {/* The strip's own tokens: what stands on its olive. */}
+        <Section title="TopBar">
+          <div className="w-full overflow-hidden rounded-lg">
+            <TopBar />
           </div>
         </Section>
 
@@ -518,22 +525,12 @@ const CanvasPage = async ({ params }: Props) => {
 
         <Section title="Hero">
           <div className="flex flex-col gap-5">
-            <Specimen label="first (h1), with a photo and a button">
+            <Specimen label="first (h1), with a photo, a subtitle and a button">
               <div className="w-full">
-                <Hero
-                  first
-                  block={{
-                    blockType: 'hero',
-                    title: t('heading'),
-                    text: t('body'),
-                    image,
-                    buttonLabel: nav('brands'),
-                    buttonLink: '/brands',
-                  }}
-                />
+                <Hero first block={banner} />
               </div>
             </Specimen>
-            <Specimen label="not first (h2), a title only">
+            <Specimen label="not first (h2), a title only, no photo">
               <div className="w-full">
                 <Hero
                   first={false}
@@ -541,6 +538,18 @@ const CanvasPage = async ({ params }: Props) => {
                 />
               </div>
             </Specimen>
+          </div>
+        </Section>
+
+        <Section title="HeroSlider">
+          <div className="w-full">
+            <HeroSlider
+              slides={[banner, { ...banner, image: null }, banner].map(
+                (block, index) => (
+                  <Hero key={index} first={false} block={block} />
+                ),
+              )}
+            />
           </div>
         </Section>
 

@@ -27,13 +27,13 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   - Its look is Tailwind CSS v4 and shadcn/ui on theme tokens in `src/app/[locale]/globals.css`,
     which only this layout imports, so the admin never gets the storefront's styles; the owner's olive
     and cream, Onest for text and Playfair Display for headings, a light and a dark theme set before
-    the first paint by an inline script in the layout, and the header a token scope of its own
-    (adr-20261112-storefront-look-rosynaskin). A link to the other language is a plain `<a>`, never
+    the first paint by an inline script in the layout, and the strip over the header a token scope of
+    its own (adr-20261112-storefront-look-rosynaskin, adr-20261112-header-strip-and-banner). A link to the other language is a plain `<a>`, never
     next-intl's `Link` with `locale`: each language is its own root layout, and a client
     navigation into it renders `<html>` without the class the script set. Components take
     everything from the tokens (convention-storefront-components): shadcn's in
     `src/components/ui/`; the header's in `src/components/shared/header/` — `SiteHeader`
-    (`index.tsx`), `Logo`, `LanguageSwitcher`, `ThemeToggle`, `MainMenu`, `MobileMenu`, `AdminLink`,
+    (`index.tsx`), `TopBar`, `Logo`, `LanguageSwitcher`, `ThemeToggle`, `MainMenu`, `MobileMenu`, `AdminLink`,
     `FavoritesLink`, `CartLink`, `AccountLink`; a page's blocks in `src/components/shared/blocks/`; the product's in
     `src/components/shared/product/` — price, availability, the card and its no-photo placeholder,
     `FavoriteButton`;
@@ -49,8 +49,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     named by the words it shows, «ROSYNA SKIN», so a voice command finds it. A new artwork is traced
     again, not set in a font; the header's is at most 128 px wide on a phone, or the header breaks
     into two lines at 360 px (task `rosyna-skin-name`).
-  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`, olive in both themes
-    (`.site-header` in `globals.css`). It stays on the screen
+  - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. On top, `TopBar`, olive in
+    both themes (`.top-bar` in `globals.css`): free delivery from `FREE_DELIVERY_FROM`, «Акції» (the
+    admin's page `promotions`) and, from `sm`, the language and the theme; under it the logo, the menu
+    and the icons in the page's colours (adr-20261112-header-strip-and-banner). It stays on the screen
     as a page scrolls, whole (`sticky`, the developer's wish, after sisters.co.ua), under the
     dialogs' z-50. So `scroll-pt` on `<html>` holds its height, to keep what the keyboard focuses
     out from under it, and the catalog's panel scrolls itself in a low window. `SiteHeader` reads the
@@ -93,7 +95,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug
     that names a section of the store is refused (`RESERVED_SLUGS`). `getPage`
     (`src/lib/actions/page.actions.ts`) reads one; `PageBlocks` renders the blocks in the admin's
-    order, under the page's own heading unless a banner opens them, and the home page with no page
+    order, under the page's own heading unless a banner opens them; a banner spans the column's full
+    width, and banners in a row (`groupBanners`, `src/lib/blocks.ts`) are one `HeroSlider`. The home page with no page
     shows the store's title and description. A block that reads the store's data (`Tiles`,
     `ProductsBlock`, `BrandsBlock`) hands it to a component that only shows it (`TileGrid`,
     `ProductGrid`, `BrandStrip`),
@@ -106,8 +109,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `SITE_URL` (`src/lib/constants/index.ts`), Vercel's own addresses until the production host
     sets its own.
     «Додати в кошик» (`add-to-cart.tsx`) puts the product in the cart and then links to it; out of
-    stock it is disabled. Delivery and payment state the checkout's terms: Nova Poshta at its
-    rates, paid on delivery; the goods paid by a transfer or a card, on the site or by a link the
+    stock it is disabled. Delivery and payment state the checkout's terms: Nova Poshta, free from
+    `FREE_DELIVERY_FROM`, below it at Nova Poshta's rates, paid on delivery; the goods paid by a transfer or a card, on the site or by a link the
     manager sends.
   - The catalog's lists: `/catalog/<slug>` (a zone or a category; the header's menu links
     them), `/skin-type/<slug>`, `/concern/<slug>` and `/brand/<slug>` (the landings a product

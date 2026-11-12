@@ -6,10 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ROSYNASKIN: cream surfaces, olive for actions, olive-black text; the dark theme is the same olive
-   at night. Every storefront colour, font and radius comes from here; a component never holds its own.
-   A menu's panel opens inside the header, so it takes the page's tokens back (.site-header below). */
-:root,
-.site-header [data-slot='navigation-menu-content'] {
+   at night. Every storefront colour, font and radius comes from here; a component never holds its own. */
+:root {
   --background: #f5f1e8;
   --foreground: #2d3329;
   --card: #fbf9f4;
@@ -31,8 +29,7 @@
   --radius: 0.5rem;
 }
 
-.dark,
-.dark .site-header [data-slot='navigation-menu-content'] {
+.dark {
   color-scheme: dark;
   --background: #161a15;
   --foreground: #ece7dc;
@@ -54,10 +51,10 @@
   --ring: #b3bfa6;
 }
 
-/* The header is the client's olive and cream in both themes, a scope of its own like .dark: what
-   stands on it — buttons, the menu's triggers, the logo, the counts, the current language — reads
-   these. Only the hover's darker olive is ours. */
-.site-header {
+/* The header's top strip is the client's olive and cream in both themes, a scope of its own like
+   .dark: what stands on it — the languages, the theme's button, the links — reads these. Only the
+   hover's darker olive is ours. The rest of the header is the page's. */
+.top-bar {
   --background: #596653;
   --foreground: #f5f1e8;
   --muted: #4c5847;
@@ -105,8 +102,8 @@
     @apply border-border outline-ring/50;
   }
   html {
-    /* The header's height, one line or two (SiteHeader). */
-    @apply scroll-pt-20 font-sans antialiased sm:scroll-pt-32;
+    /* The header's height, its strip and one line or two (SiteHeader). */
+    @apply scroll-pt-28 font-sans antialiased sm:scroll-pt-44;
   }
   body {
     @apply bg-background text-foreground;
