@@ -32,9 +32,9 @@ const hasOwnCheck = ({ method, nextUrl: { pathname } }: NextRequest) =>
 export default function proxy(request: NextRequest) {
   const password = process.env.SITE_PASSWORD;
   if (password && !hasOwnCheck(request) && !hasPassword(request, password)) {
-    return new NextResponse('Sikora Beauty is not open yet.', {
+    return new NextResponse('ROSYNASKIN is not open yet.', {
       status: 401,
-      headers: { 'WWW-Authenticate': 'Basic realm="Sikora Beauty"' },
+      headers: { 'WWW-Authenticate': 'Basic realm="ROSYNASKIN"' },
     });
   }
   return localized.test(request.nextUrl.pathname)

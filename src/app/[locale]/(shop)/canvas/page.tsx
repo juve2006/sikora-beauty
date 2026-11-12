@@ -345,6 +345,9 @@ const CanvasPage = async ({ params }: Props) => {
             <Specimen label="size=md">
               <Logo size="md" />
             </Specimen>
+            <Specimen label="size=md withTagline">
+              <Logo size="md" withTagline />
+            </Specimen>
           </div>
         </Section>
 

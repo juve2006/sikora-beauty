@@ -1,11 +1,10 @@
 {
   "Metadata": {
-    "title": "Sikora Beauty",
+    "title": "ROSYNASKIN",
     "description": "Professional skincare"
   },
   "Logo": {
-    "name": "Sikora",
-    "kind": "Beauty"
+    "name": "ROSYNA SKIN"
   },
   "LanguageSwitcher": {
     "label": "Language",
@@ -31,7 +30,7 @@
     "brands": "Brands",
     "finder": "Skincare finder",
     "collections": "Sets and new arrivals",
-    "about": "About Sikora Beauty",
+    "about": "About ROSYNASKIN",
     "admin": "Admin",
     "account": "Account"
   },
@@ -42,7 +41,7 @@
     "privacy": "Privacy policy",
     "contacts": "Contacts",
     "instagram": "Instagram",
-    "copyright": "© {year} Sikora Beauty. All rights reserved."
+    "copyright": "© {year} ROSYNASKIN. All rights reserved."
   },
   "Product": {
     "price": "UAH {amount}",
@@ -163,7 +162,7 @@
     "name": "Name",
     "phone": "Phone",
     "phonePlaceholder": "067 123 45 67",
-    "message": "What concerns your skin",
+    "message": "What concerns you most about your skin?",
     "optional": "optional",
     "consent": "By sending the request, you agree that we keep your name and phone to contact you.",
     "submit": "Send",
@@ -401,10 +400,10 @@
     "verifyAsk": "To confirm your email, sign in with the password you chose when registering."
   },
   "Email": {
-    "verifySubject": "Confirm your email for Sikora Beauty",
-    "verifyText": "To sign in to your Sikora Beauty account, confirm this address.",
+    "verifySubject": "Confirm your email for ROSYNASKIN",
+    "verifyText": "To sign in to your ROSYNASKIN account, confirm this address.",
     "verifyAction": "Confirm email",
-    "resetSubject": "A new password for Sikora Beauty",
+    "resetSubject": "A new password for ROSYNASKIN",
     "resetText": "To set a new password, follow the link. It works for an hour.",
     "resetAction": "Set a new password",
     "ignore": "If this was not you, do nothing: without following the link nothing changes."

@@ -58,8 +58,8 @@ export const staffResetLetter = (token: string) => {
 
 const noEmail: EmailAdapter = () => ({
   name: 'none',
-  defaultFromAddress: 'noreply@sikora-beauty.local',
-  defaultFromName: 'Sikora Beauty',
+  defaultFromAddress: 'noreply@rosynaskin.local',
+  defaultFromName: 'ROSYNASKIN',
   sendEmail: async () => undefined,
 });
 
@@ -71,7 +71,7 @@ export const emailAdapter = (env: Env) => {
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_FROM) return noEmail;
   return nodemailerAdapter({
     defaultFromAddress: SMTP_FROM,
-    defaultFromName: 'Sikora Beauty',
+    defaultFromName: 'ROSYNASKIN',
     // Checking the connection would hold every cold start; a failed send says so itself.
     skipVerify: true,
     transportOptions: {

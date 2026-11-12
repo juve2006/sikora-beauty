@@ -179,29 +179,30 @@ export const pages = [
   },
   {
     slug: 'about',
-    uk: 'Про Sikora Beauty',
-    en: 'About Sikora Beauty',
+    uk: 'Про ROSYNASKIN',
+    en: 'About ROSYNASKIN',
+    // The owner's text of 2026-11-12; the English is a translation of it.
     blocks: [
       {
         uk: {
           blockType: 'hero',
-          title: 'Про Sikora Beauty',
-          text: 'Інтернет-магазин професійної косметики для догляду за шкірою.',
+          title: 'Про ROSYNASKIN',
+          text: 'ROSYNASKIN — мультибрендовий магазин професійної косметики та beauty-ґаджетів, створений косметологом.',
         },
         en: {
-          title: 'About Sikora Beauty',
-          text: 'An online store of professional skincare.',
+          title: 'About ROSYNASKIN',
+          text: 'ROSYNASKIN is a multi-brand store of professional cosmetics and beauty gadgets, created by a cosmetologist.',
         },
       },
       {
         uk: {
           blockType: 'text',
-          title: 'Що ми робимо',
-          text: 'Ми продаємо засоби брендів, з якими працюють косметологи, і допомагаємо підібрати догляд: за зоною, типом і станом шкіри, її потребами.\n\nЯкщо не знаєте, з чого почати, — запитайте косметолога: кнопка «Консультація» є на кожній сторінці.',
+          title: 'Чому ROSYNASKIN',
+          text: 'Ми знаємо професійну косметику не лише з описів виробників, а й з практичного досвіду роботи зі шкірою. Розуміємо, наскільки важливі якість продукту, склад, ефективність і відповідність індивідуальним потребам.\n\nСаме тому ми зібрали в ROSYNASKIN добірку професійних брендів для догляду за обличчям, тілом і волоссям, а також beauty-ґаджети, які допомагають зробити домашній догляд більш продуманим і ефективним.\n\nУ нашому асортименті — оригінальна продукція від офіційних постачальників, перевірені професійні бренди та товари з підтвердженим походженням. Ми відповідально ставимося до вибору асортименту й приділяємо увагу якості кожного продукту.\n\nМи також подбали про те, щоб вам було легше зробити правильний вибір.\n\nПід час покупок на сайті ви можете скористатися послугою онлайн-консультації з косметологом. Допоможемо зорієнтуватися в асортименті, підібрати засоби відповідно до потреб шкіри та сформувати базову систему домашнього догляду.\n\nНаша мета — не просто запропонувати широкий вибір косметики, а допомогти знайти продукти, які відповідатимуть вашим потребам і стануть доречною частиною щоденного догляду.\n\nROSYNASKIN — YOUR BEAUTY EDIT.\n\nТвоя добірка професійної краси.',
         },
         en: {
-          title: 'What we do',
-          text: 'We sell products from the brands cosmetologists work with and help you choose your care: by zone, skin type and condition, and what your skin needs.\n\nNot sure where to start? Ask the cosmetologist: the “Consultation” button is on every page.',
+          title: 'Why ROSYNASKIN',
+          text: "We know professional cosmetics not only from manufacturers' descriptions but from hands-on work with skin. We understand how much a product's quality, composition, effectiveness and fit to individual needs matter.\n\nThat is why ROSYNASKIN brings together professional brands for face, body and hair care, and beauty gadgets that make care at home more considered and effective.\n\nOur range is original products from official suppliers, proven professional brands and goods of confirmed origin. We choose the range with care and look at the quality of every product.\n\nWe have also made the right choice easier for you.\n\nWhile you shop on the site, you can ask a cosmetologist for an online consultation. We will help you find your way around the range, choose products for your skin's needs and put together a basic routine for home care.\n\nOur aim is not just a wide choice of cosmetics but helping you find products that meet your needs and become a natural part of your daily care.\n\nROSYNASKIN — YOUR BEAUTY EDIT.\n\nYour edit of professional beauty.",
         },
       },
     ],
@@ -320,11 +321,11 @@ export const pages = [
         uk: {
           blockType: 'text',
           title: 'Хто ми',
-          text: 'Цей сайт веде магазин Sikora Beauty, продавець ФОП Сікора Ярина Романівна. З питаннями про свої дані звертайтеся за контактами внизу сторінки.',
+          text: 'Цей сайт веде магазин ROSYNASKIN, продавець ФОП Сікора Ярина Романівна. З питаннями про свої дані звертайтеся за контактами внизу сторінки.',
         },
         en: {
           title: 'Who we are',
-          text: 'This site is run by the Sikora Beauty store; the seller is sole proprietor Yaryna Romanivna Sikora. For questions about your data, use the contacts at the bottom of the page.',
+          text: 'This site is run by the ROSYNASKIN store; the seller is sole proprietor Yaryna Romanivna Sikora. For questions about your data, use the contacts at the bottom of the page.',
         },
       },
       {

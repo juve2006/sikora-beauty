@@ -1,11 +1,10 @@
 {
   "Metadata": {
-    "title": "Sikora Beauty",
+    "title": "ROSYNASKIN",
     "description": "Професійна косметика для догляду за шкірою"
   },
   "Logo": {
-    "name": "Sikora",
-    "kind": "Beauty"
+    "name": "ROSYNA SKIN"
   },
   "LanguageSwitcher": {
     "label": "Мова",
@@ -31,7 +30,7 @@
     "brands": "Бренди",
     "finder": "Підбір догляду",
     "collections": "Набори та новинки",
-    "about": "Про Sikora Beauty",
+    "about": "Про ROSYNASKIN",
     "admin": "Адмінка",
     "account": "Кабінет"
   },
@@ -42,7 +41,7 @@
     "privacy": "Політика конфіденційності",
     "contacts": "Контакти",
     "instagram": "Instagram",
-    "copyright": "© {year} Sikora Beauty. Усі права захищено."
+    "copyright": "© {year} ROSYNASKIN. Усі права захищено."
   },
   "Product": {
     "price": "{amount} грн",
@@ -163,7 +162,7 @@
     "name": "Ім'я",
     "phone": "Телефон",
     "phonePlaceholder": "067 123 45 67",
-    "message": "Що турбує шкіру",
+    "message": "Що найбільше турбує у стані вашої шкіри?",
     "optional": "необов'язково",
     "consent": "Надсилаючи запит, ви погоджуєтеся, що ми збережемо ваше ім'я і телефон, щоб зв'язатися з вами.",
     "submit": "Надіслати",
@@ -401,10 +400,10 @@
     "verifyAsk": "Щоб підтвердити пошту, увійдіть паролем, який ви вказали під час реєстрації."
   },
   "Email": {
-    "verifySubject": "Підтвердьте пошту для Sikora Beauty",
-    "verifyText": "Щоб увійти в кабінет Sikora Beauty, підтвердьте цю адресу.",
+    "verifySubject": "Підтвердьте пошту для ROSYNASKIN",
+    "verifyText": "Щоб увійти в кабінет ROSYNASKIN, підтвердьте цю адресу.",
     "verifyAction": "Підтвердити пошту",
-    "resetSubject": "Новий пароль для Sikora Beauty",
+    "resetSubject": "Новий пароль для ROSYNASKIN",
     "resetText": "Щоб задати новий пароль, перейдіть за посиланням. Воно діє годину.",
     "resetAction": "Задати новий пароль",
     "ignore": "Якщо це були не ви, нічого не робіть: без переходу за посиланням нічого не зміниться."
