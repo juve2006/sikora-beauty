@@ -29,9 +29,7 @@ test('the header stays in view down a page, and its logo leads to the top', asyn
   });
   expect(covers).toBe(true);
 
-  await header
-    .getByRole('link', { name: 'Sikora Beauty', exact: true })
-    .click();
+  await header.getByRole('link', { name: 'ROSYNA SKIN', exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });

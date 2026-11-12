@@ -1,12 +1,13 @@
-# Sikora Beauty
+# ROSYNASKIN
 
-Online store for professional skincare — Dr.Spiller, Glymed+, Innoaesthetics, Me line, Dermafirm,
-Braderm, Institutum — with a care finder and cosmetologist consultations. Storefront in Ukrainian
-(default) and English.
+Online store for professional skincare and beauty gadgets — Dr.Spiller, Glymed+, Innoaesthetics,
+Me line, Dermafirm, Braderm, Institutum — with a care finder and cosmetologist consultations.
+Storefront in Ukrainian (default) and English. The repository and the services behind it keep the
+earlier name, `sikora-beauty`.
 
 ## Status
 
-A home page at `/` (Ukrainian) and `/en` (English) in the store's own look — a text logo, a
+A home page at `/` (Ukrainian) and `/en` (English) in the store's own look — the ROSYNA SKIN logo, a
 language switch and a light and a dark theme that follows the device until the shopper picks
 one — and the Payload admin at `/admin`. The home page, `/about` and any other page are built in
 the admin under «Сторінки» from blocks — a banner, a collection's products, tiles into the

@@ -148,6 +148,12 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
 19. **Prepayment only.** The checkout no longer offers cash on delivery, and the seed never changes a
     page that exists: on a database seeded earlier, «Сторінки → Оплата та доставка» still has it, so its
     paragraph «При отриманні» («On receipt» in English) is removed by hand and the page saved.
+20. **The name ROSYNASKIN.** For the same reason, on a database seeded earlier two pages are changed
+    by hand, in Ukrainian and in English (the admin's language switch): «Сторінки → Про Sikora Beauty»
+    takes its title and texts from `src/db/seed-data.ts`, and «Політика конфіденційності» the store's
+    name in its block «Хто ми» («Who we are»). Outside the site: the app name on Google's consent screen
+    (step 10), which Google shows at sign-in, and the store's name in mono's cabinet, if its payment
+    page shows one. The repository, the Vercel project, the Blob store and Sentry keep `sikora-beauty`.
 
 ## Check it
 

@@ -332,7 +332,7 @@ export const importEndpoints: Endpoint[] = [
       return new Response(toCsv(await pricedProducts(req)), {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': `attachment; filename="sikora-beauty-prices-${date}.csv"`,
+          'Content-Disposition': `attachment; filename="rosynaskin-prices-${date}.csv"`,
         },
       });
     },

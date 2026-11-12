@@ -88,7 +88,7 @@ describe('the site password', () => {
         const response = await get(path, headers);
         expect(response.status).toBe(401);
         expect(response.headers.get('www-authenticate')).toBe(
-          'Basic realm="Sikora Beauty"',
+          'Basic realm="ROSYNASKIN"',
         );
       }
     }

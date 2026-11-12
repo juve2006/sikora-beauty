@@ -14,6 +14,15 @@ Informal synonyms: <words people say instead>.
 Use in: source code, schema, API, documentation.
 ```
 
+## ROSYNASKIN
+
+The store's name, written ROSYNASKIN in text — titles, letters, pages — and ROSYNA SKIN with YOUR
+BEAUTY EDIT in its logo. `sikora-beauty` is the id of the repository, its spec and its services
+(Vercel, Blob, Sentry), never shown to shoppers; the seller is still ФОП Сікора.
+
+Informal synonyms: Rosyna Skin, назва магазину; earlier Sikora Beauty.
+Use in: UI strings, documentation.
+
 ## Zone
 
 The top level of the catalog by where a product is applied: face, body, hair and scalp.

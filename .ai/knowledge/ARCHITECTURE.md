@@ -1,7 +1,8 @@
 # Architecture
 
-Sikora Beauty is an online store for professional skincare from seven brands (Dr.Spiller, Glymed+,
-Innoaesthetics, Me line, Dermafirm, Braderm, Institutum). It serves shoppers who do not know which
+ROSYNASKIN is an online store for professional skincare from seven brands (Dr.Spiller, Glymed+,
+Innoaesthetics, Me line, Dermafirm, Braderm, Institutum) and beauty gadgets; the repository, its spec
+and the services behind it keep the earlier name, `sikora-beauty` (GLOSSARY). It serves shoppers who do not know which
 professional product suits them: they find care by zone, skin type, skin condition and skin
 concern — alone, through the care finder or through the cosmetologist — in Ukrainian or English,
 and buy it by card, by a transfer or through a link the manager sends, delivered by Nova Poshta;
@@ -42,6 +43,11 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     button and delivery and payment in the product page's, the category chips in
     `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s,
     the questions and the routine in `/care-finder`'s.
+  - `Logo` is the client's ROSYNA SKIN wordmark as SVG paths traced from their artwork, filled with
+    the text colour of wherever it stands; the footer's carries YOUR BEAUTY EDIT under it. Its link is
+    named by the words it shows, «ROSYNA SKIN», so a voice command finds it. A new artwork is traced
+    again, not set in a font; the header's is at most 128 px wide on a phone, or the header breaks
+    into two lines at 360 px (task `rosyna-skin-name`).
   - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. It stays on the screen
     as a page scrolls, whole (`sticky`, the developer's wish, after sisters.co.ua), under the
     dialogs' z-50. So `scroll-pt` on `<html>` holds its height, to keep what the keyboard focuses

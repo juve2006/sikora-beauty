@@ -88,7 +88,7 @@ const FooterContent = ({
   return (
     <footer className="mt-auto w-full bg-primary text-primary-foreground/80 [--foreground:var(--primary-foreground)] [--muted-foreground:var(--primary-foreground)] [--ring:var(--primary-foreground)]">
       <div className="mx-auto w-full max-w-page px-4 py-10 sm:px-6">
-        <Logo />
+        <Logo withTagline />
         <div className="mt-8 grid grid-cols-2 gap-8 lg:grid-cols-3">
           <Column title={nav('catalog')}>
             {menu.zones.map((zone) => (
