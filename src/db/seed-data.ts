@@ -156,6 +156,10 @@ export const pages = [
         en: { title: 'Care by zone' },
       },
       {
+        uk: { blockType: 'brands', title: 'Бренди' },
+        en: { title: 'Brands' },
+      },
+      {
         uk: {
           blockType: 'products',
           title: 'Бестселери',

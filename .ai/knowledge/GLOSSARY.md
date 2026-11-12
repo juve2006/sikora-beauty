@@ -177,7 +177,7 @@ Use in: source code, schema, API, documentation.
 ## Block
 
 One part of a page, of one kind: `hero` («Головний банер»), `products` («Товари»), `tiles`
-(«Плитки»), `consultation` («Консультація»), `text` («Текст»). A page shows its blocks in the
+(«Плитки»), `brands` («Бренди»), `consultation` («Консультація»), `text` («Текст»). A page shows its blocks in the
 admin's order.
 
 Informal synonyms: блок, секція.

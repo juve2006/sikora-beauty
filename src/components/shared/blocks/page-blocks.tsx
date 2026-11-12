@@ -1,3 +1,4 @@
+import BrandsBlock from './brands-block';
 import ConsultationBlock from './consultation-block';
 import Hero from './hero';
 import ProductsBlock from './products-block';
@@ -37,6 +38,8 @@ const PageBlocks = ({ title, description, blocks, locale }: Props) => (
           return <ProductsBlock key={key} block={block} locale={locale} />;
         case 'tiles':
           return <Tiles key={key} block={block} locale={locale} />;
+        case 'brands':
+          return <BrandsBlock key={key} block={block} locale={locale} />;
         case 'consultation':
           return <ConsultationBlock key={key} block={block} />;
         case 'text':

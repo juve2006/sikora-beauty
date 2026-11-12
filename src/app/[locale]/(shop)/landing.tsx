@@ -11,6 +11,7 @@ import {
   getSkinTerm,
 } from '@/lib/actions/category.actions';
 import { getListingProducts } from '@/lib/actions/product.actions';
+import BrandTile from '@/components/shared/brand/brand-tile';
 import Listing from '@/components/shared/catalog/listing';
 import { alternates } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
@@ -90,6 +91,11 @@ export function landing(facet: keyof typeof landings) {
       <Listing
         title={term.title}
         above={t(`facets.${facet}`)}
+        logo={
+          'logo' in term && term.logo ? (
+            <BrandTile title={term.title} logo={term.logo} />
+          ) : undefined
+        }
         result={result}
         params={query}
         basePath={`/${path}/${slug}`}

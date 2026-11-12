@@ -13,11 +13,12 @@ import FiltersSheet from './filters-sheet';
 import SortSelect from './sort-select';
 import ProductCard from '@/components/shared/product/product-card';
 
-// A catalog list's page below the header: its title, the categories, the filters — at the side on
-// a computer, in a sheet on a phone — the order, the products and the pages.
+// A catalog list's page below the header: its title — beside a brand's logo — the categories, the
+// filters — at the side on a computer, in a sheet on a phone — the order, the products and the pages.
 const Listing = ({
   title,
   above,
+  logo,
   nav,
   result,
   params,
@@ -25,6 +26,7 @@ const Listing = ({
 }: {
   title: string;
   above?: ReactNode;
+  logo?: ReactNode;
   nav?: ReactNode;
   result: Omit<ListingResult, 'products'> & {
     products: { id: number; card: CardProduct }[];
@@ -37,14 +39,19 @@ const Listing = ({
   const cleared = `${basePath}${listingSearch(params, { type: [], condition: [], concern: [], brand: [] })}`;
   return (
     <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
-      <div className="flex flex-col gap-1 pt-2 lg:pt-8">
-        {above && <div className="text-sm text-muted-foreground">{above}</div>}
-        <h1 className="text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl">
-          {title}
-        </h1>
-        <p className="text-muted-foreground">
-          {t('count', { count: result.total })}
-        </p>
+      <div className="flex items-center gap-4 pt-2 lg:pt-8">
+        {logo && <div className="w-28 shrink-0 sm:w-40">{logo}</div>}
+        <div className="flex flex-col gap-1">
+          {above && (
+            <div className="text-sm text-muted-foreground">{above}</div>
+          )}
+          <h1 className="text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl">
+            {title}
+          </h1>
+          <p className="text-muted-foreground">
+            {t('count', { count: result.total })}
+          </p>
+        </div>
       </div>
       {nav && <div className="mt-6">{nav}</div>}
       <div

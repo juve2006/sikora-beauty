@@ -64,6 +64,8 @@ import ThemeToggle from '@/components/shared/header/theme-toggle';
 import ConsultationBlock from '@/components/shared/blocks/consultation-block';
 import Hero from '@/components/shared/blocks/hero';
 import PageBlocks from '@/components/shared/blocks/page-blocks';
+import BrandStrip from '@/components/shared/blocks/brand-strip';
+import BrandTile from '@/components/shared/brand/brand-tile';
 import ProductGrid from '@/components/shared/blocks/product-grid';
 import TextBlock from '@/components/shared/blocks/text-block';
 import TileGrid from '@/components/shared/blocks/tile-grid';
@@ -157,6 +159,7 @@ const CanvasPage = async ({ params }: Props) => {
   const t = await getTranslations('Canvas');
   const consultation = await getTranslations('Consultation');
   const nav = await getTranslations('Nav');
+  const catalog = await getTranslations('Catalog');
   const sampleProduct = { id: 0, name: t('sampleName') };
   const sampleCustomer = {
     firstName: t('sampleFirstName'),
@@ -186,6 +189,11 @@ const CanvasPage = async ({ params }: Props) => {
     ...overrides,
   });
   const zone = { slug: 'face', title: t('sampleZone') };
+  const brands = [
+    { slug: 'one', title: t('sampleBrand'), logo: '/samples/brand-wide.svg' },
+    { slug: 'two', title: t('sampleBrand2'), logo: '/samples/brand-round.svg' },
+    { slug: 'three', title: t('sampleBrand3'), logo: null },
+  ];
   const categories = [
     { slug: 'face-serums', title: t('sampleCategory') },
     { slug: 'face-creams', title: t('sampleCategory2') },
@@ -575,6 +583,55 @@ const CanvasPage = async ({ params }: Props) => {
             title={nav('concerns')}
             source="concerns"
             terms={menu.concerns}
+          />
+        </Section>
+
+        <Section title="BrandTile">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Specimen label="logo, href">
+              <BrandTile
+                className="w-full"
+                title={brands[0].title}
+                logo={brands[0].logo}
+                href="/canvas"
+              />
+            </Specimen>
+            <Specimen label="logo">
+              <BrandTile
+                className="w-full"
+                title={brands[1].title}
+                logo={brands[1].logo}
+              />
+            </Specimen>
+            <Specimen label="no logo, href">
+              <BrandTile
+                className="w-full"
+                title={brands[2].title}
+                logo={null}
+                href="/canvas"
+              />
+            </Specimen>
+            <Specimen label="no logo">
+              <BrandTile
+                className="w-full"
+                title={brands[2].title}
+                logo={null}
+              />
+            </Specimen>
+          </div>
+        </Section>
+
+        {/* BrandsBlock reads the brands with a published product and hides with none; here, a strip
+            longer than the column. */}
+        <Section title="BrandStrip">
+          <BrandStrip
+            title={nav('brands')}
+            brands={[1, 2, 3].flatMap((round) =>
+              brands.map((brand) => ({
+                ...brand,
+                slug: `${brand.slug}-${round}`,
+              })),
+            )}
           />
         </Section>
 
@@ -1640,6 +1697,29 @@ const CanvasPage = async ({ params }: Props) => {
                 facets: facets(['dry']),
               }}
               params={{ ...noFilters, type: ['dry'] }}
+              basePath="/canvas"
+            />
+          </div>
+        </Section>
+
+        <Section title="Listing, a brand's">
+          <div className="rounded-lg border">
+            <Listing
+              title={brands[0].title}
+              above={catalog('facets.brand')}
+              logo={<BrandTile title={brands[0].title} logo={brands[0].logo} />}
+              result={{
+                products: [card({})].map((product, id) => ({
+                  id,
+                  card: product,
+                })),
+                total: 1,
+                page: 1,
+                pageCount: 1,
+                selected: 0,
+                facets: [],
+              }}
+              params={noFilters}
               basePath="/canvas"
             />
           </div>

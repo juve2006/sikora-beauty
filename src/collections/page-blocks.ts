@@ -108,6 +108,21 @@ export const pageBlocks: Block[] = [
     ],
   },
   {
+    slug: 'brands',
+    // GraphQL names a block's type after its slug: `Brands` is the brands collection's.
+    interfaceName: 'BrandsBlock',
+    labels: { singular: 'Бренди', plural: 'Бренди' },
+    fields: [
+      {
+        ...title,
+        admin: {
+          description:
+            'Смуга логотипів брендів, у яких є опублікований товар, і посилання на всі бренди.',
+        },
+      },
+    ],
+  },
+  {
     slug: 'consultation',
     labels: { singular: 'Консультація', plural: 'Консультації' },
     fields: [title, text],

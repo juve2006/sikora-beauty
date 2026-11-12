@@ -88,13 +88,15 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     cell can act on where the page sat in the frame the nav stands open; `custom.scss` keeps the
     page's width in that frame, or a list with text over it loses its brands on a phone.
   - Pages: the collection `pages`, admin group «Сторінки» — a title, a slug and blocks: `hero`,
-    `products`, `tiles`, `consultation`, `text` (`src/collections/page-blocks.ts`). The slug `home`
+    `products`, `tiles`, `brands`, `consultation`, `text` (`src/collections/page-blocks.ts`); `brands`
+    is typed `BrandsBlock`, as GraphQL would name its type `Brands`, the collection's. The slug `home`
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug
     that names a section of the store is refused (`RESERVED_SLUGS`). `getPage`
     (`src/lib/actions/page.actions.ts`) reads one; `PageBlocks` renders the blocks in the admin's
     order, under the page's own heading unless a banner opens them, and the home page with no page
     shows the store's title and description. A block that reads the store's data (`Tiles`,
-    `ProductsBlock`) hands it to a component that only shows it (`TileGrid`, `ProductGrid`),
+    `ProductsBlock`, `BrandsBlock`) hands it to a component that only shows it (`TileGrid`,
+    `ProductGrid`, `BrandStrip`),
     which `/canvas` feeds with samples. Pages have no drafts: a save is live at once (adr-20261030-header-menu-and-pages-from-payload).
   - The product page, `/product/<slug>` (`src/app/[locale]/(shop)/product/[slug]/`): the fields the
     spec names, the gallery, delivery and payment, related products; a draft or an unknown slug is
@@ -112,7 +114,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     page's terms and brand link to; `landing.tsx` makes them, without the page's own facet), and
     `/collection/new|bestsellers|sets|minis` — a collection is a product flag (`COLLECTIONS` in
     `src/lib/constants`), not a document, so an unknown one is 404 without a query. `/brands`
-    lists the brands that have a published product, with their counts from `listing.ts`; it
+    shows the brands that have a published product (`getBrands`), by name, each as a tile with its
+    logo (`BrandTile`), the name while it has none; the block `brands` shows the same as one row,
+    and a brand's landing, when it has a logo, its tile beside its title. It
     is `force-dynamic`, as it reads no `searchParams`. Filters, sort and page live in the URL's
     query and are applied on the server: a list reads `searchParams`, so it renders on every
     request — never at build, never cached — and a published product or a new price shows at once. A page fetches every
@@ -138,7 +142,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   shows from a product in `src/lib/product-page.ts`, what a list shows from its products and query
   in `src/lib/listing.ts`: within a facet values are OR, across facets AND, and a value's count
   ignores its own facet's choice. Where each piece goes is adr-20261030-code-layout-nextjs-store.
-  - Brands; zones and categories as one tree in `categories`: a zone has no parent, a category's
+  - Brands, each with a logo or none (an upload to `media`, not localized; set null when the photo
+    is deleted). A tile shows it grey and, in the dark theme, inverted, so one dark mark on
+    transparency serves both themes; zones and categories as one tree in `categories`: a zone has no parent, a category's
     parent is a zone (`validate`). A zone with categories cannot be deleted (`beforeDelete`): the
     database would set their parent to null and turn them into zones. Nor can a brand that a product
     names, in `products` or in its latest version (a draft saved over a published product lives only

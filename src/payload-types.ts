@@ -238,29 +238,10 @@ export interface Brand {
    * Латиницею. Порожнє — створиться з назви.
    */
   slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Зона — верхній рівень каталогу (Обличчя, Тіло…), поле «Зона» в ній порожнє. Категорія — тип товару всередині зони: виберіть зону в полі «Зона».
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  _order?: string | null;
-  title: string;
   /**
-   * Латиницею. Порожнє — створиться з назви.
+   * SVG або PNG: темний логотип на прозорому тлі. На сайті він сірий, у темній темі — світлий.
    */
-  slug?: string | null;
-  fullTitle?: string | null;
-  parent?: (number | null) | Category;
-  /**
-   * Лише для зони: у меню шапки вона стане ще й окремим пунктом, поруч із «Каталогом».
-   */
-  menuItem?: boolean | null;
+  logo?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -284,6 +265,29 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * Зона — верхній рівень каталогу (Обличчя, Тіло…), поле «Зона» в ній порожнє. Категорія — тип товару всередині зони: виберіть зону в полі «Зона».
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  fullTitle?: string | null;
+  parent?: (number | null) | Category;
+  /**
+   * Лише для зони: у меню шапки вона стане ще й окремим пунктом, поруч із «Каталогом».
+   */
+  menuItem?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -369,6 +373,7 @@ export interface Page {
             blockName?: string | null;
             blockType: 'tiles';
           }
+        | BrandsBlock
         | {
             title: string;
             /**
@@ -406,6 +411,19 @@ export interface ProductsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'products';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandsBlock".
+ */
+export interface BrandsBlock {
+  /**
+   * Смуга логотипів брендів, у яких є опублікований товар, і посилання на всі бренди.
+   */
+  title: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'brands';
 }
 /**
  * Різні написання одного й того самого, по одному в рядку: пошук за будь-яким знаходить і за рештою.
@@ -745,6 +763,7 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  logo?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -831,6 +850,7 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        brands?: T | BrandsBlockSelect<T>;
         consultation?:
           | T
           | {
@@ -860,6 +880,15 @@ export interface ProductsBlockSelect<T extends boolean = true> {
   title?: T;
   collection?: T;
   limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandsBlock_select".
+ */
+export interface BrandsBlockSelect<T extends boolean = true> {
+  title?: T;
   id?: T;
   blockName?: T;
 }

@@ -41,5 +41,18 @@ export const Brands: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', label: 'Назва', required: true },
     slugField('name'),
+    // The brand's tile shows it grey and, in the dark theme, inverted: a dark mark on transparency
+    // reads in both. Without one the tile shows the name.
+    {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Логотип',
+      admin: {
+        position: 'sidebar',
+        description:
+          'SVG або PNG: темний логотип на прозорому тлі. На сайті він сірий, у темній темі — світлий.',
+      },
+    },
   ],
 };
