@@ -118,6 +118,8 @@
     "buttonIcon": "Cart",
     "sampleName": "Retinol serum for mature skin",
     "sampleBrand": "Dr.Spiller",
+    "sampleBrand2": "Innoaesthetics",
+    "sampleBrand3": "Me line",
     "sampleAlt": "A serum bottle",
     "sampleSkin": "Dry",
     "sampleOily": "Oily",
@@ -182,7 +184,8 @@
     }
   },
   "Page": {
-    "all": "View all"
+    "all": "View all",
+    "allBrands": "All brands"
   },
   "Search": {
     "open": "Search",

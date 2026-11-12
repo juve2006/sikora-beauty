@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { pageBlocks } from '@/collections/page-blocks';
 import { Pages } from '@/collections/pages';
-import { getMenu } from '@/lib/actions/category.actions';
+import { getBrand, getBrands, getMenu } from '@/lib/actions/category.actions';
 import { RESERVED_SLUGS } from '@/lib/constants';
 import { adminSession, internalPath } from '@/lib/validators';
 
@@ -117,5 +117,59 @@ describe('the menu', () => {
     // What anonymous shoppers may see, in the admin's order.
     for (const [query] of payload.find.mock.calls)
       expect(query).toMatchObject({ overrideAccess: false, sort: '_order' });
+  });
+});
+
+describe('the brands', () => {
+  it('are those with a published product, by name, each with its logo or none', async () => {
+    payload.find.mockReset();
+    payload.find.mockImplementation(async ({ collection }) => ({
+      docs:
+        collection === 'products'
+          ? [{ brand: 2 }, { brand: 1 }, { brand: 2 }, { brand: null }]
+          : [
+              {
+                id: 1,
+                name: 'Dr.Spiller',
+                slug: 'dr-spiller',
+                logo: { url: '/api/media/file/spiller.svg' },
+              },
+              { id: 2, name: 'Innoaesthetics', slug: 'inno', logo: null },
+              { id: 3, name: 'Me line', slug: 'me-line', logo: null },
+              { id: 4, name: 'Без адреси', slug: null, logo: null },
+            ],
+    }));
+    expect(await getBrands('uk')).toEqual([
+      {
+        slug: 'dr-spiller',
+        title: 'Dr.Spiller',
+        logo: '/api/media/file/spiller.svg',
+      },
+      { slug: 'inno', title: 'Innoaesthetics', logo: null },
+    ]);
+    // What anonymous shoppers may see: a draft's brand is no brand to buy.
+    for (const [query] of payload.find.mock.calls)
+      expect(query).toMatchObject({ overrideAccess: false });
+  });
+
+  it('give a brand page its logo', async () => {
+    payload.find.mockReset();
+    payload.find.mockResolvedValue({
+      docs: [
+        {
+          id: 1,
+          name: 'Dr.Spiller',
+          slug: 'dr-spiller',
+          logo: { url: '/api/media/file/spiller.svg' },
+        },
+      ],
+    });
+    expect(await getBrand('dr-spiller', 'uk')).toEqual({
+      id: 1,
+      title: 'Dr.Spiller',
+      logo: '/api/media/file/spiller.svg',
+    });
+    payload.find.mockResolvedValue({ docs: [] });
+    expect(await getBrand('none', 'uk')).toBeNull();
   });
 });

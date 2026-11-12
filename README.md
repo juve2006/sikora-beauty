@@ -11,8 +11,9 @@ A home page at `/` (Ukrainian) and `/en` (English) in the store's own look — t
 language switch and a light and a dark theme that follows the device until the shopper picks
 one — and the Payload admin at `/admin`. The home page, `/about` and any other page are built in
 the admin under «Сторінки» from blocks — a banner, a collection's products, tiles into the
-catalog, a consultation invitation, a text — and change without a deploy. In the admin
-the catalog can be filled in: brands, zones and categories, skin types, conditions and
+catalog, a strip of the brands' logos, a consultation invitation, a text — and change without a
+deploy. In the admin the catalog can be filled in: brands with their logos, which `/brands` and a
+brand's page show as tiles (the name while there is none), zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), and its
 Ukrainian texts drafted by AI (Claude) from the brand's material pasted into «Заповнити з AI».

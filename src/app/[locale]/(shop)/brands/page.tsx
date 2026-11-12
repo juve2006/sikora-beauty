@@ -3,11 +3,9 @@ import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
-import { listing } from '@/lib/listing';
-import { listingParams } from '@/lib/validators';
-import { getFacets } from '@/lib/actions/category.actions';
-import { getListingProducts } from '@/lib/actions/product.actions';
-import { alternates, Link } from '@/i18n/navigation';
+import { getBrands } from '@/lib/actions/category.actions';
+import BrandTile from '@/components/shared/brand/brand-tile';
+import { alternates } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -23,24 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t('brands'), alternates: alternates('/brands', locale) };
 }
 
-// Every brand with a published product, by name, with how many it has, as a catalog page shows
-// them.
+// Every brand with a published product, by name, as a tile with its logo.
 const BrandsPage = async ({ params }: Props) => {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
   const t = await getTranslations('Catalog');
-  const [products, facets] = await Promise.all([
-    getListingProducts({}, locale),
-    getFacets(locale),
-  ]);
-  // listing() counts a brand's products and leaves out a brand with none.
-  const brands =
-    listing(
-      products,
-      facets.filter(({ key }) => key === 'brand'),
-      listingParams.parse({}),
-    ).facets[0]?.values ?? [];
+  const brands = await getBrands(locale);
 
   return (
     <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
@@ -48,18 +35,14 @@ const BrandsPage = async ({ params }: Props) => {
         {t('brands')}
       </h1>
       {brands.length > 0 ? (
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {brands.map((brand) => (
             <li key={brand.slug}>
-              <Link
+              <BrandTile
+                title={brand.title}
+                logo={brand.logo}
                 href={`/brand/${brand.slug}`}
-                className="flex min-h-16 flex-col justify-center rounded-lg border px-4 py-3 outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <span className="font-medium">{brand.title}</span>
-                <span className="text-sm text-muted-foreground">
-                  {t('count', { count: brand.count })}
-                </span>
-              </Link>
+              />
             </li>
           ))}
         </ul>

@@ -118,6 +118,8 @@
     "buttonIcon": "Кошик",
     "sampleName": "Сироватка з ретинолом для зрілої шкіри",
     "sampleBrand": "Dr.Spiller",
+    "sampleBrand2": "Innoaesthetics",
+    "sampleBrand3": "Me line",
     "sampleAlt": "Флакон сироватки",
     "sampleSkin": "Суха",
     "sampleOily": "Жирна",
@@ -182,7 +184,8 @@
     }
   },
   "Page": {
-    "all": "Дивитися всі"
+    "all": "Дивитися всі",
+    "allBrands": "Усі бренди"
   },
   "Search": {
     "open": "Пошук",

@@ -9,7 +9,7 @@ import type {
   SORTS,
   VOLUME_UNITS,
 } from '@/lib/constants';
-import type { getMenu } from '@/lib/actions/category.actions';
+import type { getBrands, getMenu } from '@/lib/actions/category.actions';
 import type { listing } from '@/lib/listing';
 import type {
   aiDraft,
@@ -140,6 +140,7 @@ export type Listing = ReturnType<typeof listing>;
 // A product as search reads it: every text a shopper may type for it, in both languages.
 export type SearchDoc = { id: number; name: string; texts: string[] };
 export type Menu = Awaited<ReturnType<typeof getMenu>>;
+export type BrandList = Awaited<ReturnType<typeof getBrands>>;
 
 // A page's block, by its kind.
 export type PageBlock = NonNullable<Page['blocks']>[number];

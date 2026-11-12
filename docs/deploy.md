@@ -158,6 +158,12 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     In «Каталог → Зони й категорії» an editor creates the zone «Beauty-ґаджети» («Beauty gadgets» in
     English), its field «Зона» left empty, and ticks the checkbox: the header then offers it beside
     «Каталог», a panel once it has categories. Until then the menu has no such item.
+22. **Brand logos.** The deploy's migration adds the brands' field «Логотип» and the pages' block
+    «Бренди». In «Каталог → Бренди» an editor gives each brand its logo from the brand's own site — a
+    dark mark on a transparent background, SVG or PNG; the store shows it grey, light in the dark
+    theme. In «Сторінки → Головна» the block «Бренди» is added where the strip belongs (the seed puts
+    it after the zones' tiles), titled «Бренди» and «Brands» in English. Until then `/brands` and a
+    brand's page show the names, and the home has no strip.
 
 ## Check it
 

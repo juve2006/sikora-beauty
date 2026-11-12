@@ -4,7 +4,7 @@ import config from '@payload-config';
 import { getPayload } from 'payload';
 import { cache } from 'react';
 
-import type { Config } from '@/payload-types';
+import type { Brand, Config } from '@/payload-types';
 import type { Facet } from '@/types';
 
 // The storefront's reads of the catalog's terms — zones, categories, skin types and concerns,
@@ -104,20 +104,52 @@ export const getSkinTerm = cache(
   },
 );
 
-// A brand's page, with its name as the title a landing page shows.
+// A brand's logo as its tile shows it: the photo's address, or none while it has none.
+const logoUrl = (logo: Brand['logo']) =>
+  logo && typeof logo === 'object' ? (logo.url ?? null) : null;
+
+// A brand's page, with its name as the title a landing page shows, and its logo.
 export const getBrand = cache(async (slug: string, locale: Locale) => {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: 'brands',
     where: { slug: { equals: slug } },
     locale,
-    depth: 0,
+    depth: 1,
     limit: 1,
     overrideAccess: false,
-    select: { name: true, slug: true },
+    select: { name: true, slug: true, logo: true },
   });
   const brand = docs[0];
-  return brand ? { id: brand.id, title: brand.name } : null;
+  return brand
+    ? { id: brand.id, title: brand.name, logo: logoUrl(brand.logo) }
+    : null;
+});
+
+// The brands a shopper can buy — each with a published product — by name, with their logos: the
+// brands' page and a page's brands block.
+export const getBrands = cache(async (locale: Locale) => {
+  const payload = await getPayload({ config });
+  const read = { locale, pagination: false, overrideAccess: false } as const;
+  const [products, brands] = await Promise.all([
+    payload.find({
+      ...read,
+      collection: 'products',
+      depth: 0,
+      select: { brand: true },
+    }),
+    payload.find({
+      ...read,
+      collection: 'brands',
+      depth: 1,
+      sort: 'name',
+      select: { name: true, slug: true, logo: true },
+    }),
+  ]);
+  const sold = new Set(products.docs.map(({ brand }) => brand));
+  return brands.docs.flatMap(({ id, name, slug, logo }) =>
+    slug && sold.has(id) ? [{ slug, title: name, logo: logoUrl(logo) }] : [],
+  );
 });
 
 // The filters a list offers, in the admin's order; brands by name.
