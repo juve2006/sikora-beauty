@@ -79,6 +79,11 @@ export const FAVORITES_LIMIT = 100;
 export const CART_LINES = 50;
 export const CART_QUANTITY_MAX = 10;
 
+// The order sum, in kopiyky, from which the store pays the delivery: the header's strip, the product
+// page and the checkout say so; the seller makes that waybill with the sender paying (task
+// `header-hero`).
+export const FREE_DELIVERY_FROM = 350_000;
+
 // The longest text Telegram takes: it refuses a longer one, and the whole message with it.
 export const TELEGRAM_TEXT_LIMIT = 4096;
 

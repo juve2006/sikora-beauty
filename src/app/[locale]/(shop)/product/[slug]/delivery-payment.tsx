@@ -1,8 +1,10 @@
 import { CreditCard, Truck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { FREE_DELIVERY_FROM } from '@/lib/constants';
+import { formatHryvnias } from '@/lib/utils';
 
-// The checkout's terms (task `cart-and-checkout`): Nova Poshta at its rates, paid on delivery; the
-// goods paid on delivery or by a link the manager sends.
+// The checkout's terms (task `cart-and-checkout`): Nova Poshta, free from FREE_DELIVERY_FROM and
+// otherwise at its rates, paid on delivery; the goods paid on delivery or by a link the manager sends.
 const DeliveryPayment = () => {
   const t = useTranslations('Product');
   return (
@@ -11,7 +13,7 @@ const DeliveryPayment = () => {
       <ul className="mt-3 flex flex-col gap-3 text-sm text-muted-foreground">
         <li className="flex gap-3">
           <Truck className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {t('delivery')}
+          {t('delivery', { amount: formatHryvnias(FREE_DELIVERY_FROM) })}
         </li>
         <li className="flex gap-3">
           <CreditCard className="mt-0.5 size-4 shrink-0" aria-hidden />

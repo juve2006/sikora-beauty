@@ -6,11 +6,10 @@ import AccountLink from './account-link';
 import AdminLink from './admin-link';
 import CartLink from './cart-link';
 import FavoritesLink from './favorites-link';
-import LanguageSwitcher from './language-switcher';
 import Logo from './logo';
 import MainMenu from './main-menu';
 import MobileMenu from './mobile-menu';
-import ThemeToggle from './theme-toggle';
+import TopBar from './top-bar';
 import { getMenu } from '@/lib/actions/category.actions';
 import { isFinderOn } from '@/lib/actions/finder.actions';
 import type { Config } from '@/payload-types';
@@ -18,9 +17,9 @@ import { Button } from '@/components/ui/button';
 
 // Every storefront page's header, from (shop)/layout.tsx. Its menu is read from Payload, so a page
 // under it is never prerendered at build (RULES.md).
-// An olive block in both themes (`.site-header` in globals.css), the logo, the menu and the icons in
-// one row from xl, as the client's mockup has it; from lg to xl the menu takes a row of its own, as it
-// and the buttons do not fit 976 px in one. The consultation is in the menu from lg, a button here
+// The client's olive strip on top (TopBar), then the page's colours: the logo, the menu and the icons
+// in one row from xl, as the client's mockup has it; from lg to xl the menu takes a row of its own, as
+// it and the buttons do not fit 976 px in one. The consultation is in the menu from lg, a button here
 // below it. The care finder's item comes from the finder itself, not from the catalog's menu. On a
 // phone the buttons are icons 32 px square, below the 36 px the others keep: four of them beside the
 // logo fit one line at 360 px only so (task `cart-and-checkout`).
@@ -30,7 +29,8 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
   const [menu, finder] = await Promise.all([getMenu(locale), isFinderOn()]);
   const consultation = await getTranslations('Consultation');
   return (
-    <header className="site-header sticky top-0 z-40 border-b bg-background text-foreground">
+    <header className="sticky top-0 z-40 border-b bg-background text-foreground">
+      <TopBar />
       <div className="mx-auto flex w-full max-w-page flex-wrap items-center gap-x-2 gap-y-2 px-4 py-4 sm:gap-x-6 sm:px-6">
         <MobileMenu menu={menu} finder={finder} className="lg:hidden" />
         <Logo size="sm" />
@@ -52,10 +52,6 @@ const SiteHeader = async ({ locale }: { locale: Config['locale'] }) => {
           </ConsultationDialog>
           <CartLink />
           <AccountLink />
-          <div className="flex items-center gap-1 max-sm:hidden">
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
         </div>
       </div>
     </header>

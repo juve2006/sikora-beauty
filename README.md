@@ -10,7 +10,9 @@ earlier name, `sikora-beauty`.
 A home page at `/` (Ukrainian) and `/en` (English) in the store's own look — the ROSYNA SKIN logo, a
 language switch and a light and a dark theme that follows the device until the shopper picks
 one — and the Payload admin at `/admin`. The home page, `/about` and any other page are built in
-the admin under «Сторінки» from blocks — a banner, a collection's products, tiles into the
+the admin under «Сторінки» from blocks — a banner across the page with a photo behind its title,
+subtitle, text, button and the store's three promises (several in a row become a slider with arrows
+and «01 — 03»), a collection's products, tiles into the
 catalog, a strip of the brands' logos, a consultation invitation, a text — and change without a
 deploy. In the admin the catalog can be filled in: brands with their logos, which `/brands` and a
 brand's page show as tiles (the name while there is none), zones and categories, skin types, conditions and
@@ -25,8 +27,10 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
-its texts, delivery and payment, related products and «Додати в кошик». The
-header, olive with the client's colours, reads the zones with their categories from the catalog, a zone
+its texts, delivery and payment, related products and «Додати в кошик»; delivery is free from
+3500 грн, which the strip over the header, the product page and the checkout say. The strip, olive
+with the client's colours, also links «Акції» (a page from the admin) and holds the language and the
+theme; the header under it, in the page's colours, reads the zones with their categories from the catalog, a zone
 marked «Окремий пункт меню» (beauty gadgets) also as an item of its own, beside links to the brands and
 the about page and «Консультація» — in a sheet on a phone, with «Адмінка» for someone signed in to the
 admin; the skin concerns and the collections are hidden from the menu for now, their pages still open;

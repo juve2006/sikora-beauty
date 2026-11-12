@@ -32,8 +32,20 @@ export const pageBlocks: Block[] = [
     labels: { singular: 'Головний банер', plural: 'Головні банери' },
     fields: [
       title,
+      {
+        name: 'subtitle',
+        type: 'text',
+        label: 'Підзаголовок',
+        localized: true,
+      },
       text,
-      image,
+      {
+        ...image,
+        admin: {
+          description:
+            'Фоном на всю ширину банера; текст стоїть на його лівій частині. Кілька банерів поспіль стають слайдером.',
+        },
+      },
       {
         type: 'row',
         fields: [

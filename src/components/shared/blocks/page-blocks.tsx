@@ -1,9 +1,11 @@
 import BrandsBlock from './brands-block';
 import ConsultationBlock from './consultation-block';
 import Hero from './hero';
+import HeroSlider from './hero-slider';
 import ProductsBlock from './products-block';
 import TextBlock from './text-block';
 import Tiles from './tiles';
+import { groupBanners } from '@/lib/blocks';
 import type { Config } from '@/payload-types';
 import type { PageBlock } from '@/types';
 
@@ -14,7 +16,8 @@ type Props = {
   locale: Config['locale'];
 };
 
-// A page's blocks in the admin's order, under the page's own heading unless a banner opens it.
+// A page's blocks in the admin's order, under the page's own heading unless a banner opens it;
+// banners in a row are one slider.
 const PageBlocks = ({ title, description, blocks, locale }: Props) => (
   <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
     {blocks[0]?.blockType !== 'hero' && (
@@ -29,11 +32,24 @@ const PageBlocks = ({ title, description, blocks, locale }: Props) => (
         )}
       </div>
     )}
-    {blocks.map((block, index) => {
+    {groupBanners(blocks).map((block, index) => {
+      if (Array.isArray(block)) {
+        // Banners take the column's whole width, past its padding.
+        const slides = block.map((banner, slide) => (
+          <Hero
+            key={banner.id ?? slide}
+            block={banner}
+            first={index === 0 && slide === 0}
+          />
+        ));
+        return (
+          <div key={block[0].id ?? index} className="-mx-4 sm:-mx-6">
+            {slides.length > 1 ? <HeroSlider slides={slides} /> : slides}
+          </div>
+        );
+      }
       const key = block.id ?? index;
       switch (block.blockType) {
-        case 'hero':
-          return <Hero key={key} block={block} first={index === 0} />;
         case 'products':
           return <ProductsBlock key={key} block={block} locale={locale} />;
         case 'tiles':

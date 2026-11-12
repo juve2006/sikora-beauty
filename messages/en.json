@@ -20,6 +20,21 @@
   "ThemeToggle": {
     "label": "Switch theme"
   },
+  "TopBar": {
+    "freeDelivery": "Free delivery from {amount} UAH",
+    "promotions": "Promotions"
+  },
+  "Hero": {
+    "label": "Banners",
+    "previous": "Previous banner",
+    "next": "Next banner",
+    "position": "Banner {current} of {total}",
+    "trust": {
+      "curated": "Picked by a cosmetologist",
+      "original": "Original products",
+      "brands": "Professional brands"
+    }
+  },
   "Nav": {
     "label": "Main menu",
     "menu": "Menu",
@@ -68,7 +83,7 @@
     "inci": "Ingredients (INCI)",
     "related": "Goes well with",
     "deliveryTitle": "Delivery and payment",
-    "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine, at Nova Poshta’s rates — you pay for delivery when you collect the parcel.",
+    "delivery": "By Nova Poshta to a branch or a parcel locker anywhere in Ukraine. Free from {amount} UAH; below that at Nova Poshta’s rates, paid when you collect the parcel.",
     "payment": "By bank transfer or by card — on the site or by a link a manager sends."
   },
   "Catalog": {
@@ -121,6 +136,7 @@
     "sampleBrand2": "Innoaesthetics",
     "sampleBrand3": "Me line",
     "sampleAlt": "A serum bottle",
+    "bannerSubtitle": "A banner's subtitle",
     "sampleSkin": "Dry",
     "sampleOily": "Oily",
     "sampleConcern": "Dehydration",
@@ -254,7 +270,7 @@
     "nothing": "Nothing found. Check the name.",
     "latin": "Type the name in Ukrainian, for example Київ",
     "unavailable": "Branch search isn’t working right now — type your city and branch, and the manager will check them on the call.",
-    "rates": "Delivery at Nova Poshta’s rates, paid when you collect the parcel.",
+    "rates": "Free delivery from {amount} UAH; below that at Nova Poshta’s rates, paid when you collect the parcel.",
     "payment": "Payment",
     "cod": "On delivery",
     "codHint": "At the Nova Poshta branch, when you collect the parcel.",

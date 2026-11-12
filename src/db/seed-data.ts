@@ -1,3 +1,6 @@
+import { FREE_DELIVERY_FROM } from '@/lib/constants';
+import { formatHryvnias } from '@/lib/utils';
+
 // The catalog's starting vocabulary, in the owner's order (spec `sikora-beauty`, the requirements).
 // English titles are drafts for the cosmetologist to correct in the admin.
 
@@ -131,14 +134,16 @@ export const pages = [
       {
         uk: {
           blockType: 'hero',
-          title: 'Професійний догляд за шкірою',
-          text: `Засоби брендів, з якими працюють косметологи: ${brands.map(({ name }) => name).join(', ')}. Підберіть догляд за зоною, типом шкіри чи її потребою — або запитайте косметолога.`,
+          title: 'YOUR BEAUTY EDIT.',
+          subtitle: 'Професійна косметика та beauty-ґаджети',
+          text: 'Засоби і технології для щоденного догляду та домашніх beauty-процедур.',
           buttonLabel: 'Перейти до каталогу',
           buttonLink: '/catalog/face',
         },
         en: {
-          title: 'Professional skincare',
-          text: `Products from the brands cosmetologists work with: ${brands.map(({ name }) => name).join(', ')}. Find your care by zone, skin type or concern — or ask the cosmetologist.`,
+          title: 'YOUR BEAUTY EDIT.',
+          subtitle: 'Professional cosmetics and beauty gadgets',
+          text: 'Products and technologies for daily care and home beauty treatments.',
           buttonLabel: 'Go to the catalog',
         },
       },
@@ -234,11 +239,11 @@ export const pages = [
         uk: {
           blockType: 'text',
           title: 'Доставка',
-          text: 'Доставляємо Новою Поштою у відділення або поштомат по всій Україні. Вартість доставки визначають тарифи Нової Пошти, її ви оплачуєте при отриманні.\n\nПісля оформлення менеджер зателефонує, щоб підтвердити замовлення й доставку. Відправляємо після підтвердження. Якщо товар під замовлення, строк відправлення вказаний на його сторінці.\n\nЗабираючи посилку, перевірте її у відділенні. Якщо бачите пошкодження, зверніться до працівника Нової Пошти й повідомте нам.',
+          text: `Доставляємо Новою Поштою у відділення або поштомат по всій Україні. Від ${formatHryvnias(FREE_DELIVERY_FROM)} грн доставка безкоштовна. Для меншого замовлення вартість доставки визначають тарифи Нової Пошти, її ви оплачуєте при отриманні.\n\nПісля оформлення менеджер зателефонує, щоб підтвердити замовлення й доставку. Відправляємо після підтвердження. Якщо товар під замовлення, строк відправлення вказаний на його сторінці.\n\nЗабираючи посилку, перевірте її у відділенні. Якщо бачите пошкодження, зверніться до працівника Нової Пошти й повідомте нам.`,
         },
         en: {
           title: 'Delivery',
-          text: 'We deliver by Nova Poshta to a branch or parcel locker across Ukraine. Nova Poshta’s rates set the delivery cost, which you pay on receipt.\n\nAfter you place an order, the manager calls to confirm the order and delivery. We send it once it is confirmed. If a product is made to order, its page states when it ships.\n\nWhen you collect the parcel, check it at the branch. If you see damage, speak to the Nova Poshta staff and let us know.',
+          text: `We deliver by Nova Poshta to a branch or parcel locker across Ukraine. Delivery is free from ${formatHryvnias(FREE_DELIVERY_FROM)} UAH. For a smaller order Nova Poshta’s rates set the delivery cost, which you pay on receipt.\n\nAfter you place an order, the manager calls to confirm the order and delivery. We send it once it is confirmed. If a product is made to order, its page states when it ships.\n\nWhen you collect the parcel, check it at the branch. If you see damage, speak to the Nova Poshta staff and let us know.`,
         },
       },
       {
@@ -385,6 +390,25 @@ export const pages = [
         en: {
           title: 'How long we keep data and your rights',
           text: 'There is no fixed retention period: data stays with us until you ask us to delete it. You can ask us to show, correct or delete your data through the contacts at the bottom of the page. You can also change your profile yourself in your account.\n\nOn request we delete your account, consultation requests and the messages in Telegram. Order records stay in our books after an account is deleted.\n\nThese rights come from the Law of Ukraine on Personal Data Protection. You can file a complaint with the Ukrainian Parliament Commissioner for Human Rights.\n\nUpdated 05.11.2026.',
+        },
+      },
+    ],
+  },
+  // The header's «Акції» leads here; the owner writes the current promotions.
+  {
+    slug: 'promotions',
+    uk: 'Акції',
+    en: 'Promotions',
+    blocks: [
+      {
+        uk: {
+          blockType: 'text',
+          title: 'Поточні акції',
+          text: 'Зараз акцій немає — загляньте пізніше.',
+        },
+        en: {
+          title: 'Current promotions',
+          text: 'No promotions right now — check back later.',
         },
       },
     ],

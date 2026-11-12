@@ -164,6 +164,13 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     theme. In «Сторінки → Головна» the block «Бренди» is added where the strip belongs (the seed puts
     it after the zones' tiles), titled «Бренди» and «Brands» in English. Until then `/brands` and a
     brand's page show the names, and the home has no strip.
+23. **The strip and the banner.** The deploy's migration adds the banner's «Підзаголовок». Then, by
+    hand, in Ukrainian and in English: in «Сторінки» a page «Акції» («Promotions»), slug `promotions`,
+    with a block «Текст» — the strip's «Акції» links it, and is 404 until it exists; in «Сторінки →
+    Головна» the «Головний банер» takes its title, subtitle, text and button from `src/db/seed-data.ts`
+    and a photo across its width, the text standing on the photo's left; another «Головний банер» right
+    after it makes the two a slider. «Сторінки → Оплата та доставка» says delivery is free from 3500 грн
+    (the seed's text), and the seller makes such an order's waybill with the sender paying.
 
 ## Check it
 

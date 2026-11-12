@@ -17,6 +17,7 @@ import * as migration_20261106_121641_card_payment from './20261106_121641_card_
 import * as migration_20261109_142149_np_waybill from './20261109_142149_np_waybill';
 import * as migration_20261112_084909_menu_item from './20261112_084909_menu_item';
 import * as migration_20261112_095927_brand_logo from './20261112_095927_brand_logo';
+import * as migration_20261112_134121_hero_subtitle from './20261112_134121_hero_subtitle';
 
 export const migrations = [
   {
@@ -112,6 +113,11 @@ export const migrations = [
   {
     up: migration_20261112_095927_brand_logo.up,
     down: migration_20261112_095927_brand_logo.down,
-    name: '20261112_095927_brand_logo'
+    name: '20261112_095927_brand_logo',
+  },
+  {
+    up: migration_20261112_134121_hero_subtitle.up,
+    down: migration_20261112_134121_hero_subtitle.down,
+    name: '20261112_134121_hero_subtitle'
   },
 ];
