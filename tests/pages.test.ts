@@ -80,14 +80,20 @@ describe('the admin link', () => {
 });
 
 describe('the menu', () => {
-  it('puts each category under its zone, in the admin order', async () => {
+  it('puts each category under its zone, in the admin order, and marks a zone for the menu', async () => {
     payload.find.mockImplementation(async ({ collection }) => ({
       docs:
         collection === 'categories'
           ? [
               { id: 1, title: 'Обличчя', slug: 'face', parent: null },
               { id: 2, title: 'Сироватки', slug: 'face-serums', parent: 1 },
-              { id: 3, title: 'Тіло', slug: 'body', parent: null },
+              {
+                id: 3,
+                title: 'Тіло',
+                slug: 'body',
+                parent: null,
+                menuItem: true,
+              },
               { id: 4, title: 'Креми', slug: 'face-creams', parent: 1 },
               { id: 5, title: 'Без адреси', slug: null, parent: 3 },
             ]
@@ -98,12 +104,13 @@ describe('the menu', () => {
         {
           slug: 'face',
           title: 'Обличчя',
+          menuItem: false,
           categories: [
             { slug: 'face-serums', title: 'Сироватки' },
             { slug: 'face-creams', title: 'Креми' },
           ],
         },
-        { slug: 'body', title: 'Тіло', categories: [] },
+        { slug: 'body', title: 'Тіло', menuItem: true, categories: [] },
       ],
       concerns: [{ slug: 'dehydration', title: 'Зневоднення' }],
     });

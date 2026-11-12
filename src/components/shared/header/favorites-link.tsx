@@ -1,7 +1,6 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { cn } from 'cn';
 import { useTranslations } from 'next-intl';
 import { useFavorites } from '@/lib/favorites';
 import { Link } from '@/i18n/navigation';
@@ -20,8 +19,8 @@ const FavoritesLink = ({ shown }: { shown?: number }) => {
         href="/favorites"
         aria-label={count > 0 ? t('linkCount', { count }) : undefined}
       >
-        {/* The count stands out past the heart; beside the word it needs the room. */}
-        <span className={cn('relative', count > 0 && 'sm:me-2')}>
+        {/* The count stands out past the heart. */}
+        <span className="relative">
           <Heart aria-hidden />
           {count > 0 && (
             <span
@@ -32,8 +31,8 @@ const FavoritesLink = ({ shown }: { shown?: number }) => {
             </span>
           )}
         </span>
-        {/* A phone's header keeps one line: the icon, named by the same word. */}
-        <span className="max-sm:sr-only">{t('title')}</span>
+        {/* The icon alone, as the client's mockup has the header; the word names it. */}
+        <span className="sr-only">{t('title')}</span>
       </Link>
     </Button>
   );

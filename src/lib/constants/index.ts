@@ -157,5 +157,9 @@ export const COLLECTIONS = {
   minis: 'isMini',
 } as const;
 
+// The menus' «За потребами шкіри» and «Набори та новинки», hidden at the owner's word of 2026-11-12,
+// who may want them back: `true` returns them. Their pages and the catalog's filters stay.
+export const SHOW_CONCERNS_AND_COLLECTIONS = false;
+
 export const COSMETIKA_API =
   'https://www.cosmetika.com.ua/wp-json/wp/v2/product';

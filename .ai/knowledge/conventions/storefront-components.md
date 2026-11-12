@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-11-05
+reviewed_at: 2026-11-12
 ---
 # Storefront components take their look from the theme tokens
 
@@ -43,9 +43,12 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
           (adr-20261030-header-menu-and-pages-from-payload)
 ```
 
-- A block on a coloured surface renames `--foreground`, `--muted-foreground` and `--ring` for what
-  is inside (`FooterContent`), so a component in it stays readable, and its focus ring visible,
-  without a variant of its own.
+- A block whose text takes another token renames `--foreground` and `--muted-foreground` for what is
+  inside (`FooterContent`, olive on the page's cream), so a component in it reads without a variant of
+  its own. A surface whose colours differ by theme from every token — the header, the client's olive in
+  both themes — is a scope in `globals.css` instead (`.site-header`, beside `:root` and `.dark`), which
+  renames the generic tokens; what renders inline inside it but must look like the page (the menu's
+  panel) stands in the selector lists of `:root` and `.dark` (adr-20261112-storefront-look-rosynaskin).
 - `rounded-full` is a shape, not a radius value: a circle or a pill (the heart over a card's photo,
   the count on it) takes it; anything with corners takes the theme's steps.
 - A toggle button — one that says whether something is on, like the favorites heart — keeps one
@@ -104,6 +107,6 @@ composes it with `asChild` around a plain `<a>` — another language is a full p
 
 ## Rationale
 
-The direction lives in one file (adr-20261029-storefront-look), so a later change of face stays a
+The direction lives in one file (adr-20261112-storefront-look-rosynaskin), so a later change of face stays a
 token edit and not a rewrite of every page — only as long as no component carries a raw value.
 Payload's UI belongs to the admin and would drag its styles into the storefront.

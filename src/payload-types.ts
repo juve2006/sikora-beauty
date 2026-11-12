@@ -257,6 +257,10 @@ export interface Category {
   slug?: string | null;
   fullTitle?: string | null;
   parent?: (number | null) | Category;
+  /**
+   * Лише для зони: у меню шапки вона стане ще й окремим пунктом, поруч із «Каталогом».
+   */
+  menuItem?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -730,6 +734,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   slug?: T;
   fullTitle?: T;
   parent?: T;
+  menuItem?: T;
   updatedAt?: T;
   createdAt?: T;
 }

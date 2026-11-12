@@ -9,7 +9,7 @@ import LanguageSwitcher from './language-switcher';
 import ThemeToggle from './theme-toggle';
 import AccountDialog from '@/components/shared/account/account-dialog';
 import { useAccountEntry } from '@/components/shared/account/use-account-entry';
-import { COLLECTIONS } from '@/lib/constants';
+import { COLLECTIONS, SHOW_CONCERNS_AND_COLLECTIONS } from '@/lib/constants';
 import type { Menu } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,7 +83,8 @@ const Section = ({
   </li>
 );
 
-// The main menu below lg: the same sections as MainMenu, in a sheet from the left. On a phone the
+// The main menu below lg: the same sections as MainMenu, in a sheet from the left; the consultation
+// stays a button in the header instead. On a phone the
 // language and the theme move here from the header, which keeps one line at 360 px. The account's
 // dialog stands outside the sheet, which closes as it opens, so the focus comes back to the menu's
 // button; and the sheet is closed by hand there, as `SheetClose` leaves it open after the click's
@@ -151,31 +152,66 @@ const MobileMenu = ({
                   </li>
                 ))}
               </Section>
-              <Section title={t('concerns')}>
-                {menu.concerns.map((concern) => (
-                  <MenuLink
-                    key={concern.slug}
-                    href={`/concern/${concern.slug}`}
-                  >
-                    {concern.title}
-                  </MenuLink>
-                ))}
-              </Section>
+              {SHOW_CONCERNS_AND_COLLECTIONS && (
+                <Section title={t('concerns')}>
+                  {menu.concerns.map((concern) => (
+                    <MenuLink
+                      key={concern.slug}
+                      href={`/concern/${concern.slug}`}
+                    >
+                      {concern.title}
+                    </MenuLink>
+                  ))}
+                </Section>
+              )}
               <MenuLink href="/brands" className="font-medium">
                 {t('brands')}
               </MenuLink>
+              {menu.zones
+                .filter(({ menuItem }) => menuItem)
+                .map((zone) =>
+                  zone.categories.length > 0 ? (
+                    <Section key={zone.slug} title={zone.title}>
+                      <MenuLink
+                        href={`/catalog/${zone.slug}`}
+                        className="font-medium"
+                      >
+                        {zone.title}
+                      </MenuLink>
+                      {zone.categories.map((category) => (
+                        <MenuLink
+                          key={category.slug}
+                          href={`/catalog/${category.slug}`}
+                          className="text-muted-foreground"
+                        >
+                          {category.title}
+                        </MenuLink>
+                      ))}
+                    </Section>
+                  ) : (
+                    <MenuLink
+                      key={zone.slug}
+                      href={`/catalog/${zone.slug}`}
+                      className="font-medium"
+                    >
+                      {zone.title}
+                    </MenuLink>
+                  ),
+                )}
               {finder && (
                 <MenuLink href="/care-finder" className="font-medium">
                   {t('finder')}
                 </MenuLink>
               )}
-              <Section title={t('collections')}>
-                {collections.map((slug) => (
-                  <MenuLink key={slug} href={`/collection/${slug}`}>
-                    {catalog(`collections.${slug}`)}
-                  </MenuLink>
-                ))}
-              </Section>
+              {SHOW_CONCERNS_AND_COLLECTIONS && (
+                <Section title={t('collections')}>
+                  {collections.map((slug) => (
+                    <MenuLink key={slug} href={`/collection/${slug}`}>
+                      {catalog(`collections.${slug}`)}
+                    </MenuLink>
+                  ))}
+                </Section>
+              )}
               <MenuLink href="/about" className="font-medium">
                 {t('about')}
               </MenuLink>

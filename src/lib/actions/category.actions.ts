@@ -44,7 +44,8 @@ export const getCatalogTerm = cache(async (slug: string, locale: Locale) => {
 });
 
 // The header's menu: the zones with their categories, and the skin concerns, in the admin's order —
-// a term the cosmetologist adds reaches the menu on save, without a deploy.
+// a term the cosmetologist adds reaches the menu on save, without a deploy. A zone marked
+// `menuItem` is offered as an item of its own too.
 export const getMenu = cache(async (locale: Locale) => {
   const payload = await getPayload({ config });
   const read = {
@@ -58,7 +59,7 @@ export const getMenu = cache(async (locale: Locale) => {
     payload.find({
       ...read,
       collection: 'categories',
-      select: { title: true, slug: true, parent: true },
+      select: { title: true, slug: true, parent: true, menuItem: true },
     }),
     payload.find({
       ...read,
@@ -73,6 +74,7 @@ export const getMenu = cache(async (locale: Locale) => {
     .flatMap((zone) =>
       link(zone).map((term) => ({
         ...term,
+        menuItem: Boolean(zone.menuItem),
         categories: categories.docs
           .filter(({ parent }) => parent === zone.id)
           .flatMap(link),
