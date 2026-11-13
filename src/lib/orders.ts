@@ -1,5 +1,6 @@
 import {
   DELIVERY_DELETED,
+  FREE_DELIVERY_FROM,
   ORDER_STATUSES,
   PAYMENT_STATUSES,
   VOLUME_UNIT_LABELS,
@@ -149,6 +150,11 @@ export function waybillBlock({
   if (paymentStatus !== 'paid') return 'Замовлення ще не оплачене';
   return null;
 }
+
+// Who pays Nova Poshta for the waybill: the store from FREE_DELIVERY_FROM on, as the storefront
+// promises, the recipient below it. The order's total is its goods alone, in kopiyky.
+export const waybillPayer = (total: number) =>
+  total >= FREE_DELIVERY_FROM ? 'Sender' : 'Recipient';
 
 // The order's lines as monobank's invoice wants them for the fiscal receipt: each with a code, here
 // the product's id — its name once the product is gone — and its price per unit in kopiyky.

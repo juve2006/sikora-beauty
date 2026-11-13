@@ -15,7 +15,7 @@ import {
   WAYBILL_STATUSES,
 } from '@/lib/constants';
 import { fromCron } from '@/lib/cron';
-import { waybillBlock } from '@/lib/orders';
+import { waybillBlock, waybillPayer } from '@/lib/orders';
 import { formatDateTime, whatFailed } from '@/lib/utils';
 import {
   npAnswer,
@@ -188,7 +188,9 @@ type Box = Pick<
   'weight' | 'width' | 'length' | 'height'
 >;
 
-// A branch to a branch or a locker, one seat, the delivery paid by the recipient in cash. The sum
+// A branch to a branch or a locker, one seat, the delivery paid in cash at a branch: by the store
+// from FREE_DELIVERY_FROM on, by the recipient below it (`waybillPayer`); NonCash needs a contract
+// with Nova Poshta. The sum
 // is the order's, in hryvnias from integer kopiyky without a float (RULES.md). `OptionsSeat` is what
 // a locker requires and a branch accepts, so nothing asks which it is.
 async function waybillProperties(
@@ -204,7 +206,7 @@ async function waybillProperties(
     ...from,
     ...to,
     ServiceType: 'WarehouseWarehouse',
-    PayerType: 'Recipient',
+    PayerType: waybillPayer(order.total),
     PaymentMethod: 'Cash',
     CargoType: 'Parcel',
     DateTime: formatDateTime(new Date().toISOString()).slice(0, 10),

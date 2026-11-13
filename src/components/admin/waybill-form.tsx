@@ -13,10 +13,12 @@ import { useState } from 'react';
 import {
   DELIVERY_DELETED,
   DELIVERY_NOT_COLLECTED,
+  FREE_DELIVERY_FROM,
   WAYBILL_AGAIN_AFTER,
   WAYBILL_BOX,
 } from '@/lib/constants';
-import { waybillBlock } from '@/lib/orders';
+import { waybillBlock, waybillPayer } from '@/lib/orders';
+import { formatHryvnias } from '@/lib/utils';
 import type { Order } from '@/payload-types';
 
 const sizes = [
@@ -44,8 +46,10 @@ const WaybillForm = ({ enabled }: { enabled: boolean }) => {
     deliveryCode: fields.deliveryCode?.value,
     deliveryStatus: fields.deliveryStatus?.value,
     waybillRequestedAt: fields.waybillRequestedAt?.value,
+    total: fields.total?.value,
   })) as Pick<
     Order,
+    | 'total'
     | 'status'
     | 'paymentStatus'
     | 'settlementRef'
@@ -136,6 +140,11 @@ const WaybillForm = ({ enabled }: { enabled: boolean }) => {
               }
             />
           ))}
+          <p>
+            {waybillPayer(order.total) === 'Sender'
+              ? `Доставку оплачує магазин у відділенні: замовлення від ${formatHryvnias(FREE_DELIVERY_FROM)} грн`
+              : 'Доставку оплачує одержувач при отриманні'}
+          </p>
           {unanswered && !busy && <p role="alert">{LOST}</p>}
           <Button
             buttonStyle={unanswered ? 'secondary' : 'primary'}
