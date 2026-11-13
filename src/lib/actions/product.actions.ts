@@ -53,6 +53,7 @@ export async function getRelated(product: Product, locale: Locale) {
       volumeUnit: true,
       availability: true,
       madeToOrderDays: true,
+      shortDescription: true,
       images: true,
     },
   });
@@ -86,6 +87,7 @@ export async function getListingProducts(where: Where, locale: Locale) {
       volumeUnit: true,
       availability: true,
       madeToOrderDays: true,
+      shortDescription: true,
       images: true,
       createdAt: true,
       categories: true,
@@ -125,6 +127,7 @@ export async function getListingProducts(where: Where, locale: Locale) {
       volumeUnit: product.volumeUnit,
       availability: product.availability,
       madeToOrderDays: product.madeToOrderDays,
+      shortDescription: product.shortDescription,
       photo: photos(product.images)[0],
     },
   })) satisfies ListingProduct[];

@@ -171,7 +171,9 @@ const confirmed = async (page: Page, m: typeof uk, prefix: string) => {
 
 const orderSerum = async (page: Page, m: typeof uk, prefix: string) => {
   await page.goto(`${prefix}/product/e2e-serum`);
-  await page.getByRole('button', { name: m.Product.addToCart }).click();
+  await page
+    .getByRole('button', { name: m.Product.addToCart, exact: true })
+    .click();
   await page.getByRole('link', { name: m.Product.goToCart }).click();
   await expect(page).toHaveURL(/\/cart$/);
   await page.getByLabel(m.Checkout.settlement).fill('Бров');

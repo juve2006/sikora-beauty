@@ -36,12 +36,12 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     (`index.tsx`), `TopBar`, `Logo`, `LanguageSwitcher`, `ThemeToggle`, `MainMenu`, `MobileMenu`, `AdminLink`,
     `FavoritesLink`, `CartLink`, `AccountLink`; a page's blocks in `src/components/shared/blocks/`; the product's in
     `src/components/shared/product/` — price, availability, the card and its no-photo placeholder,
-    `FavoriteButton`;
+    `FavoriteButton`, `AddToCart`;
     the catalog's in `src/components/shared/catalog/` — the filters, the sort, the list with its
     pages; the search's in `src/components/shared/search/` — `SearchDialog` and the suggestions it
     shows; the account's in `src/components/shared/account/` — `AccountDialog`, the forms of sign-in
-    and registration and their fields. A component only one page shows lives in that page's route folder: the gallery, the cart
-    button and delivery and payment in the product page's, the category chips in
+    and registration and their fields. A component only one page shows lives in that page's route folder: the gallery and
+    delivery and payment in the product page's, the category chips in
     `/catalog/<slug>`'s, the cart's lines, the checkout form and the delivery fields in `/cart`'s,
     the questions and the routine in `/care-finder`'s.
   - `Logo` is the client's ROSYNA SKIN wordmark as SVG paths traced from their artwork, filled with
@@ -108,7 +108,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `hreflang` URLs and a JSON-LD `Product` with its `Offer`; absolute URLs are resolved against
     `SITE_URL` (`src/lib/constants/index.ts`), Vercel's own addresses until the production host
     sets its own.
-    «Додати в кошик» (`add-to-cart.tsx`) puts the product in the cart and then links to it; out of
+    «Додати в кошик» (`AddToCart`) puts the product in the cart and then links to it; out of
     stock it is disabled. Delivery and payment state the checkout's terms: Nova Poshta, free from
     `FREE_DELIVERY_FROM`, below it at Nova Poshta's rates, paid on delivery; the goods paid by a transfer or a card, on the site or by a link the
     manager sends.
@@ -236,8 +236,11 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   them through `FavoritesView`, and takes out of the favorites what the server did not return.
 - **Cart and orders** — guest checkout, launch step 1 (adr-20261101-cart-and-checkout,
   adr-20261028-own-orders-collection). `src/lib/cart.ts` keeps `[{id, qty}]` in localStorage on
-  `browserStore`; «Додати в кошик» on a product page adds one, `CartLink` in `SiteHeader` counts
-  the units. `/cart` (`(shop)/cart/`, `noindex`, `force-dynamic`): `CartList` gets the cards from
+  `browserStore`; «Додати в кошик» on a product page adds one, and so does «У кошик» under every
+  `ProductCard` (`AddToCart` with the product's name: «У кошик: <product>» to a reader, then «У
+  кошику» → `/cart`); `CartLink` in `SiteHeader` counts the units. A card shows the brand in
+  capitals, the name, the short description (two lines at most), the volume, the price, and its
+  availability only when it is not in stock. `/cart` (`(shop)/cart/`, `noindex`, `force-dynamic`): `CartList` gets the cards from
   `productCards` and shows them through `CartView` — the lines (`CartLine`), the total and
   `CheckoutForm` under it. The form and the server action `placeOrder` (`order.actions.ts`) check
   the same `orderRequest`; then Turnstile, then `priceOrder` (`src/lib/orders.ts`, pure) reprices

@@ -14,7 +14,9 @@ const CREATED = 'Створено, ще не передано на відпра�
 
 const placeOrder = async (page: Page) => {
   await page.goto('/product/e2e-serum');
-  await page.getByRole('button', { name: uk.Product.addToCart }).click();
+  await page
+    .getByRole('button', { name: uk.Product.addToCart, exact: true })
+    .click();
   await page.getByRole('link', { name: uk.Product.goToCart }).click();
   await expect(page).toHaveURL(/\/cart$/);
   await page.getByLabel(uk.Checkout.settlement).fill('Бров');

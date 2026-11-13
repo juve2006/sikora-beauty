@@ -162,6 +162,7 @@ export type CardProduct = Pick<
   | 'volumeUnit'
   | 'availability'
   | 'madeToOrderDays'
+  | 'shortDescription'
 > & {
   id: number;
   slug: string;

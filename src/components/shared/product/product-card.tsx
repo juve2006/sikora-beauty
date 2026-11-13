@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import AddToCart from './add-to-cart';
 import Availability from './availability';
 import FavoriteButton from './favorite-button';
 import NoPhoto from './no-photo';
@@ -8,8 +9,9 @@ import { Link } from '@/i18n/navigation';
 import type { CardProduct } from '@/types';
 
 // One product in a list: related products and the catalog's lists. `eager` for the first row, the
-// page's largest paint, which a lazy image would delay. The heart sits over the photo beside the
-// link, not in it: a button inside a link is neither.
+// page's largest paint, which a lazy image would delay. The heart and the cart's button sit beside
+// the link, not in it: a button inside a link is neither. The card fills its grid cell, so the
+// buttons of a row stand on one line whether a card has a description or not.
 const ProductCard = ({
   product,
   eager = false,
@@ -19,10 +21,10 @@ const ProductCard = ({
 }) => {
   const t = useTranslations('Product');
   return (
-    <div className="relative">
+    <div className="relative flex h-full flex-col gap-4">
       <Link
         href={`/product/${product.slug}`}
-        className="group flex flex-col gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="group flex flex-1 flex-col gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         {product.photo ? (
           <div className="relative aspect-square overflow-hidden rounded-lg border bg-card">
@@ -39,10 +41,18 @@ const ProductCard = ({
           <NoPhoto />
         )}
         <div className="flex flex-col items-start gap-1">
-          <span className="text-sm text-muted-foreground">{product.brand}</span>
+          <span className="text-xs tracking-widest text-muted-foreground uppercase">
+            {product.brand}
+          </span>
           <span className="leading-snug font-medium group-hover:underline">
             {product.name}
           </span>
+          {/* The description is clamped, the volume never: it is what tells two sizes apart. */}
+          {product.shortDescription && (
+            <span className="line-clamp-2 text-sm text-muted-foreground">
+              {product.shortDescription}
+            </span>
+          )}
           {product.volume != null && product.volumeUnit && (
             <span className="text-sm text-muted-foreground">
               {t('volume', {
@@ -51,13 +61,24 @@ const ProductCard = ({
               })}
             </span>
           )}
-          <ProductPrice price={product.price} className="mt-1 font-semibold" />
-          <Availability
-            availability={product.availability}
-            madeToOrderDays={product.madeToOrderDays}
+          <ProductPrice
+            price={product.price}
+            className="mt-1 text-lg font-semibold"
           />
+          {/* In stock is the usual case: the card says only when it is not. */}
+          {product.availability !== 'in_stock' && (
+            <Availability
+              availability={product.availability}
+              madeToOrderDays={product.madeToOrderDays}
+            />
+          )}
         </div>
       </Link>
+      <AddToCart
+        id={product.id}
+        availability={product.availability}
+        name={product.name}
+      />
       <FavoriteButton
         id={product.id}
         name={product.name}

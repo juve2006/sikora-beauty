@@ -20,9 +20,9 @@ paths:
   - src/components/shared/header/cart-link.tsx
   - "tests/e2e/**"
   - playwright.config.ts
-  - "src/app/*/(shop)/product/*/add-to-cart.tsx"
+  - src/components/shared/product/add-to-cart.tsx
 summary: The cart is [{id, qty}] in the shopper's localStorage; /cart shows it with today's cards and orders it through placeOrder, which reprices from the database and answers changed when the shown total differs; Nova Poshta search with an optional key and manual fields on failure; forward-only statuses in the admin; no Telegram yet
-reviewed_at: 2026-11-01
+reviewed_at: 2026-11-13
 ---
 # The cart lives in the shopper's browser, and `/cart` orders it through a server action that reprices it
 

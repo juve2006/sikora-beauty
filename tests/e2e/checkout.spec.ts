@@ -25,18 +25,25 @@ const order = async (id: number) => {
   return { ...rows[0], lines: lines.rows };
 };
 
-// The cart with one serum in it — from its category, to its page, into the cart — then the cart.
-const addSerum = async (page: Page, prefix: string, m: typeof uk) => {
+// The serum's category, where its card is.
+const serumCatalog = async () => {
   const { rows } = await database.query(
     `select c.slug from categories c
        join products_rels r on r.categories_id = c.id
        join products p on p.id = r.parent_id
      where p.slug = 'e2e-serum'`,
   );
-  await page.goto(`${prefix}/catalog/${rows[0].slug}`);
+  return `/catalog/${rows[0].slug}`;
+};
+
+// The cart with one serum in it — from its category, to its page, into the cart — then the cart.
+const addSerum = async (page: Page, prefix: string, m: typeof uk) => {
+  await page.goto(`${prefix}${await serumCatalog()}`);
   await page.getByRole('link', { name: product }).first().click();
   await expect(page).toHaveURL(/\/product\/e2e-serum$/);
-  await page.getByRole('button', { name: m.Product.addToCart }).click();
+  await page
+    .getByRole('button', { name: m.Product.addToCart, exact: true })
+    .click();
   // The header's cart, named with its count: «Кошик, 1 товар», «Cart, 1 item».
   await expect(
     page.getByRole('link', { name: new RegExp(`^${m.Cart.title}, 1 `) }),
@@ -327,9 +334,28 @@ test('a card mono makes no invoice for becomes a link', async ({ page }) => {
   await expect(page.getByText(uk.Checkout.linkText)).toHaveCount(0);
 });
 
+// A card's own button (task `home-mockup`): from the list straight into the cart, and the focus on
+// the link that took the button's place.
+test('a card puts its product in the cart', async ({ page }) => {
+  await page.goto(await serumCatalog());
+  await page
+    .getByRole('button', {
+      name: uk.Product.addProduct.replace('{name}', product),
+    })
+    .click();
+  await expect(
+    page.getByRole('link', { name: new RegExp(`^${uk.Cart.title}, 1 `) }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: uk.Product.inCart, exact: true }),
+  ).toBeFocused();
+});
+
 test('offers no prepayment while a line is made to order', async ({ page }) => {
   await page.goto('/product/e2e-cream');
-  await page.getByRole('button', { name: uk.Product.addToCart }).click();
+  await page
+    .getByRole('button', { name: uk.Product.addToCart, exact: true })
+    .click();
   await page.getByRole('link', { name: uk.Product.goToCart }).click();
   await expect(
     page.getByRole('radio', { name: uk.Checkout.link }),
@@ -404,7 +430,9 @@ test('a line another tab added is told when its card does not come, and comes on
   );
   const other = await context.newPage();
   await other.goto('/product/e2e-cream');
-  await other.getByRole('button', { name: uk.Product.addToCart }).click();
+  await other
+    .getByRole('button', { name: uk.Product.addToCart, exact: true })
+    .click();
   await other.close();
 
   await expect(
