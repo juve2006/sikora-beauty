@@ -27,7 +27,8 @@ deleting) or a cosmetologist («Косметолог»: fills in and publishes t
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
 product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
-its texts, delivery and payment, related products and «Додати в кошик»; delivery is free from
+its texts, delivery and payment, related products and «Додати в кошик»; every product card — the
+brand, the name, the short description, the volume and the price — has «У кошик» too; delivery is free from
 3500 грн, which the strip over the header, the product page and the checkout say. The strip, olive
 with the client's colours, also links «Акції» (a page from the admin) and holds the language and the
 theme; the header under it, in the page's colours, reads the zones with their categories from the catalog, a zone

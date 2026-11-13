@@ -26,7 +26,7 @@ import ListingPagination from '@/components/shared/catalog/listing-pagination';
 import SortSelect from '@/components/shared/catalog/sort-select';
 import LanguageSwitcher from '@/components/shared/header/language-switcher';
 import Logo from '@/components/shared/header/logo';
-import AddToCart from '@/app/[locale]/(shop)/product/[slug]/add-to-cart';
+import AddToCart from '@/components/shared/product/add-to-cart';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import ConsultationForm from '@/components/shared/consultation/consultation-form';
 import SearchDialog from '@/components/shared/search/search-dialog';
@@ -197,6 +197,7 @@ const CanvasPage = async ({ params }: Props) => {
     volume: 30,
     volumeUnit: 'ml',
     availability: 'in_stock',
+    shortDescription: t('sampleShort'),
     photo: photos[0],
     ...overrides,
   });
@@ -719,6 +720,26 @@ const CanvasPage = async ({ params }: Props) => {
             <AddToCart id={900001} availability="in_stock" inCart />
             <AddToCart id={900001} availability="out_of_stock" />
             <AddToCart id={900001} availability="in_stock" />
+          </Specimen>
+          <Specimen label="a card's: in the cart / out of stock / this browser's">
+            <div className="flex w-48 flex-col gap-3">
+              <AddToCart
+                id={900001}
+                availability="in_stock"
+                name={t('sampleName')}
+                inCart
+              />
+              <AddToCart
+                id={900001}
+                availability="out_of_stock"
+                name={t('sampleName')}
+              />
+              <AddToCart
+                id={900001}
+                availability="in_stock"
+                name={t('sampleName')}
+              />
+            </div>
           </Specimen>
         </Section>
 
@@ -1569,7 +1590,13 @@ const CanvasPage = async ({ params }: Props) => {
               />
             </li>
             <li>
-              <ProductCard product={card({ photo: undefined, volume: null })} />
+              <ProductCard
+                product={card({
+                  photo: undefined,
+                  volume: null,
+                  shortDescription: null,
+                })}
+              />
             </li>
           </ul>
         </Section>

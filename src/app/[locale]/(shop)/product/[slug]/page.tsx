@@ -11,7 +11,7 @@ import {
   productJsonLd,
 } from '@/lib/product-page';
 import { getProduct, getRelated } from '@/lib/actions/product.actions';
-import AddToCart from './add-to-cart';
+import AddToCart from '@/components/shared/product/add-to-cart';
 import Availability from '@/components/shared/product/availability';
 import ConsultationDialog from '@/components/shared/consultation/consultation-dialog';
 import DeliveryPayment from './delivery-payment';
