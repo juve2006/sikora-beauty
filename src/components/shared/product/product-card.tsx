@@ -74,15 +74,17 @@ const ProductCard = ({
           )}
         </div>
       </Link>
-      <AddToCart
-        id={product.id}
-        availability={product.availability}
-        name={product.name}
-      />
+      {/* Before the cart's button in the DOM, so the keyboard reaches the heart over the photo
+          right after the link, not by going back up. */}
       <FavoriteButton
         id={product.id}
         name={product.name}
         className="absolute top-2 right-2"
+      />
+      <AddToCart
+        id={product.id}
+        availability={product.availability}
+        name={product.name}
       />
     </div>
   );

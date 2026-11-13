@@ -18,9 +18,6 @@ type CarouselProps = {
 
 type CarouselContextProps = {
   carouselRef: ReturnType<typeof useEmblaCarousel>[0];
-  api: ReturnType<typeof useEmblaCarousel>[1];
-  scrollPrev: () => void;
-  scrollNext: () => void;
 };
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
@@ -71,9 +68,7 @@ function Carousel({
   }, [api, setApi]);
 
   return (
-    <CarouselContext.Provider
-      value={{ carouselRef, api, scrollPrev, scrollNext }}
-    >
+    <CarouselContext.Provider value={{ carouselRef }}>
       <div
         onKeyDownCapture={handleKeyDown}
         className={cn('relative', className)}
@@ -114,10 +109,4 @@ function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-export {
-  type CarouselApi,
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  useCarousel,
-};
+export { type CarouselApi, Carousel, CarouselContent, CarouselItem };
