@@ -305,8 +305,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   into plain text ones. Waybills come from the same module, not `server-only` as `payload.config`
   loads it (adr-20261109-waybills-and-prepayment-only-start): `POST /api/np/waybill`, a root endpoint
   of Payload behind an admin role, takes the order in one conditional statement before asking Nova
-  Poshta, and the order's `WaybillField` (`src/components/admin/`) shows what `waybillBlock`
-  (`src/lib/orders.ts`) decides for the server too. Without `NOVA_POSHTA_SENDER_CITY` and
+  Poshta, and the order's `WaybillField` (`src/components/admin/`) shows what `waybillBlock` and
+  `waybillPayer` (`src/lib/orders.ts`) decide for the server too: whether the button may make it, and
+  who pays the delivery — the store, in cash at the branch, from `FREE_DELIVERY_FROM` on
+  (adr-20261112-header-strip-and-banner), the recipient below it. Without `NOVA_POSHTA_SENDER_CITY` and
   `NOVA_POSHTA_SENDER_WAREHOUSE` it is off. `GET /api/np/track`, a daily Vercel cron with
   `CRON_SECRET` (`src/lib/cron.ts`), past the site password, writes each parcel's code and words on
   the order and tells Telegram of one nobody collected; it moves neither the order's status nor its

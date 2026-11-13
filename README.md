@@ -61,7 +61,8 @@ the order, its receipt mailed by mono. The server prices the order again — a p
 meanwhile asks the shopper to check the cart — and keeps its lines as they were sold; it waits in the
 admin under «Продажі → Замовлення», where the manager moves its status forward, marks it paid and
 keeps a note. The store starts on prepayment alone; cash on delivery comes later. On a confirmed, paid
-order a button makes the Nova Poshta waybill from the box the manager measures, or the number of one
+order a button makes the Nova Poshta waybill from the box the manager measures, the store paying the
+delivery from 3500 грн and the recipient below it, or the number of one
 made in Nova Poshta's cabinet is typed in; once a day a cron asks how each parcel is doing, shows it on
 the order and tells the Telegram group of one nobody collected. `/cart/thanks` finds the order by a secret its checkout was given and shows its
 number — for a transfer, the account to pay, each detail with a copy button; for a card, whether

@@ -245,6 +245,18 @@ describe('the waybill button', () => {
     expect(saved()[0].methodProperties.Cost).toBe(cost);
   });
 
+  it.each([
+    [349_999, 'Recipient'],
+    [350_000, 'Sender'],
+  ])(
+    'has an order of %i kopiyky delivered at the cost of the %s',
+    async (total, payer) => {
+      payload.findByID.mockResolvedValue({ ...order, total });
+      await press();
+      expect(saved()[0].methodProperties.PayerType).toBe(payer);
+    },
+  );
+
   it('adds no cash on delivery', async () => {
     await press();
     const properties = saved()[0].methodProperties;

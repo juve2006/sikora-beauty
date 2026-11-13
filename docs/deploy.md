@@ -143,7 +143,9 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     without it. Until then the button says «Накладні не налаштовані» and nothing is created. Nova
     Poshta has no test mode for this API: the first waybill is a real one, so it is made for a real
     parcel, and what it answers settles what the docs left open (a recipient without a patronymic, the
-    sum's format, `volumetricVolume`). `vercel.json` has Vercel call `GET /api/np/track` once a day,
+    sum's format, `volumetricVolume`). The button has the store pay the delivery, in cash at the
+    branch, for an order from 3500 грн, and the recipient below it; the form says which before it is
+    pressed. `vercel.json` has Vercel call `GET /api/np/track` once a day,
     within the hour after 04:00 UTC, on Production only.
 19. **Prepayment only.** The checkout no longer offers cash on delivery, and the seed never changes a
     page that exists: on a database seeded earlier, «Сторінки → Оплата та доставка» still has it, so its
@@ -170,7 +172,8 @@ Production moves to Hetzner + Coolify behind Cloudflare before launch (roadmap i
     Головна» the «Головний банер» takes its title, subtitle, text and button from `src/db/seed-data.ts`
     and a photo across its width, the text standing on the photo's left; another «Головний банер» right
     after it makes the two a slider. «Сторінки → Оплата та доставка» says delivery is free from 3500 грн
-    (the seed's text), and the seller makes such an order's waybill with the sender paying.
+    (the seed's text), and the seller makes such an order's waybill with the sender paying — the
+    admin's button does that itself since task `waybill-free-delivery` (step 18).
 
 ## Check it
 
