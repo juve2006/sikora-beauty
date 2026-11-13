@@ -630,3 +630,10 @@ export const parseAccountForm = <Schema extends z.ZodObject>(
         >,
       };
 };
+
+// A marked photo's address (src/lib/watermark.ts), asked by anyone: a media id the database can hold
+// (Postgres `integer`) and a file name. Anything else is no photo.
+export const markedPhotoParams = z.object({
+  id: z.coerce.number().int().positive().max(2_147_483_647),
+  filename: z.string().min(1),
+});

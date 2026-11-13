@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-11-12
+reviewed_at: 2026-11-13
 ---
 # Storefront components take their look from the theme tokens
 
@@ -78,10 +78,12 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
   uses are deleted from it, not kept for later. A radius step it uses that the theme does not
   define (`rounded-4xl` in `Badge`) falls back to Tailwind's fixed default without an error, so the
   step is added to `@theme inline` in `globals.css` as shadcn's multiple of `--radius`.
-- Raw colours live in three places. `src/app/[locale]/icon.svg`: a favicon cannot read CSS
+- Raw colours live in four places. `src/app/[locale]/icon.svg`: a favicon cannot read CSS
   variables, so it repeats the light theme's `--primary` and `--primary-foreground`, and changes
   with them. The Ukrainian flag in `PhoneField` and Google's mark in `OtherWays`: their colours are
-  theirs, not the theme's, and stay the same in both themes. Outside the storefront,
+  theirs, not the theme's, and stay the same in both themes. The mark on product photos
+  (`src/lib/watermark.ts`): it is drawn into an image file, so it repeats the client's olive
+  `#596653`, and a change to it is a new `MARKED_PHOTOS` version. Outside the storefront,
   `src/app/(payload)/custom.scss` repeats `--primary` and `--primary-foreground` of both themes, as
   the admin never gets the tokens, and changes with them too.
 - On `/canvas` the names of components, variants and sizes are code identifiers and are not

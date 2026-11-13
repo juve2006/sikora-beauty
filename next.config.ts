@@ -16,11 +16,15 @@ const nextConfig: NextConfig = {
   // src/proxy.ts sees every request, /api included, and Next cuts a body it buffers there at 10 MB:
   // a phone photo uploaded through the server (locally, on the production host) would arrive cut.
   experimental: { proxyClientMaxBodySize: '50mb' },
-  // Product photos: our Blob store on Vercel, Payload's files on the local disk. Only our store's
-  // host — a wildcard would let anyone have their images resized here.
+  // Photos: our Blob store on Vercel, Payload's files on the local disk, and a product's photo with
+  // the store's mark (src/lib/watermark.ts). Only our store's host — a wildcard would let anyone have
+  // their images resized here.
   images: {
     remotePatterns: blobStore ? [new URL(`https://${blobStore}.public.blob.vercel-storage.com/**`)] : [],
-    localPatterns: [{ pathname: '/api/media/file/**', search: '' }],
+    localPatterns: [
+      { pathname: '/api/media/file/**', search: '' },
+      { pathname: '/api/photo/**', search: '' },
+    ],
   },
   // Only a session the admin refuses lands at the first, which is a shopper's. Payload's page offers a
   // log-out that cannot end their session; their account has one that does. The second is Payload's
