@@ -19,7 +19,7 @@ const TopBar = () => {
           <Truck className="size-4 shrink-0" aria-hidden />
           {t('freeDelivery', { amount: formatHryvnias(FREE_DELIVERY_FROM) })}
         </p>
-        <span aria-hidden className="h-4 w-px bg-border" />
+        <span aria-hidden className="h-4 w-px bg-foreground/40" />
         <Link
           href="/promotions"
           className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
