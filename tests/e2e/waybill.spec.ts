@@ -82,9 +82,7 @@ test('a paid order gets its waybill from the button, and the cron its fate', asy
   await expect(
     stale.getByText('Доставку оплачує одержувач при отриманні'),
   ).toBeVisible();
-  await database.query('update orders set total = 350000 where id = $1', [
-    id,
-  ]);
+  await database.query('update orders set total = 350000 where id = $1', [id]);
   await openOrder(page, id);
   await expect(
     page.getByText('Доставку оплачує магазин у відділенні: замовлення від'),
