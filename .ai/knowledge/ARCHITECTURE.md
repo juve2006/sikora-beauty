@@ -199,6 +199,8 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `images.localPatterns`, fetches the original from its `url` and answers it with the store's mark,
     cached for a year. A banner's and a text block's photo keep `photos()` and no mark; the admin and
     the Merchant Center feed read the clean `url` (adr-20261113-product-photos-marked-when-shown).
+    REST and GraphQL read `media` for staff only; the Local API and a file's own address read it for
+    anyone, so the storefront still populates a product's photos (adr-20261114-media-api-staff-only).
   - A change the storefront can see calls `revalidatePath('/', 'layout')`; a draft save does not,
     and scripts pass `context.disableRevalidate` (outside a Next request it throws).
   - `npm run seed:catalog` creates the missing zones, categories, vocabularies and brands by slug,

@@ -155,6 +155,10 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   `src/lib/access.ts`; Payload's default — any logged-in user may do anything — is never relied upon.
   A new collection goes into `src/collections/index.ts`. (adr-20261029-admin-roles; checked by:
   Vitest in `tests/access.test.ts`)
+- REST and GraphQL read `media` for staff only, so no reader of the API gets a product's clean
+  original past the store's mark. The Local API and a file's own address read it for anyone: Payload
+  populates a product's photos with the request's own access. (adr-20261114-media-api-staff-only;
+  checked by: Vitest in `tests/access.test.ts`)
 - A custom admin view (`admin.components.views`) is open to anyone: Payload sends a visitor
   without admin access to the login only from its own views. The view redirects when
   `permissions.canAccessAdmin` is false and checks the role itself; its endpoints check the role
