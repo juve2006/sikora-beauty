@@ -28,7 +28,7 @@
     "@payloadcms/email-nodemailer": "3.92.1",
     "@payloadcms/next": "3.92.1",
     "@payloadcms/storage-vercel-blob": "3.92.1",
-    "@payloadcms/translations": "3.92.1",
+    "@payloadcms/translations": "3.93.0",
     "@payloadcms/ui": "3.92.1",
     "@sentry/browser": "11.10.0",
     "@sentry/nextjs": "11.10.0",
