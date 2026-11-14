@@ -57,7 +57,7 @@ const ThanksPage = async ({ params, searchParams }: Props) => {
       : undefined;
   const customer = order?.retry ? await currentCustomer() : null;
   return (
-    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
       <OrderPlaced
         number={order?.number}
         transfer={order && details && { details, total: order.total }}

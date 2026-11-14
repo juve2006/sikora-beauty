@@ -83,9 +83,9 @@ const Section = ({
   </li>
 );
 
-// The main menu below lg: the same sections as MainMenu, in a sheet from the left; the consultation
-// stays a button in the header instead. On a phone the
-// language and the theme move here from the header, which keeps one line at 360 px. The account's
+// The main menu below md, on a phone: the same sections as MainMenu, in a sheet from the left; the
+// consultation stays a button in the header instead. Below sm the language and the theme move here
+// from the header, which keeps one line at 360 px. The account's
 // dialog stands outside the sheet, which closes as it opens, so the focus comes back to the menu's
 // button; and the sheet is closed by hand there, as `SheetClose` leaves it open after the click's
 // `preventDefault`.

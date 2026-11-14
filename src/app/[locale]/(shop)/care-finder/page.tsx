@@ -51,7 +51,7 @@ const CareFinderPage = async ({ params, searchParams }: Props) => {
   const steps = complete ? await getRoutine(finder.steps, terms, locale) : null;
 
   return (
-    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
       <h1 className="pt-2 text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl lg:pt-8">
         {answers && steps ? t('routine') : t('title')}
       </h1>

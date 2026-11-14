@@ -10,8 +10,10 @@ import type { CardProduct } from '@/types';
 
 // One product in a list: related products and the catalog's lists. `eager` for the first row, the
 // page's largest paint, which a lazy image would delay. The heart and the cart's button sit beside
-// the link, not in it: a button inside a link is neither. The card fills its grid cell, so the
-// buttons of a row stand on one line whether a card has a description or not.
+// the link, not in it: a button inside a link is neither. The card fills its grid cell and its price
+// stands at the foot of the text, so the prices and the buttons of a row each keep one line, however
+// many lines a name or a description takes. The photo's frame is the mockup's card, which the marked
+// photo already has (src/lib/watermark.ts).
 const ProductCard = ({
   product,
   eager = false,
@@ -24,23 +26,23 @@ const ProductCard = ({
     <div className="relative flex h-full flex-col gap-4">
       <Link
         href={`/product/${product.slug}`}
-        className="group flex flex-1 flex-col gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="group flex flex-1 flex-col gap-4 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         {product.photo ? (
-          <div className="relative aspect-square overflow-hidden rounded-lg border bg-card">
+          <div className="relative aspect-photo overflow-hidden rounded-xl bg-card">
             <Image
               src={product.photo.url}
               alt={product.photo.alt}
               fill
               loading={eager ? 'eager' : 'lazy'}
               sizes="(min-width: 1024px) 340px, 50vw"
-              className="object-contain"
+              className="object-cover"
             />
           </div>
         ) : (
           <NoPhoto />
         )}
-        <div className="flex flex-col items-start gap-1">
+        <div className="flex flex-1 flex-col items-start gap-1 px-0.5">
           <span className="text-xs tracking-widest text-muted-foreground uppercase">
             {product.brand}
           </span>
@@ -61,17 +63,20 @@ const ProductCard = ({
               })}
             </span>
           )}
-          <ProductPrice
-            price={product.price}
-            className="mt-1 text-lg font-semibold"
-          />
-          {/* In stock is the usual case: the card says only when it is not. */}
-          {product.availability !== 'in_stock' && (
-            <Availability
-              availability={product.availability}
-              madeToOrderDays={product.madeToOrderDays}
+          {/* The availability over the price, so the price is the text's last line in every card. */}
+          <div className="mt-auto flex flex-col items-start gap-1 pt-3">
+            {/* In stock is the usual case: the card says only when it is not. */}
+            {product.availability !== 'in_stock' && (
+              <Availability
+                availability={product.availability}
+                madeToOrderDays={product.madeToOrderDays}
+              />
+            )}
+            <ProductPrice
+              price={product.price}
+              className="text-xl font-medium"
             />
-          )}
+          </div>
         </div>
       </Link>
       {/* Before the cart's button in the DOM, so the keyboard reaches the heart over the photo

@@ -51,7 +51,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     again, not set in a font; the header's is at most 128 px wide on a phone, or the header breaks
     into two lines at 360 px (task `rosyna-skin-name`). Its paths are `src/lib/wordmark.ts`, which
     the mark on product photos draws too: a newly traced artwork changes that mark, so
-    `MARKED_PHOTOS` moves to `v2` with it.
+    `MARKED_PHOTOS` moves to its next version with it.
   - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. On top, `TopBar`, olive in
     both themes (`.top-bar` in `globals.css`): free delivery from `FREE_DELIVERY_FROM`, «Акції» (the
     admin's page `promotions`) and, from `sm`, the language and the theme; under it the logo, the menu
@@ -65,7 +65,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     finder, below): the catalog's menu does not know the finder. A zone marked «Окремий пункт меню»
     (beauty gadgets) is an item of its own too; the skin concerns and the collections are hidden by
     `SHOW_CONCERNS_AND_COLLECTIONS` (adr-20261112-storefront-look-rosynaskin). From `xl` the logo, the
-    menu and the icon buttons share one row. Below `lg` the menu is `MobileMenu`, a sheet from the left; below `sm` the language
+    menu, centred, and the icon buttons share one row, the buttons in the client's mockup's order —
+    search, favorites, the account, the cart; from `md` the menu has a row of its own. Below `md`, on a
+    phone, the menu is `MobileMenu`, a sheet from the left; below `sm` the language
     and the theme move into that sheet and the buttons left in the header are 32 px, so it keeps
     one line at 360 px. «Обране» is `FavoritesLink` (Favorites, below), «Кошик» `CartLink` (Cart
     and orders, below), the account `AccountLink` (Accounts, below). «Пошук» opens `SearchDialog` (Search, below). «Адмінка» is
@@ -194,10 +196,11 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `images.remotePatterns` admits only our store's host, read from `BLOB_READ_WRITE_TOKEN`.
     Locally photos stay on `/api/media/file/`. The move to R2 needs the same: public URLs, and
     their host in `remotePatterns`. A product's photos reach the storefront only through
-    `productPhotos()` (`src/lib/product-page.ts`) as `/api/photo/v1/<id>/<filename>`: a root endpoint
+    `productPhotos()` (`src/lib/product-page.ts`) as `/api/photo/v2/<id>/<filename>`: a root endpoint
     of Payload (`src/lib/watermark.ts`), past the site password and admitted by
-    `images.localPatterns`, fetches the original from its `url` and answers it with the store's mark,
-    cached for a year. A banner's and a text block's photo keep `photos()` and no mark; the admin and
+    `images.localPatterns`, fetches the original from its `url` and answers it with the store's mark
+    where cosmetika's stood, covering it on a plain backdrop, and the backdrop carried out to the
+    card's frame of 316 × 340, cached for a year (adr-20261114-mark-in-cosmetikas-place). A banner's and a text block's photo keep `photos()` and no mark; the admin and
     the Merchant Center feed read the clean `url` (adr-20261113-product-photos-marked-when-shown).
     REST and GraphQL read `media` for staff only; the Local API and a file's own address read it for
     anyone, so the storefront still populates a product's photos (adr-20261114-media-api-staff-only).
@@ -248,9 +251,10 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
   adr-20261028-own-orders-collection). `src/lib/cart.ts` keeps `[{id, qty}]` in localStorage on
   `browserStore`; «Додати в кошик» on a product page adds one, and so does «У кошик» under every
   `ProductCard` (`AddToCart` with the product's name: «У кошик: <product>» to a reader, then «У
-  кошику» → `/cart`); `CartLink` in `SiteHeader` counts the units. A card shows the brand in
-  capitals, the name, the short description (two lines at most), the volume, the price, and its
-  availability only when it is not in stock. `/cart` (`(shop)/cart/`, `noindex`, `force-dynamic`): `CartList` gets the cards from
+  кошику» → `/cart`); `CartLink` in `SiteHeader` counts the units. A card shows its photo in the
+  frame `aspect-photo`, the brand in capitals, the name, the short description (two lines at most),
+  the volume, its availability only when it is not in stock, and the price at the foot of the text,
+  so the prices of a row keep one line. `/cart` (`(shop)/cart/`, `noindex`, `force-dynamic`): `CartList` gets the cards from
   `productCards` and shows them through `CartView` — the lines (`CartLine`), the total and
   `CheckoutForm` under it. The form and the server action `placeOrder` (`order.actions.ts`) check
   the same `orderRequest`; then Turnstile, then `priceOrder` (`src/lib/orders.ts`, pure) reprices

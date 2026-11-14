@@ -15,13 +15,18 @@ paths:
   - src/collections/categories.ts
   - src/lib/actions/category.actions.ts
 summary: "Storefront look: the owner's olive and cream on shadcn's tokens, Onest and Playfair Display headings, the header a token scope of its own, and what the header's menu offers; supersedes direction A"
-reviewed_at: 2026-11-12
+reviewed_at: 2026-11-14
 ---
 # The storefront wears ROSYNASKIN's olive and cream, with a serif for headings, and its header is a token scope of its own
 
 Supersedes adr-20261029-storefront-look, whose direction A, "clinical clean", and single typeface this
 replaces; its mechanics stay and are repeated below. Refines adr-20261030-header-menu-and-pages-from-payload:
 what the header's menu offers.
+
+Since task `home-ui-fixes` (2026-11-14, the developer's word against the home mockup) the menu is the
+header's from `md`, not `lg`, and the consultation a button in the header below `md`; from `xl` the
+menu is centred, and the icons stand as the mockup orders them: search, favorites, the account, the
+cart.
 
 ## Context
 

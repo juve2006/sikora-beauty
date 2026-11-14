@@ -17,9 +17,13 @@ paths:
   - "src/app/*/globals.css"
   - src/components/shared/header/index.tsx
 summary: The header's olive strip (free delivery, «Акції», language and theme) over a header in the page's tokens, the free-delivery threshold, and the home's full-width banner that becomes a slider; refines the look ADR's header scope
-reviewed_at: 2026-11-12
+reviewed_at: 2026-11-14
 ---
 # Only a strip over the header is olive, and the home's banner is a photo across the page, a slider when there are several
+
+Since task `home-ui-fixes` (2026-11-14) the column's padding is 64 px from `lg`, so the banner leaves
+it by `-mx-4 sm:-mx-6 lg:-mx-16`, and from `lg` the banner keeps the mockup's 422 px: its text 72 px
+from the edge, its promises 8 px over its foot, the slider's count and arrows beside them.
 
 Refines adr-20261112-storefront-look-rosynaskin: its header token scope `.site-header` becomes the
 strip's `.top-bar`, and the rest of the header takes the page's tokens. Refines

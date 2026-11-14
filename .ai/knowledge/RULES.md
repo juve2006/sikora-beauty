@@ -75,7 +75,7 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
   (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password, but
   `POST /api/mono/webhook`, which its signature authenticates, `GET /api/mono/reconcile` and
-  `GET /api/np/track`, which `CRON_SECRET` does, and `GET /api/photo/v1/…`, a product's public photo
+  `GET /api/np/track`, which `CRON_SECRET` does, and `GET /api/photo/v2/…`, a product's public photo
   with the store's mark; a Production build without `SITE_PASSWORD` fails, as
   does one with `MONO_TOKEN` or `NOVA_POSHTA_SENDER_WAREHOUSE` and no `CRON_SECRET`.
   (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page,

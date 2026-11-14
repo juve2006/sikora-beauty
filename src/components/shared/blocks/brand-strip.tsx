@@ -14,7 +14,7 @@ const BrandStrip = ({
 }) => {
   const t = useTranslations('Page');
   return (
-    <section className="py-10">
+    <section className="pt-8 pb-6">
       <BlockHeading title={title} href="/brands" label={t('allBrands')} />
       <ul className="mt-6 flex snap-x gap-3 overflow-x-auto pb-2">
         {brands.map((brand) => (

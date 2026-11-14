@@ -19,7 +19,7 @@ type Props = {
 // A page's blocks in the admin's order, under the page's own heading unless a banner opens it;
 // banners in a row are one slider.
 const PageBlocks = ({ title, description, blocks, locale }: Props) => (
-  <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+  <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
     {blocks[0]?.blockType !== 'hero' && (
       <div className="pt-10 sm:pt-16">
         <h1 className="text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
@@ -43,7 +43,7 @@ const PageBlocks = ({ title, description, blocks, locale }: Props) => (
           />
         ));
         return (
-          <div key={block[0].id ?? index} className="-mx-4 sm:-mx-6">
+          <div key={block[0].id ?? index} className="-mx-4 sm:-mx-6 lg:-mx-16">
             {slides.length > 1 ? <HeroSlider slides={slides} /> : slides}
           </div>
         );

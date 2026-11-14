@@ -8,7 +8,7 @@ import type { BlockOf } from '@/types';
 const TextBlock = ({ block }: { block: BlockOf<'text'> }) => {
   const [photo] = photos(block.image ? [block.image] : []);
   return (
-    <section className="grid gap-8 py-10 lg:grid-cols-[minmax(0,65ch)_1fr] lg:gap-12">
+    <section className="grid gap-8 pt-8 pb-6 lg:grid-cols-[minmax(0,65ch)_1fr] lg:gap-12">
       <div>
         <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance">
           {block.title}

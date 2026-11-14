@@ -16,14 +16,14 @@ const ProductGallery = ({ photos }: { photos: Photo[] }) => {
   const photo = photos[current];
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-square overflow-hidden rounded-lg border bg-card">
+      <div className="relative aspect-photo overflow-hidden rounded-lg border bg-card">
         <Image
           src={photo.url}
           alt={photo.alt}
           fill
           sizes="(min-width: 1024px) 680px, 100vw"
           fetchPriority={current === 0 ? 'high' : undefined}
-          className="object-contain"
+          className="object-cover"
         />
       </div>
       {photos.length > 1 && (
@@ -36,7 +36,7 @@ const ProductGallery = ({ photos }: { photos: Photo[] }) => {
                 aria-label={t('photo', { n: index + 1, total: photos.length })}
                 aria-pressed={index === current}
                 className={cn(
-                  'relative block aspect-square w-full overflow-hidden rounded-md border bg-card outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                  'relative block aspect-photo w-full overflow-hidden rounded-md border bg-card outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
                   index === current && 'border-primary ring-1 ring-primary',
                 )}
               >
@@ -45,7 +45,7 @@ const ProductGallery = ({ photos }: { photos: Photo[] }) => {
                   alt=""
                   fill
                   sizes="96px"
-                  className="object-contain"
+                  className="object-cover"
                 />
               </button>
             </li>

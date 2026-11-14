@@ -204,7 +204,12 @@
     }
   },
   "Page": {
-    "all": "View all",
+    "allOf": {
+      "new": "All new arrivals",
+      "bestsellers": "All bestsellers",
+      "sets": "All sets",
+      "minis": "All minis"
+    },
     "allBrands": "All brands"
   },
   "Search": {
