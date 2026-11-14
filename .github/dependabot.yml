@@ -15,3 +15,6 @@ updates:
       # The types follow the Node major we run (.nvmrc), which changes only by a decision.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # Payload's packages take graphql ^16 as a peer: 17 fails `npm ci` until Payload moves to it.
+      - dependency-name: graphql
+        update-types: ["version-update:semver-major"]
