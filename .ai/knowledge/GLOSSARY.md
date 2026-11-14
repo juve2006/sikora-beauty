@@ -174,11 +174,20 @@ Collection `pages`, «Сторінка»; the slug `home` is the home page, any 
 Informal synonyms: сторінка, головна, «Про нас».
 Use in: source code, schema, API, documentation.
 
+## Post
+
+One article of the store's blog, written in the admin from the same blocks as a page, with a day,
+a cover and a summary; a draft until it is published. Collection `posts`, «Запис блогу», listed at
+`/blog` and opened at `/blog/<slug>`.
+
+Informal synonyms: запис, стаття, допис, пост.
+Use in: source code, schema, API, documentation.
+
 ## Block
 
-One part of a page, of one kind: `hero` («Головний банер»), `products` («Товари»), `tiles`
-(«Плитки»), `brands` («Бренди»), `consultation` («Консультація»), `text` («Текст»). A page shows its blocks in the
-admin's order; banners in a row show as one slider.
+One part of a page or a post, of one kind: `hero` («Головний банер»), `products` («Товари»), `tiles`
+(«Плитки»), `brands` («Бренди»), `posts` («Блог», the newest posts), `consultation` («Консультація»),
+`text` («Текст»). A page shows its blocks in the admin's order; banners in a row show as one slider.
 
 Informal synonyms: блок, секція.
 Use in: source code, schema, documentation.

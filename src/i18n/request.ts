@@ -12,5 +12,7 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await import(`../../messages/${locale}.json`)).default,
+    // A date on the storefront is the store's, whatever the server's or the shopper's zone (RULES.md).
+    timeZone: 'Europe/Kyiv',
   };
 });

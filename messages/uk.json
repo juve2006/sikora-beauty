@@ -46,8 +46,14 @@
     "finder": "Підбір догляду",
     "collections": "Набори та новинки",
     "about": "Про ROSYNASKIN",
+    "blog": "Блог",
     "admin": "Адмінка",
     "account": "Кабінет"
+  },
+  "Blog": {
+    "title": "Блог",
+    "empty": "Записів поки немає.",
+    "all": "Усі записи"
   },
   "Footer": {
     "shoppers": "Покупцям",
@@ -136,6 +142,9 @@
     "buttonIcon": "Кошик",
     "sampleName": "Сироватка з ретинолом для зрілої шкіри",
     "sampleShort": "Нічна сироватка для пружності шкіри",
+    "samplePost": "Як підібрати сироватку під свій тип шкіри",
+    "samplePostLong": "Ретинол восени: з чого почати, як поєднувати з іншими засобами і чому без SPF ніяк",
+    "samplePostExcerpt": "Розбираємо, на що дивитися в складі, і складаємо простий ранковий та вечірній догляд.",
     "sampleBrand": "Dr.Spiller",
     "sampleBrand2": "Innoaesthetics",
     "sampleBrand3": "Me line",

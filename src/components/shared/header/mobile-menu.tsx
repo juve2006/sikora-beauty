@@ -215,6 +215,9 @@ const MobileMenu = ({
               <MenuLink href="/about" className="font-medium">
                 {t('about')}
               </MenuLink>
+              <MenuLink href="/blog" className="font-medium">
+                {t('blog')}
+              </MenuLink>
               <MenuLink
                 href="/account"
                 className="font-medium"

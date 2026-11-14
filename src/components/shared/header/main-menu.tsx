@@ -174,6 +174,11 @@ const MainMenu = ({
           </MenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <MenuLink href="/blog" className={navigationMenuTriggerStyle()}>
+            {t('blog')}
+          </MenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           <ConsultationDialog>
             <button type="button" className={navigationMenuTriggerStyle()}>
               {consultation('openShort')}

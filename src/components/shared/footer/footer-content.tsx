@@ -103,6 +103,7 @@ const FooterContent = ({
           </Column>
           <Column title={t('shoppers')}>
             <FooterLink href="/about">{nav('about')}</FooterLink>
+            <FooterLink href="/blog">{nav('blog')}</FooterLink>
             <FooterLink href="/account" prefetch={false}>
               {nav('account')}
             </FooterLink>

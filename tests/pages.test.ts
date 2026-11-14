@@ -4,8 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { pageBlocks } from '@/collections/page-blocks';
 import { Pages } from '@/collections/pages';
+import { datePublished } from '@/collections/posts';
 import { getBrand, getBrands, getMenu } from '@/lib/actions/category.actions';
-import { RESERVED_SLUGS } from '@/lib/constants';
+import { getPost, getPosts } from '@/lib/actions/post.actions';
+import { POSTS_PAGE_SIZE, RESERVED_SLUGS } from '@/lib/constants';
 import { adminSession, internalPath } from '@/lib/validators';
 
 vi.mock('server-only', () => ({}));
@@ -171,5 +173,55 @@ describe('the brands', () => {
     });
     payload.find.mockResolvedValue({ docs: [] });
     expect(await getBrand('none', 'uk')).toBeNull();
+  });
+});
+
+describe('a post', () => {
+  const day = '2026-01-01T00:00:00.000Z';
+  const change = (data: object, originalDoc?: object) =>
+    datePublished({ data, originalDoc } as never);
+
+  it('takes the day it is published on, unless it has one', () => {
+    const before = Date.now();
+    const published = change({ _status: 'published' });
+    expect(Date.parse(published.publishedAt)).toBeGreaterThanOrEqual(before);
+    // Cleared on publishing, it takes the day again.
+    expect(
+      change({ _status: 'published', publishedAt: null }, { publishedAt: day })
+        .publishedAt,
+    ).toBeTypeOf('string');
+    expect(change({ _status: 'published', publishedAt: day })).toEqual({
+      _status: 'published',
+      publishedAt: day,
+    });
+    // An update that does not send the day keeps the stored one.
+    expect(change({ _status: 'published' }, { publishedAt: day })).toEqual({
+      _status: 'published',
+    });
+    expect(change({ _status: 'draft' })).toEqual({ _status: 'draft' });
+  });
+
+  it('is read published, as anonymous shoppers may see it, the newest first', async () => {
+    payload.find.mockReset();
+    payload.find.mockResolvedValue({ docs: [], totalPages: 0 });
+    await getPosts('uk', 2);
+    expect(payload.find).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        collection: 'posts',
+        sort: '-publishedAt',
+        page: 2,
+        limit: POSTS_PAGE_SIZE,
+      }),
+    );
+    expect(await getPost('first', 'en')).toBeNull();
+    expect(payload.find).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        collection: 'posts',
+        where: { slug: { equals: 'first' } },
+        locale: 'en',
+      }),
+    );
+    for (const [query] of payload.find.mock.calls)
+      expect(query).toMatchObject({ overrideAccess: false });
   });
 });

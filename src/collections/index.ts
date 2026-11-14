@@ -5,6 +5,7 @@ import { Customers } from './customers';
 import { Media } from './media';
 import { Orders } from './orders';
 import { Pages } from './pages';
+import { Posts } from './posts';
 import { SearchMisses } from './search-misses';
 import { SearchSynonyms } from './search-synonyms';
 import { SkinConcerns, SkinConditions, SkinTypes } from './skin-vocabularies';
@@ -22,6 +23,7 @@ export const collections = [
   SkinConcerns,
   Media,
   Pages,
+  Posts,
   SearchSynonyms,
   SearchMisses,
   ConsultationRequests,
