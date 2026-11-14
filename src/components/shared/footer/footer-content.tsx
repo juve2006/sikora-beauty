@@ -87,7 +87,7 @@ const FooterContent = ({
   const anyContact = phone || email || instagram || hours || address;
   return (
     <footer className="mt-auto w-full border-t bg-background text-primary [--foreground:var(--primary)] [--muted-foreground:var(--primary)]">
-      <div className="mx-auto w-full max-w-page px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-page px-4 py-10 sm:px-6 lg:px-16">
         <Logo withTagline />
         <div className="mt-8 grid grid-cols-2 gap-8 lg:grid-cols-3">
           <Column title={nav('catalog')}>

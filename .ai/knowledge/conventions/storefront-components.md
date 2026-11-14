@@ -15,7 +15,7 @@ paths:
   - "src/components/shared/**"
   - "src/components/ui/**"
 summary: "What a storefront component may, must and must not do: tokens only, both themes, strings from messages, on /canvas; how shadcn components and its agent skill are added"
-reviewed_at: 2026-11-13
+reviewed_at: 2026-11-14
 ---
 # Storefront components take their look from the theme tokens
 
@@ -67,7 +67,13 @@ MUST NOT: use a raw colour, font or radius value; import from @payloadcms/ui; re
   the developer took as the reference (task `page-width`). What is read or filled in stays narrower
   inside it, on its left edge: `max-w-prose` and the like for text, `max-w-xl` for a form, `max-w-5xl`
   for two forms side by side and for a cart's rows, whose price would otherwise sit too far from its
-  name. A photo's `sizes` follows the widest cell it can get.
+  name. A photo's `sizes` follows the widest cell it can get. Every column — the header's rows, the
+  footer, each page — pads its content by `px-4 sm:px-6 lg:px-16`, 64 px from `lg` as the client's
+  home mockup has at 1440, and a banner leaves that padding by the same negative margins (task
+  `home-ui-fixes`).
+- A product photo's frame is `aspect-photo` (`--aspect-photo`, the mockup's card, 316 × 340): the
+  card's, the gallery's and `NoPhoto`'s. The marked photos are made to it, so they fill it with
+  `object-cover` (adr-20261114-mark-in-cosmetikas-place).
 - A component more than one page uses lives in `src/components/shared/<area>/`; one only one page
   uses, in that page's route folder (`/canvas` does not count). Either is a kebab-case file holding
   one component, `const Name = (…) => {…};` and `export default Name;`

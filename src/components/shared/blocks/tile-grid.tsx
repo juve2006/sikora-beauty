@@ -9,13 +9,15 @@ type Props = {
   terms: { slug: string; title: string }[];
 };
 
-// A tiles block as it shows: a tile for each term, leading to its page in the catalog.
+// A tiles block as it shows: a tile for each term, leading to its page in the catalog; three a row
+// from sm, and from lg one row while they fit it — six zones need 828 px of lg's 896 — and as many
+// as they need after.
 const TileGrid = ({ title, source, terms }: Props) => (
-  <section className="py-10">
-    <h2 className="font-heading text-2xl font-semibold tracking-tight">
+  <section className="pt-8 pb-6">
+    <h2 className="font-heading text-3xl tracking-tight lg:text-5xl">
       {title}
     </h2>
-    <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]">
       {terms.map(({ slug, title }) => (
         <li key={slug}>
           <Link

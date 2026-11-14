@@ -38,7 +38,7 @@ const Listing = ({
   const filters = { facets: result.facets, params, basePath };
   const cleared = `${basePath}${listingSearch(params, { type: [], condition: [], concern: [], brand: [] })}`;
   return (
-    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
       <div className="flex items-center gap-4 pt-2 lg:pt-8">
         {logo && <div className="w-28 shrink-0 sm:w-40">{logo}</div>}
         <div className="flex flex-col gap-1">

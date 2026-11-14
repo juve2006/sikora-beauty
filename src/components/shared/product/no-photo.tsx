@@ -9,7 +9,7 @@ const NoPhoto = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        'flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border bg-muted text-sm text-muted-foreground',
+        'flex aspect-photo flex-col items-center justify-center gap-2 rounded-lg border bg-muted text-sm text-muted-foreground',
         className,
       )}
     >

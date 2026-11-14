@@ -35,7 +35,7 @@ const Hero = ({ block, first }: { block: BlockOf<'hero'>; first: boolean }) => {
           />
         </>
       )}
-      <div className="flex w-full flex-col items-start gap-4 px-4 py-12 sm:px-10 sm:py-16 lg:px-16">
+      <div className="flex w-full flex-col items-start gap-4 px-4 py-12 sm:px-10 sm:py-16 lg:px-18 lg:pt-12 lg:pb-2">
         <Heading className="max-w-2xl font-heading text-5xl leading-none tracking-tight text-balance text-primary sm:text-6xl lg:text-7xl">
           {block.title}
         </Heading>

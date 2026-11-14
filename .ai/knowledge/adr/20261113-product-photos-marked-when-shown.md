@@ -11,12 +11,15 @@ paths:
   - src/lib/wordmark.ts
   - src/lib/product-page.ts
 summary: Product photos get the store's wordmark when shown, through GET /api/photo/v1/:id/:filename with sharp, cached a year; the Blob original stays clean for the admin and Merchant Center
-reviewed_at: 2026-11-13
+reviewed_at: 2026-11-14
 ---
 # A product photo carries the store's mark, made when the photo is shown; the original stays clean
 
 Refines adr-20261028-media-on-vercel-blob: its «No `sharp`» becomes `sharp` for the mark only, still
 with no `imageSizes`. Widens adr-20261029-site-password by one more GET past the gate.
+
+Refined by adr-20261114-mark-in-cosmetikas-place (2026-11-14): the mark's middle at 90.75% of the
+height, a patch over cosmetika's mark, the photo carried out to the card's frame, as `/photo/v2`.
 
 ## Context
 

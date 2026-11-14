@@ -14,11 +14,11 @@ type Props = {
 const ProductGrid = ({ title, collection, products }: Props) => {
   const t = useTranslations('Page');
   return (
-    <section className="py-10">
+    <section className="pt-8 pb-6">
       <BlockHeading
         title={title}
         href={`/collection/${collection}`}
-        label={t('all')}
+        label={t(`allOf.${collection}`)}
       />
       <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => (

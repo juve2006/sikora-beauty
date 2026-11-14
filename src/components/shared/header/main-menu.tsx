@@ -66,10 +66,10 @@ const ZoneItem = ({ zone }: { zone: Menu['zones'][number] }) => (
   </NavigationMenuItem>
 );
 
-// The main menu from lg up: the catalog's zones with their categories opens as a panel, and so does
+// The main menu from md up: the catalog's zones with their categories opens as a panel, and so does
 // a zone marked for the menu; brands, the care finder when it is on, and the about page are links,
 // and the consultation opens its dialog. The skin concerns and the collections are hidden for now
-// (SHOW_CONCERNS_AND_COLLECTIONS). Below lg it is MobileMenu.
+// (SHOW_CONCERNS_AND_COLLECTIONS). Below md it is MobileMenu.
 const MainMenu = ({
   menu,
   finder = false,

@@ -46,7 +46,7 @@ const HeroSlider = ({ slides }: { slides: ReactNode[] }) => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <div className="flex items-center justify-end gap-3 px-4 py-4 md:absolute md:right-10 md:bottom-12 md:p-0 lg:right-16">
+      <div className="flex items-center justify-end gap-3 px-4 py-4 md:absolute md:right-10 md:bottom-12 md:p-0 lg:right-14 lg:bottom-4">
         <p
           aria-hidden
           className="mr-2 flex items-center gap-3 text-sm text-muted-foreground tabular-nums"

@@ -74,8 +74,8 @@ describe('product JSON-LD', () => {
     expect(ld.brand).toEqual({ '@type': 'Brand', name: 'Dr.Spiller' });
     // With the store's mark, as the page shows them (src/lib/watermark.ts).
     expect(ld.image).toEqual([
-      'https://sikora.example/api/photo/v1/2/a.jpg',
-      'https://sikora.example/api/photo/v1/4/b.jpg',
+      'https://sikora.example/api/photo/v2/2/a.jpg',
+      'https://sikora.example/api/photo/v2/4/b.jpg',
     ]);
     expect(ld.offers).toEqual({
       '@type': 'Offer',

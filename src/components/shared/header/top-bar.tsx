@@ -14,7 +14,7 @@ const TopBar = () => {
   const t = useTranslations('TopBar');
   return (
     <div className="top-bar bg-background text-foreground">
-      <div className="mx-auto flex min-h-9 w-full max-w-page items-center gap-3 px-4 text-xs sm:px-6 sm:text-sm">
+      <div className="mx-auto flex min-h-9 w-full max-w-page items-center gap-3 px-4 text-xs sm:px-6 lg:px-16 sm:text-sm">
         <p className="flex items-center gap-2">
           <Truck className="size-4 shrink-0" aria-hidden />
           {t('freeDelivery', { amount: formatHryvnias(FREE_DELIVERY_FROM) })}

@@ -69,6 +69,9 @@
 
 @theme inline {
   --container-page: 90rem;
+  /* A product photo's frame, the mockup's card (316 × 340): src/lib/watermark.ts carries each photo's
+     backdrop out to it. */
+  --aspect-photo: 316 / 340;
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-playfair), ui-serif, Georgia, serif;
   --color-background: var(--background);

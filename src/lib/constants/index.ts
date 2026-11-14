@@ -156,7 +156,7 @@ export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';
 
 // Product photos with the store's mark, a root endpoint under /api (src/lib/watermark.ts). Each is
 // cached for a year, so another mark is another version here.
-export const MARKED_PHOTOS = '/photo/v1';
+export const MARKED_PHOTOS = '/photo/v2';
 
 // The storefront's collections: a fixed list, each the product flag that puts a product in it.
 export const COLLECTIONS = {

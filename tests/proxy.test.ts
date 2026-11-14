@@ -104,10 +104,10 @@ describe('the site password', () => {
     expect((await send('/api/mono/webhook', 'POST')).status).not.toBe(401);
     expect((await send('/api/mono/reconcile', 'GET')).status).not.toBe(401);
     expect((await send('/api/np/track', 'GET')).status).not.toBe(401);
-    expect((await send('/api/photo/v1/7/a.jpg', 'GET')).status).not.toBe(401);
+    expect((await send('/api/photo/v2/7/a.jpg', 'GET')).status).not.toBe(401);
     for (const [path, method] of [
-      ['/api/photo/v1/7/a.jpg', 'POST'],
-      ['/en/api/photo/v1/7/a.jpg', 'GET'],
+      ['/api/photo/v2/7/a.jpg', 'POST'],
+      ['/en/api/photo/v2/7/a.jpg', 'GET'],
       ['/api/photo', 'GET'],
       ['/api/media/7', 'GET'],
       ['/api/np/track', 'POST'],

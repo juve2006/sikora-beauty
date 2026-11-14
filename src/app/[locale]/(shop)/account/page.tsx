@@ -44,7 +44,7 @@ const AccountPage = async ({ params, searchParams }: Props) => {
   if (user?.collection !== 'customers') {
     const refusal = googleRefusal.parse((await searchParams).google);
     return (
-      <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+      <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
         <h1 className={heading}>{t('title')}</h1>
         <p className="mt-2 max-w-prose text-muted-foreground">{t('intro')}</p>
         {refusal && (
@@ -72,7 +72,7 @@ const AccountPage = async ({ params, searchParams }: Props) => {
 
   const orders = await myOrders(user);
   return (
-    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
+    <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6 lg:px-16">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className={heading}>{t('title')}</h1>
         <form action={signOut}>
