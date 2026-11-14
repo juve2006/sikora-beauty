@@ -4,7 +4,8 @@ import { FREE_DELIVERY_FROM } from '@/lib/constants';
 import { formatHryvnias } from '@/lib/utils';
 
 // The checkout's terms (task `cart-and-checkout`): Nova Poshta, free from FREE_DELIVERY_FROM and
-// otherwise at its rates, paid on delivery; the goods paid on delivery or by a link the manager sends.
+// otherwise at its rates, paid on delivery; the goods paid in advance, by transfer or by card, on the
+// site or by a link the manager sends (adr-20261109-waybills-and-prepayment-only-start).
 const DeliveryPayment = () => {
   const t = useTranslations('Product');
   return (

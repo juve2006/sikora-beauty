@@ -121,6 +121,44 @@ describe('the mark', () => {
     ).toBeLessThan(30);
   });
 
+  it('leaves a cut-out photo as it is, and transparent', async () => {
+    // Transparent white around a dark mark: plain colours, but no backdrop a patch could stand on.
+    // Pixel by pixel: sharp's composite blackens the transparent pixels near what it lays, and the
+    // patch would then be refused by its colours, whatever the transparency.
+    const data = Buffer.alloc(400 * 600 * 4);
+    for (let y = 0; y < 600; y++)
+      for (let x = 0; x < 400; x++) {
+        const inTheirs =
+          x >= theirs.left &&
+          x < theirs.left + theirs.width &&
+          y >= theirs.top &&
+          y < theirs.top + theirs.height;
+        data.set(
+          inTheirs ? [0, 0, 0, 255] : [255, 255, 255, 0],
+          (y * 400 + x) * 4,
+        );
+      }
+    const marked = await watermark(
+      await sharp(data, { raw: { width: 400, height: 600, channels: 4 } })
+        .png()
+        .toBuffer(),
+    );
+
+    expect(
+      await darkest(marked, { ...theirs, left: side + theirs.left }),
+    ).toBeLessThan(30);
+    // Where the patch would stand, under neither mark, and the frame's corner.
+    for (const region of [
+      { left: side + 115, top: 574, width: 10, height: 3 },
+      { left: 0, top: 0, width: 4, height: 4 },
+    ]) {
+      const { channels } = await sharp(
+        await sharp(marked).extract(region).toBuffer(),
+      ).stats();
+      expect(channels[3].max).toBe(0);
+    }
+  });
+
   it('shades the patch as the backdrop shades from its top to its foot', async () => {
     // 10 at the top to 250 at the foot: 30 levels across the ring, 10 between its middle and
     // cosmetika's tagline.

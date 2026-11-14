@@ -159,6 +159,7 @@ test('a retry takes an order its failed try freed', async ({ page }) => {
 
 test('a number typed by hand is kept and tracked, and a wrong one is refused', async ({
   page,
+  request,
 }) => {
   const id = await placeOrder(page);
   expect(
@@ -180,4 +181,15 @@ test('a number typed by hand is kept and tracked, and a wrong one is refused', a
   await expect
     .poll(async () => (await waybillOf(id)).waybill_number)
     .toBe(typed);
+
+  // Its code is empty, as a typed number clears it, and the cron reads it as one of its own.
+  expect((await waybillOf(id)).delivery_code).toBeNull();
+  const tracked = await request.get('/api/np/track', {
+    headers: { authorization: 'Bearer e2e-cron-only-not-a-real-secret' },
+  });
+  expect(tracked.ok()).toBe(true);
+  expect(await waybillOf(id)).toMatchObject({
+    waybill_number: typed,
+    delivery_code: '103',
+  });
 });
