@@ -13,8 +13,10 @@ one — and the Payload admin at `/admin`. The home page, `/about` and any other
 the admin under «Сторінки» from blocks — a banner across the page with a photo behind its title,
 subtitle, text, button and the store's three promises (several in a row become a slider with arrows
 and «01 — 03»), a collection's products, tiles into the
-catalog, a strip of the brands' logos, a consultation invitation, a text — and change without a
-deploy. In the admin the catalog can be filled in: brands with their logos, which `/brands` shows
+catalog, a strip of the brands' logos, the blog's three newest posts, a consultation invitation, a
+text — and change without a deploy. The blog at `/blog` lists the posts written under «Сторінки →
+Блог» from the same blocks, the newest first, twelve to a page, each at `/blog/<slug>` with its day and
+cover; a draft is seen by the staff alone until it is published. In the admin the catalog can be filled in: brands with their logos, which `/brands` shows
 as tiles (the name while there is none) and a brand's page beside its title, zones and categories, skin types, conditions and
 concerns, products with photos, as drafts and published. A product's English texts can be
 filled from its Ukrainian ones with «Перекласти з української» (Chrome on a computer), and its
@@ -35,7 +37,7 @@ brand, the name, the short description, the volume and the price — has «У к
 with the client's colours, also links «Акції» (a page from the admin) and holds the language and the
 theme; the header under it, in the page's colours, reads the zones with their categories from the catalog, a zone
 marked «Окремий пункт меню» (beauty gadgets) also as an item of its own, beside links to the brands and
-the about page and «Консультація» — in a sheet on a phone, with «Адмінка» for someone signed in to the
+the about page, the blog and «Консультація» — in a sheet on a phone, with «Адмінка» for someone signed in to the
 admin; the skin concerns and the collections are hidden from the menu for now, their pages still open;
 the footer, cream with olive text, repeats the catalog's links beside a shopper's, among them payment
 and delivery with returns, the terms of use (the public offer) and the privacy policy, with the contacts

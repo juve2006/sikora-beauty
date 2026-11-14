@@ -35,6 +35,8 @@ import SearchEmpty from '@/app/[locale]/(shop)/search/search-empty';
 import Availability from '@/components/shared/product/availability';
 import DeliveryPayment from '@/app/[locale]/(shop)/product/[slug]/delivery-payment';
 import ProductCard from '@/components/shared/product/product-card';
+import type { CardPost } from '@/components/shared/blog/post-card';
+import PostGrid from '@/components/shared/blog/post-grid';
 import ProductGallery from '@/app/[locale]/(shop)/product/[slug]/product-gallery';
 import ProductPrice from '@/components/shared/product/product-price';
 import FavoriteButton from '@/components/shared/product/favorite-button';
@@ -199,6 +201,14 @@ const CanvasPage = async ({ params }: Props) => {
     availability: 'in_stock',
     shortDescription: t('sampleShort'),
     photo: photos[0],
+    ...overrides,
+  });
+  const post = (overrides: Partial<CardPost>): CardPost => ({
+    slug: 'sample',
+    title: t('samplePost'),
+    excerpt: t('samplePostExcerpt'),
+    publishedAt: '2026-11-14T10:00:00.000Z',
+    cover: image,
     ...overrides,
   });
   const zone = { slug: 'face', title: t('sampleZone') };
@@ -655,6 +665,21 @@ const CanvasPage = async ({ params }: Props) => {
               card({ availability: 'out_of_stock', photo: photos[2] }),
               card({ photo: undefined }),
             ].map((product, id) => ({ id, card: product }))}
+          />
+        </Section>
+
+        <Section title="PostGrid">
+          <PostGrid
+            posts={[
+              post({}),
+              post({ slug: 'sample-2', cover: null }),
+              post({
+                slug: 'sample-3',
+                title: t('samplePostLong'),
+                excerpt: null,
+                cover: { ...image, url: samples[2] },
+              }),
+            ]}
           />
         </Section>
 

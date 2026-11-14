@@ -135,6 +135,21 @@ export const pageBlocks: Block[] = [
     ],
   },
   {
+    slug: 'posts',
+    // GraphQL names a block's type after its slug: `Posts` is the posts collection's.
+    interfaceName: 'PostsBlock',
+    labels: { singular: 'Блог', plural: 'Блог' },
+    fields: [
+      {
+        ...title,
+        admin: {
+          description:
+            'Три останні записи блогу і посилання на всі; без опублікованих записів блок не показується.',
+        },
+      },
+    ],
+  },
+  {
     slug: 'consultation',
     labels: { singular: 'Консультація', plural: 'Консультації' },
     fields: [title, text],

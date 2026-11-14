@@ -60,7 +60,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     dialogs' z-50. So `scroll-pt` on `<html>` holds its height, to keep what the keyboard focuses
     out from under it, and the catalog's panel scrolls itself in a low window. `SiteHeader` reads the
     menu with `getMenu` (`category.actions.ts`) — the zones with their categories and the skin
-    concerns, in the admin's order — beside fixed links to the brands and the about page and
+    concerns, in the admin's order — beside fixed links to the brands, the about page, the blog and
     «Консультація», and with `isFinderOn` (`finder.actions.ts`) whether to link the care finder (Care
     finder, below): the catalog's menu does not know the finder. A zone marked «Окремий пункт меню»
     (beauty gadgets) is an item of its own too; the skin concerns and the collections are hidden by
@@ -79,7 +79,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     `getMenu` and `isFinderOn`, and `getContacts` (`contacts.actions.ts`) reads the global `contacts`,
     «Сторінки → Контакти», which both roles keep. What is left empty is not shown, and with nothing
     filled in the column goes, so the store never needs a contact it does not have. The shopper's
-    column links `/delivery` (returns inside it), `/terms` (the public offer) and `/privacy`, pages
+    column links `/blog`, `/delivery` (returns inside it), `/terms` (the public offer) and `/privacy`, pages
     from the admin in sisters.co.ua's shape, which the checkout's consent line links too. The block is the
     page's cream under a line, and renames `--foreground` and `--muted-foreground` to `--primary` for
     what is inside, so its text and `Logo` are olive without a variant of their own.
@@ -95,17 +95,25 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     cell can act on where the page sat in the frame the nav stands open; `custom.scss` keeps the
     page's width in that frame, or a list with text over it loses its brands on a phone.
   - Pages: the collection `pages`, admin group «Сторінки» — a title, a slug and blocks: `hero`,
-    `products`, `tiles`, `brands`, `consultation`, `text` (`src/collections/page-blocks.ts`); `brands`
-    is typed `BrandsBlock`, as GraphQL would name its type `Brands`, the collection's. The slug `home`
+    `products`, `tiles`, `brands`, `posts`, `consultation`, `text` (`src/collections/page-blocks.ts`); `brands`
+    is typed `BrandsBlock` and `posts` `PostsBlock`, as GraphQL would name their types after the collections. The slug `home`
     is `/` (`(shop)/page.tsx`), any other `/<slug>` (`(shop)/[slug]/`); `/home` is 404, and a slug
     that names a section of the store is refused (`RESERVED_SLUGS`). `getPage`
     (`src/lib/actions/page.actions.ts`) reads one; `PageBlocks` renders the blocks in the admin's
-    order, under the page's own heading unless a banner opens them; a banner spans the column's full
+    order, under the page's own heading unless a banner opens them and no `children` (a post's day and cover) are given; a banner spans the column's full
     width, and banners in a row (`groupBanners`, `src/lib/blocks.ts`) are one `HeroSlider`. The home page with no page
     shows the store's title and description. A block that reads the store's data (`Tiles`,
-    `ProductsBlock`, `BrandsBlock`) hands it to a component that only shows it (`TileGrid`,
-    `ProductGrid`, `BrandStrip`),
+    `ProductsBlock`, `BrandsBlock`, `PostsBlock`) hands it to a component that only shows it (`TileGrid`,
+    `ProductGrid`, `BrandStrip`, `PostGrid`),
     which `/canvas` feeds with samples. Pages have no drafts: a save is live at once (adr-20261030-header-menu-and-pages-from-payload).
+  - The blog: the collection `posts`, «Сторінки → Блог» — a title, a slug, a day (`publishedAt`), a
+    summary, a cover and the pages' blocks, with drafts; a visitor reads published posts only and
+    versions are staff's (adr-20261114-blog-posts-from-page-blocks). `getPosts` and `getPost`
+    (`src/lib/actions/post.actions.ts`) read them; `/blog` (`(shop)/blog/`) lists twelve a page, the
+    newest first, in `PostGrid` of `PostCard`s (`src/components/shared/blog/`), and `/blog/<slug>`
+    renders a post through `PageBlocks` with `PostDate` and its cover under the heading. The block
+    `posts` (`PostsBlock`) shows the newest three on any page. Dates are formatted by next-intl in
+    Europe/Kyiv (`src/i18n/request.ts`).
   - The product page, `/product/<slug>` (`src/app/[locale]/(shop)/product/[slug]/`): the fields the
     spec names, the gallery, delivery and payment, related products; a draft or an unknown slug is
     404. Nothing is rendered at build (`generateStaticParams` returns `[]`): a page renders on its
@@ -137,7 +145,7 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Admin** — `src/app/(payload)/` is generated by Payload and left untouched; the admin speaks
   Ukrainian only; its own components are in `src/components/admin/`, on Payload's UI. Payload
   collections, one per file in `src/collections/` and listed in its `index.ts`: `users` (Payload
-  auth), `customers` (Accounts, below), the catalog's, `consultation-requests`, `pages`, `search-synonyms`, `search-misses` and
+  auth), `customers` (Accounts, below), the catalog's, `consultation-requests`, `pages`, `posts`, `search-synonyms`, `search-misses` and
   `orders`. Payload globals, one per file in `src/globals/` and listed in `payload.config`'s
   `globals`: `care-finder`, `contacts`, `payment-details`.
   Every row of `users` is an owner or a cosmetologist; a shopper is a row of `customers`, and no
@@ -393,8 +401,8 @@ an endpoint makes may sit in the endpoint, as the import's and the AI draft's do
 - **Catalog** (the catalog's `src/collections/`, `product.actions.ts`, `category.actions.ts`,
   `listing.ts`, `product-page.ts`) — the model, the product page's queries and the lists'
   filters and facets are built (above); collections are not. Depends on nothing else.
-- **Pages** (`src/collections/pages.ts`, `page-blocks.ts`, `page.actions.ts`) — the store's
-  own pages, built (above). Its blocks show catalog data through the catalog's actions; depends on
+- **Pages** (`src/collections/pages.ts`, `posts.ts`, `page-blocks.ts`, `page.actions.ts`,
+  `post.actions.ts`) — the store's own pages and its blog, built (above). Its blocks show catalog data through the catalog's actions; depends on
   catalog.
 - **Search** (`src/lib/search.ts`, `search.actions.ts`, `suggest.actions.ts`, `search-synonyms`,
   `search-misses`) — built (above). Depends on catalog.

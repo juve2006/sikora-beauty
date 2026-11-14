@@ -18,6 +18,7 @@ import * as migration_20261109_142149_np_waybill from './20261109_142149_np_wayb
 import * as migration_20261112_084909_menu_item from './20261112_084909_menu_item';
 import * as migration_20261112_095927_brand_logo from './20261112_095927_brand_logo';
 import * as migration_20261112_134121_hero_subtitle from './20261112_134121_hero_subtitle';
+import * as migration_20261114_093007_blog from './20261114_093007_blog';
 
 export const migrations = [
   {
@@ -118,6 +119,11 @@ export const migrations = [
   {
     up: migration_20261112_134121_hero_subtitle.up,
     down: migration_20261112_134121_hero_subtitle.down,
-    name: '20261112_134121_hero_subtitle'
+    name: '20261112_134121_hero_subtitle',
+  },
+  {
+    up: migration_20261114_093007_blog.up,
+    down: migration_20261114_093007_blog.down,
+    name: '20261114_093007_blog'
   },
 ];

@@ -15,6 +15,7 @@ import { Customers, onlyThroughActions } from '@/collections/customers';
 import { Media } from '@/collections/media';
 import { Orders } from '@/collections/orders';
 import { Pages } from '@/collections/pages';
+import { Posts } from '@/collections/posts';
 import { SearchMisses } from '@/collections/search-misses';
 import { SearchSynonyms } from '@/collections/search-synonyms';
 import {
@@ -124,6 +125,7 @@ describe('catalog', () => {
       SkinConcerns,
       Media,
       Pages,
+      Posts,
     ].map((c) => [c.slug, c] as const),
   )(
     '%s: both roles create and edit, only the owner deletes',
@@ -192,6 +194,14 @@ describe('catalog', () => {
       _status: { equals: 'published' },
     });
     expect(run(Products.access!.read, cosmetologist)).toBe(true);
+  });
+
+  it('anonymous visitors and shoppers read published posts only', () => {
+    for (const user of [null, shopper])
+      expect(run(Posts.access!.read, user)).toEqual({
+        _status: { equals: 'published' },
+      });
+    expect(run(Posts.access!.read, cosmetologist)).toBe(true);
   });
 
   // No reader of the API lists the clean originals (task `media-api-staff-only`); the storefront

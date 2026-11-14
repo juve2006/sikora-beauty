@@ -46,8 +46,14 @@
     "finder": "Skincare finder",
     "collections": "Sets and new arrivals",
     "about": "About ROSYNASKIN",
+    "blog": "Blog",
     "admin": "Admin",
     "account": "Account"
+  },
+  "Blog": {
+    "title": "Blog",
+    "empty": "No posts yet.",
+    "all": "All posts"
   },
   "Footer": {
     "shoppers": "For shoppers",
@@ -136,6 +142,9 @@
     "buttonIcon": "Cart",
     "sampleName": "Retinol serum for mature skin",
     "sampleShort": "Night serum for firmer skin",
+    "samplePost": "How to choose a serum for your skin type",
+    "samplePostLong": "Retinol in autumn: where to start, how to pair it with other products and why SPF is a must",
+    "samplePostExcerpt": "What to look for in the ingredients, and a simple morning and evening routine.",
     "sampleBrand": "Dr.Spiller",
     "sampleBrand2": "Innoaesthetics",
     "sampleBrand3": "Me line",

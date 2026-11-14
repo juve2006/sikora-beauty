@@ -12,6 +12,7 @@ export const SITE_URL = new URL(
 // A page's address may not be a storefront section's, whose route would hide the page, nor a
 // language's or Payload's own path.
 export const RESERVED_SLUGS = [
+  'blog',
   'brand',
   'brands',
   'canvas',
@@ -63,6 +64,9 @@ export const VOLUME_UNIT_LABELS: Record<(typeof VOLUME_UNITS)[number], string> =
 export const FACET_KEYS = ['type', 'condition', 'concern', 'brand'] as const;
 export const SORTS = ['price-asc', 'price-desc', 'new'] as const;
 export const PAGE_SIZE = 24;
+// The blog's list, a page of posts; the block «Блог» shows the newest few.
+export const POSTS_PAGE_SIZE = 12;
+export const POSTS_IN_BLOCK = 3;
 // A routine's step shows at most this many products: a routine, not a list.
 export const ROUTINE_STEP_PRODUCTS = 2;
 

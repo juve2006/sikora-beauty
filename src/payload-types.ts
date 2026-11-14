@@ -76,6 +76,7 @@ export interface Config {
     'skin-concerns': SkinConcern;
     media: Media;
     pages: Page;
+    posts: Post;
     'search-synonyms': SearchSynonym;
     'search-misses': SearchMiss;
     'consultation-requests': ConsultationRequest;
@@ -97,6 +98,7 @@ export interface Config {
     'skin-concerns': SkinConcernsSelect<false> | SkinConcernsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     'search-synonyms': SearchSynonymsSelect<false> | SearchSynonymsSelect<true>;
     'search-misses': SearchMissesSelect<false> | SearchMissesSelect<true>;
     'consultation-requests': ConsultationRequestsSelect<false> | ConsultationRequestsSelect<true>;
@@ -378,6 +380,7 @@ export interface Page {
             blockType: 'tiles';
           }
         | BrandsBlock
+        | PostsBlock
         | {
             title: string;
             /**
@@ -428,6 +431,103 @@ export interface BrandsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'brands';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostsBlock".
+ */
+export interface PostsBlock {
+  /**
+   * Три останні записи блогу і посилання на всі; без опублікованих записів блок не показується.
+   */
+  title: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'posts';
+}
+/**
+ * Записи на сторінці «Блог», нові зверху. Чернетку бачить лише персонал; на сайті — після «Опублікувати зміни».
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * Латиницею. Порожнє — створиться з назви.
+   */
+  slug?: string | null;
+  /**
+   * Над записом і в списку. Порожня — день публікації.
+   */
+  publishedAt?: string | null;
+  /**
+   * Два-три речення: у списку записів, під назвою запису і для пошуковиків.
+   */
+  excerpt?: string | null;
+  /**
+   * У списку записів, під назвою запису і в посиланнях у соцмережах.
+   */
+  cover?: (number | null) | Media;
+  blocks?:
+    | (
+        | {
+            title: string;
+            subtitle?: string | null;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text?: string | null;
+            /**
+             * Фоном на всю ширину банера; текст стоїть на його лівій частині. Кілька банерів поспіль стають слайдером.
+             */
+            image?: (number | null) | Media;
+            buttonLabel?: string | null;
+            /**
+             * Сторінка магазину, наприклад /catalog/face
+             */
+            buttonLink?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | ProductsBlock
+        | {
+            title: string;
+            source: 'zones' | 'concerns' | 'types';
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tiles';
+          }
+        | BrandsBlock
+        | PostsBlock
+        | {
+            title: string;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'consultation';
+          }
+        | {
+            title: string;
+            /**
+             * Абзаци — через порожній рядок.
+             */
+            text: string;
+            image?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * Різні написання одного й того самого, по одному в рядку: пошук за будь-яким знаходить і за рештою.
@@ -628,6 +728,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null)
     | ({
         relationTo: 'search-synonyms';
@@ -856,6 +960,7 @@ export interface PagesSelect<T extends boolean = true> {
               blockName?: T;
             };
         brands?: T | BrandsBlockSelect<T>;
+        posts?: T | PostsBlockSelect<T>;
         consultation?:
           | T
           | {
@@ -896,6 +1001,73 @@ export interface BrandsBlockSelect<T extends boolean = true> {
   title?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostsBlock_select".
+ */
+export interface PostsBlockSelect<T extends boolean = true> {
+  title?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  publishedAt?: T;
+  excerpt?: T;
+  cover?: T;
+  blocks?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              text?: T;
+              image?: T;
+              buttonLabel?: T;
+              buttonLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        products?: T | ProductsBlockSelect<T>;
+        tiles?:
+          | T
+          | {
+              title?: T;
+              source?: T;
+              id?: T;
+              blockName?: T;
+            };
+        brands?: T | BrandsBlockSelect<T>;
+        posts?: T | PostsBlockSelect<T>;
+        consultation?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+              blockName?: T;
+            };
+        text?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
