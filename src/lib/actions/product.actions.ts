@@ -7,7 +7,7 @@ import { cache } from 'react';
 import type { Config, Product } from '@/payload-types';
 
 import type { ListingProduct } from '@/types';
-import { brandName, photos } from '@/lib/product-page';
+import { brandName, productPhotos } from '@/lib/product-page';
 
 // The storefront's reads of the catalog: published products only — the Local API skips access
 // control unless told not to (RULES.md) — in the page's language, with the Ukrainian fallback.
@@ -128,7 +128,7 @@ export async function getListingProducts(where: Where, locale: Locale) {
       availability: product.availability,
       madeToOrderDays: product.madeToOrderDays,
       shortDescription: product.shortDescription,
-      photo: photos(product.images)[0],
+      photo: productPhotos(product.images)[0],
     },
   })) satisfies ListingProduct[];
 }

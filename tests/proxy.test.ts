@@ -94,8 +94,9 @@ describe('the site password', () => {
     }
   });
 
-  // monobank's webhook carries its signature, not the password (src/lib/monobank.ts).
-  it("lets only monobank's webhook, its reconciliation and the parcels' tracking through without it", async () => {
+  // monobank's webhook carries its signature, not the password (src/lib/monobank.ts); next/image
+  // asks for a marked photo with none (src/lib/watermark.ts).
+  it("lets only monobank's webhook, its reconciliation, the parcels' tracking and the marked photos through without it", async () => {
     vi.stubEnv('SITE_PASSWORD', 'open-sesame-123');
     const send = (path: string, method: string) =>
       proxy(new NextRequest(`http://localhost${path}`, { method }));
@@ -103,7 +104,12 @@ describe('the site password', () => {
     expect((await send('/api/mono/webhook', 'POST')).status).not.toBe(401);
     expect((await send('/api/mono/reconcile', 'GET')).status).not.toBe(401);
     expect((await send('/api/np/track', 'GET')).status).not.toBe(401);
+    expect((await send('/api/photo/v1/7/a.jpg', 'GET')).status).not.toBe(401);
     for (const [path, method] of [
+      ['/api/photo/v1/7/a.jpg', 'POST'],
+      ['/en/api/photo/v1/7/a.jpg', 'GET'],
+      ['/api/photo', 'GET'],
+      ['/api/media/7', 'GET'],
       ['/api/np/track', 'POST'],
       ['/api/np/track/', 'GET'],
       ['/en/api/np/track', 'GET'],

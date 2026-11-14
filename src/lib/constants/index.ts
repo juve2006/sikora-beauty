@@ -154,6 +154,10 @@ export const DELIVERY_NOT_COLLECTED = ['102', '103', '105'];
 // Nova Poshta's API 2.0; NOVA_POSHTA_API_URL replaces it for the e2e tests' stub.
 export const NOVA_POSHTA_API = 'https://api.novaposhta.ua/v2.0/json/';
 
+// Product photos with the store's mark, a root endpoint under /api (src/lib/watermark.ts). Each is
+// cached for a year, so another mark is another version here.
+export const MARKED_PHOTOS = '/photo/v1';
+
 // The storefront's collections: a fixed list, each the product flag that puts a product in it.
 export const COLLECTIONS = {
   new: 'isNew',

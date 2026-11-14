@@ -18,8 +18,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
 - **Storefront** — `src/app/[locale]/` is its own root layout, beside `(payload)` and not
   above it: Payload's admin breaks under a `[locale]` segment (payload#10675). `src/proxy.ts`
   first asks for the site password until the launch (adr-20261029-site-password) — of every request
-  but monobank's webhook (adr-20261106-card-payment-on-monobanks-page) and the cron that reconciles
-  its invoices (adr-20261109-card-reconciliation) — then
+  but monobank's webhook (adr-20261106-card-payment-on-monobanks-page), the cron that reconciles
+  its invoices (adr-20261109-card-reconciliation) and a product's marked photo
+  (adr-20261113-product-photos-marked-when-shown) — then
   (next-intl) routes `uk` at `/` and `en` at `/en` and skips `/admin`, `/api`, `_next` and
   files. It never picks a language from the browser or a cookie: with detection on, `/`
   redirected an English browser to `/en` and the switcher could not get back; `src/i18n/request.ts` takes the locale from `next/root-params`; strings in
@@ -48,7 +49,9 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     the text colour of wherever it stands; the footer's carries YOUR BEAUTY EDIT under it. Its link is
     named by the words it shows, «ROSYNA SKIN», so a voice command finds it. A new artwork is traced
     again, not set in a font; the header's is at most 128 px wide on a phone, or the header breaks
-    into two lines at 360 px (task `rosyna-skin-name`).
+    into two lines at 360 px (task `rosyna-skin-name`). Its paths are `src/lib/wordmark.ts`, which
+    the mark on product photos draws too: a newly traced artwork changes that mark, so
+    `MARKED_PHOTOS` moves to `v2` with it.
   - The header: every page under `(shop)/` gets it from `(shop)/layout.tsx`. On top, `TopBar`, olive in
     both themes (`.top-bar` in `globals.css`): free delivery from `FREE_DELIVERY_FROM`, «Акції» (the
     admin's page `promotions`) and, from `sm`, the language and the theme; under it the logo, the menu
@@ -190,7 +193,12 @@ The walking skeleton: one Next.js 16 application with Payload 3 inside it, on Po
     site password closes to `next/image`'s own request (adr-20261029-site-password);
     `images.remotePatterns` admits only our store's host, read from `BLOB_READ_WRITE_TOKEN`.
     Locally photos stay on `/api/media/file/`. The move to R2 needs the same: public URLs, and
-    their host in `remotePatterns`.
+    their host in `remotePatterns`. A product's photos reach the storefront only through
+    `productPhotos()` (`src/lib/product-page.ts`) as `/api/photo/v1/<id>/<filename>`: a root endpoint
+    of Payload (`src/lib/watermark.ts`), past the site password and admitted by
+    `images.localPatterns`, fetches the original from its `url` and answers it with the store's mark,
+    cached for a year. A banner's and a text block's photo keep `photos()` and no mark; the admin and
+    the Merchant Center feed read the clean `url` (adr-20261113-product-photos-marked-when-shown).
   - A change the storefront can see calls `revalidatePath('/', 'layout')`; a draft save does not,
     and scripts pass `context.disableRevalidate` (outside a Next request it throws).
   - `npm run seed:catalog` creates the missing zones, categories, vocabularies and brands by slug,

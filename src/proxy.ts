@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { routing } from './i18n/routing';
+import { MARKED_PHOTOS } from '@/lib/constants';
 
 const intl = createMiddleware(routing);
 // Payload owns /admin and /api — whole segments, so a page's /administratsiia keeps its locale;
@@ -22,12 +23,15 @@ function hasPassword(request: NextRequest, password: string) {
 
 // monobank's webhook carries no password, only its signature, and the crons that reconcile its
 // invoices and track Nova Poshta's parcels only their secret, which the endpoints check before they
-// read anything (src/lib/monobank.ts, src/lib/novaposhta.ts): exactly these methods and paths pass
-// the gate.
+// read anything (src/lib/monobank.ts, src/lib/novaposhta.ts). next/image asks for a product's
+// marked photo with no password either; the photo is as public as its original in Blob
+// (src/lib/watermark.ts). Exactly these methods and paths pass the gate.
 const hasOwnCheck = ({ method, nextUrl: { pathname } }: NextRequest) =>
   (method === 'POST' && pathname === '/api/mono/webhook') ||
   (method === 'GET' &&
-    (pathname === '/api/mono/reconcile' || pathname === '/api/np/track'));
+    (pathname === '/api/mono/reconcile' ||
+      pathname === '/api/np/track' ||
+      pathname.startsWith(`/api${MARKED_PHOTOS}/`)));
 
 export default function proxy(request: NextRequest) {
   const password = process.env.SITE_PASSWORD;

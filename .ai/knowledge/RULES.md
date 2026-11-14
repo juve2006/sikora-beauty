@@ -74,11 +74,13 @@ Nothing below is built yet; "checked by" names the check each rule gets once cod
 - The store always has an owner: nobody changes their own role or deletes themselves.
   (adr-20261029-admin-roles; checked by: Vitest on `src/lib/access.ts`)
 - Until the launch every request to the production domain passes the site password, but
-  `POST /api/mono/webhook`, which its signature authenticates, and `GET /api/mono/reconcile` and
-  `GET /api/np/track`, which `CRON_SECRET` does; a Production build without `SITE_PASSWORD` fails, as
+  `POST /api/mono/webhook`, which its signature authenticates, `GET /api/mono/reconcile` and
+  `GET /api/np/track`, which `CRON_SECRET` does, and `GET /api/photo/v1/…`, a product's public photo
+  with the store's mark; a Production build without `SITE_PASSWORD` fails, as
   does one with `MONO_TOKEN` or `NOVA_POSHTA_SENDER_WAREHOUSE` and no `CRON_SECRET`.
   (adr-20261029-site-password, adr-20261106-card-payment-on-monobanks-page,
-  adr-20261109-card-reconciliation, adr-20261109-waybills-and-prepayment-only-start; checked by:
+  adr-20261109-card-reconciliation, adr-20261109-waybills-and-prepayment-only-start,
+  adr-20261113-product-photos-marked-when-shown; checked by:
   Vitest on `src/proxy.ts` and `src/lib/env.ts`)
 - A consultation request is created only by `requestConsultation`, after the form's Zod schema
   and Turnstile: no role creates one through REST or GraphQL, and no role changes what the shopper

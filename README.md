@@ -26,7 +26,8 @@ live; words of a medical claim are flagged as they are typed. Every admin user i
 deleting) or a cosmetologist («Косметолог»: fills in and publishes the catalog). The owner's
 «Інструменти → Імпорт» page brings Dr. Spiller, Instytutum and Braderm from cosmetika.com.ua as
 drafts with photos, texts and prices, and changes prices in bulk through a CSV. A published
-product has its page at `/product/<slug>` (`/en/product/<slug>`): photos, price, availability,
+product has its page at `/product/<slug>` (`/en/product/<slug>`): photos with the store's mark,
+added when a photo is shown (the upload stays as it was), price, availability,
 its texts, delivery and payment, related products and «Додати в кошик»; every product card — the
 brand, the name, the short description, the volume and the price — has «У кошик» too; delivery is free from
 3500 грн, which the strip over the header, the product page and the checkout say. The strip, olive

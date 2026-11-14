@@ -57,10 +57,11 @@ describe('product JSON-LD', () => {
       {
         id: 2,
         alt: 'Флакон',
+        filename: 'a.jpg',
         url: 'https://store.public.blob.vercel-storage.com/a.jpg',
       },
       3,
-      { id: 4, alt: 'Банка', url: '/api/media/file/b.jpg' },
+      { id: 4, alt: 'Банка', filename: 'b.jpg', url: '/api/media/file/b.jpg' },
     ],
     price: 124550,
     availability: 'made_to_order',
@@ -71,9 +72,10 @@ describe('product JSON-LD', () => {
     const ld = productJsonLd(product, url);
     expect(ld.url).toBe('https://sikora.example/en/product/syrovatka');
     expect(ld.brand).toEqual({ '@type': 'Brand', name: 'Dr.Spiller' });
+    // With the store's mark, as the page shows them (src/lib/watermark.ts).
     expect(ld.image).toEqual([
-      'https://store.public.blob.vercel-storage.com/a.jpg',
-      'https://sikora.example/api/media/file/b.jpg',
+      'https://sikora.example/api/photo/v1/2/a.jpg',
+      'https://sikora.example/api/photo/v1/4/b.jpg',
     ]);
     expect(ld.offers).toEqual({
       '@type': 'Offer',

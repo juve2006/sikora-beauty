@@ -1,4 +1,5 @@
 import type { Media, Product } from '@/payload-types';
+import { MARKED_PHOTOS } from '@/lib/constants';
 import { offerPrice } from '@/lib/utils';
 
 // What the product page derives from a product it read.
@@ -21,6 +22,24 @@ export function photos(
   );
 }
 
+// A product's photos as the storefront shows them: with the store's mark, by the endpoint in
+// src/lib/watermark.ts, which answers only a photo's current file name. A banner's or a text block's
+// photo takes `photos` and no mark.
+export function productPhotos(
+  images: Product['images'],
+): { url: string; alt: string }[] {
+  return populated<Media>(images).flatMap(({ id, filename, url, alt }) =>
+    url && filename
+      ? [
+          {
+            url: `/api${MARKED_PHOTOS}/${id}/${encodeURIComponent(filename)}`,
+            alt,
+          },
+        ]
+      : [],
+  );
+}
+
 // Deleting a brand leaves its products with none: the database sets the reference to null, which
 // the generated type does not admit.
 export function brandName(brand: Product['brand'] | null): string | null {
@@ -34,7 +53,7 @@ const availability = {
 } as const;
 
 // schema.org Product for search results: the price a shopper sees and whether they can get it.
-// `url` is the page's absolute address; a photo stored locally has a path, resolved against it.
+// `url` is the page's absolute address; a photo's is a path, resolved against it.
 export function productJsonLd(product: Product, url: URL) {
   const brand = brandName(product.brand);
   return {
@@ -43,7 +62,9 @@ export function productJsonLd(product: Product, url: URL) {
     name: product.name,
     description: product.shortDescription ?? undefined,
     url: url.href,
-    image: photos(product.images).map((photo) => new URL(photo.url, url).href),
+    image: productPhotos(product.images).map(
+      (photo) => new URL(photo.url, url).href,
+    ),
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     offers: {
       '@type': 'Offer',

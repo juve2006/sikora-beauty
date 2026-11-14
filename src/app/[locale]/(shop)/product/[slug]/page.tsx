@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import {
   brandName,
   jsonLdScript,
-  photos,
+  productPhotos,
   populated,
   productJsonLd,
 } from '@/lib/product-page';
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(slug, locale);
   if (!product) return {};
 
-  const [photo] = photos(product.images);
+  const [photo] = productPhotos(product.images);
   return {
     title: product.name,
     description: product.shortDescription ?? undefined,
@@ -105,7 +105,7 @@ const ProductPage = async ({ params }: Props) => {
     <>
       <main className="mx-auto w-full max-w-page flex-1 px-4 pb-16 sm:px-6">
         <div className="grid gap-8 pt-2 lg:grid-cols-2 lg:gap-12 lg:pt-8">
-          <ProductGallery photos={photos(product.images)} />
+          <ProductGallery photos={productPhotos(product.images)} />
 
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
@@ -254,7 +254,7 @@ const ProductPage = async ({ params }: Props) => {
                       ...item,
                       slug: item.slug ?? String(item.id),
                       brand: brandName(item.brand) ?? '',
-                      photo: photos(item.images)[0],
+                      photo: productPhotos(item.images)[0],
                     }}
                   />
                 </li>
