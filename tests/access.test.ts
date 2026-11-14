@@ -193,6 +193,30 @@ describe('catalog', () => {
     });
     expect(run(Products.access!.read, cosmetologist)).toBe(true);
   });
+
+  // No reader of the API lists the clean originals (task `media-api-staff-only`); the storefront
+  // still populates a product's photos, and a file still answers at its own address.
+  it('REST and GraphQL read photos for staff, the storefront and a file for anyone', () => {
+    const read = (
+      user: object | null,
+      payloadAPI: string,
+      isReadingStaticFile?: boolean,
+    ) =>
+      Media.access!.read!({
+        req: { user, payloadAPI },
+        isReadingStaticFile,
+      } as never);
+    for (const payloadAPI of ['REST', 'GraphQL'])
+      expect(
+        [owner, cosmetologist, shopper, null].map((user) =>
+          read(user, payloadAPI),
+        ),
+      ).toEqual([true, true, false, false]);
+    expect([read(null, 'local'), read(null, 'REST', true)]).toEqual([
+      true,
+      true,
+    ]);
+  });
 });
 
 // Shoppers' names and phones (AC-10…AC-12 of the task `consultation-request`).

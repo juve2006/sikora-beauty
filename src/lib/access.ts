@@ -48,6 +48,14 @@ export const staffOrBuyer: Access = ({ req: { user } }) =>
   (user?.collection === 'customers'
     ? { customer: { equals: user.id } }
     : false);
+// Photos: the storefront's Local API and a file's own address read them for anyone, REST and GraphQL
+// for staff only, so no reader of the API gets a product's clean original past the store's mark
+// (adr-20261114-media-api-staff-only). Not staff alone: Payload populates a product's photos with the
+// request's own access, and the storefront would get their ids.
+export const servedOrStaff: Access = ({ req, isReadingStaticFile }) =>
+  req.payloadAPI === 'local' ||
+  Boolean(isReadingStaticFile) ||
+  isStaff(req.user);
 
 export const ownerField: FieldAccess = ({ req: { user } }) => owner(user);
 // Nobody changes their own role. The id may come from a URL as a string.
